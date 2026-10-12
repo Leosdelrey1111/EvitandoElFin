@@ -1,0 +1,40 @@
+# Archivos generados automáticamente por Unity (NUNCA se deben subir)
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+/[Rr]ecordings/
+
+# Archivos de soluciones de IDE (Visual Studio, VS Code, Rider)
+.vs/
+.idea/
+.vscode/
+/*.csproj
+/*.unityproj
+/*.sln
+/*.suo
+/*.user
+/*.userprefs
+/*.pidb
+/*.booproj
+/*.svd
+/*.pdb
+/*.opendb
+/*.VC.db
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+sysinfo.txt
+*.stackdump
+crash_dumps/
+
+# Builds y paquetes empaquetados
+*.apk
+*.aab
+*.unitypackage
