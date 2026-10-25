@@ -5,10 +5,15 @@ using System.Collections;
 public class ChoferController : MonoBehaviour
 {
     [Header("Velocidades")]
-    public float velocidadCaminar = 4f;
-    public float velocidadCorrer = 6.5f;
+    public float velocidadCaminar = 4.5f;
+    public float velocidadCorrer = 7.0f;
     public float gravedad = -15f;
-    public float velocidadRotacion = 12f;
+    public float velocidadRotacion = 14f;
+
+    public enum ModoControl { RelativoACamara, LibreMundo }
+    [Header("Modo de Movimiento")]
+    [Tooltip("RelativoACamara: El Chofer avanza hacia donde apunta la cámara con el mouse (natural de acción/RPG). LibreMundo: Ejes globales X/Z.")]
+    public ModoControl modoControl = ModoControl.RelativoACamara;
 
     [Header("Esquive (Dodge Roll)")]
     public float fuerzaEsquive = 10f;
@@ -24,9 +29,23 @@ public class ChoferController : MonoBehaviour
     private Vector3 velocidadVertical;
     private Transform camaraTransform;
 
+    void Awake()
+    {
+        CentrarModeloVisual();
+    }
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        if (controller != null)
+        {
+            controller.center = Vector3.zero;
+            controller.height = 2f;
+            controller.radius = 0.5f;
+        }
+
+        CentrarModeloVisual();
+
         if (animator == null)
         {
             Animator[] anims = GetComponentsInChildren<Animator>();
@@ -43,9 +62,32 @@ public class ChoferController : MonoBehaviour
                 animator = anims[anims.Length - 1];
             }
         }
+
         if (Camera.main != null)
         {
             camaraTransform = Camera.main.transform;
+            CamaraTerceraPersona cam3ra = Camera.main.GetComponent<CamaraTerceraPersona>();
+            if (cam3ra == null)
+            {
+                cam3ra = Camera.main.gameObject.AddComponent<CamaraTerceraPersona>();
+            }
+            cam3ra.objetivo = transform;
+        }
+    }
+
+    /// <summary>
+    /// Elimina cualquier desfase en X o Z del modelo hijo para que rote sobre su propio cuerpo
+    /// y no gire orbitando como satélite alrededor de un eje central.
+    /// </summary>
+    public void CentrarModeloVisual()
+    {
+        foreach (Transform hijo in transform)
+        {
+            if (hijo != transform && (hijo.GetComponentInChildren<Animator>() != null || hijo.name.ToLower().Contains("chofer")))
+            {
+                hijo.localPosition = new Vector3(0f, -1f, 0f);
+                hijo.localRotation = Quaternion.identity;
+            }
         }
     }
 
@@ -60,39 +102,76 @@ public class ChoferController : MonoBehaviour
 
     void ProcesarMovimiento()
     {
+        // Lectura de entrada con soporte directo para WASD y flechas
         float h = Input.GetAxisRaw("Horizontal");
         float v = Input.GetAxisRaw("Vertical");
-        Vector3 direccionEntrada = new Vector3(h, 0f, v).normalized;
+
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) h = -1f;
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) h = 1f;
+
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) v = 1f;
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) v = -1f;
+
+        Vector3 direccionEntrada = new Vector3(h, 0f, v);
+        if (direccionEntrada.sqrMagnitude > 1f)
+        {
+            direccionEntrada.Normalize();
+        }
+
         float objetivoVelocidad = 0f;
 
-        if (direccionEntrada.magnitude >= 0.1f)
+        if (direccionEntrada.sqrMagnitude >= 0.01f)
         {
-            // Moverse relativo hacia donde apunta la cámara
-            Vector3 forwardCam = camaraTransform != null ? camaraTransform.forward : Vector3.forward;
-            Vector3 rightCam = camaraTransform != null ? camaraTransform.right : Vector3.right;
-            forwardCam.y = 0;
-            rightCam.y = 0;
-            forwardCam.Normalize();
-            rightCam.Normalize();
+            Vector3 direccionMovimiento;
 
-            Vector3 direccionMovimiento = (forwardCam * v + rightCam * h).normalized;
+            if (modoControl == ModoControl.LibreMundo)
+            {
+                // Movimiento libre en los ejes del mundo (W = +Z, S = -Z, A = -X, D = +X)
+                direccionMovimiento = direccionEntrada;
+            }
+            else
+            {
+                // Moverse relativo hacia donde apunta la cámara
+                Transform cam = camaraTransform != null ? camaraTransform : (Camera.main != null ? Camera.main.transform : null);
+                if (cam != null)
+                {
+                    Vector3 forwardCam = cam.forward;
+                    Vector3 rightCam = cam.right;
+                    forwardCam.y = 0;
+                    rightCam.y = 0;
 
-            // Rotar suavemente hacia la dirección de movimiento
-            Quaternion rotacionObjetivo = Quaternion.LookRotation(direccionMovimiento);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
+                    if (forwardCam.sqrMagnitude < 0.001f) forwardCam = Vector3.forward;
+                    if (rightCam.sqrMagnitude < 0.001f) rightCam = Vector3.right;
 
-            // Determinar si corre o camina
-            bool corriendo = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            float velocidadActual = corriendo ? velocidadCorrer : velocidadCaminar;
+                    forwardCam.Normalize();
+                    rightCam.Normalize();
 
-            controller.Move(direccionMovimiento * velocidadActual * Time.deltaTime);
+                    direccionMovimiento = (forwardCam * v + rightCam * h).normalized;
+                }
+                else
+                {
+                    direccionMovimiento = direccionEntrada;
+                }
+            }
 
-            objetivoVelocidad = corriendo ? 2f : 1f;
+            if (direccionMovimiento.sqrMagnitude >= 0.001f)
+            {
+                // Rotar suavemente hacia la dirección de movimiento
+                Quaternion rotacionObjetivo = Quaternion.LookRotation(direccionMovimiento);
+                transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
+
+                // Determinar si corre o camina
+                bool corriendo = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                float velocidadActual = corriendo ? velocidadCorrer : velocidadCaminar;
+
+                controller.Move(direccionMovimiento * velocidadActual * Time.deltaTime);
+                objetivoVelocidad = corriendo ? 2f : 1f;
+            }
         }
 
         if (animator != null)
         {
-            // Amortiguación suave (dampTime) para mezclar transiciones con fluidez profesional
+            // Amortiguación suave para transiciones de animación
             animator.SetFloat("Velocidad", objetivoVelocidad, 0.15f, Time.deltaTime);
         }
     }
