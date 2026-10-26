@@ -11,21 +11,21 @@ public class TotemColeccionable : MonoBehaviour
     public float amplitudFlotacion = 0.25f;
     public float frecuenciaFlotacion = 2f;
 
-    private Vector3 posicionInicial;
+    private Vector3 posicionInicialLocal;
 
     void Start()
     {
-        posicionInicial = transform.position;
+        posicionInicialLocal = transform.localPosition;
     }
 
     void Update()
     {
-        // Giro constante sobre su propio eje Y
-        transform.Rotate(Vector3.up, velocidadRotacion * Time.deltaTime, Space.World);
+        // Giro constante sobre su propio eje local Y (para no orbitar)
+        transform.Rotate(Vector3.up, velocidadRotacion * Time.deltaTime, Space.Self);
 
         // Flotación suave arriba y abajo (estilo místico)
-        float nuevoY = posicionInicial.y + Mathf.Sin(Time.time * frecuenciaFlotacion) * amplitudFlotacion;
-        transform.position = new Vector3(transform.position.x, nuevoY, transform.position.z);
+        float nuevoY = posicionInicialLocal.y + Mathf.Sin(Time.time * frecuenciaFlotacion) * amplitudFlotacion;
+        transform.localPosition = new Vector3(posicionInicialLocal.x, nuevoY, posicionInicialLocal.z);
     }
 
     void OnTriggerEnter(Collider other)

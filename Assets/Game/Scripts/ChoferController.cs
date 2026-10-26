@@ -22,6 +22,13 @@ public class ChoferController : MonoBehaviour
     private bool puedeEsquivar = true;
     private bool estaEsquivando = false;
 
+    [Header("Estado Aturdido (Despertar del alma)")]
+    [Tooltip("Si es true, el Chofer no responde al input (solo gravedad).")]
+    public bool controlBloqueado = false;
+    [Tooltip("0 = normal, 1 = muy confundido: camina más lento y se desvía como mareado.")]
+    [Range(0f, 1f)]
+    public float confusion = 0f;
+
     [Header("Animación")]
     public Animator animator;
 
@@ -96,6 +103,13 @@ public class ChoferController : MonoBehaviour
         if (estaEsquivando) return;
 
         AplicarGravedad();
+
+        if (controlBloqueado)
+        {
+            if (animator != null) animator.SetFloat("Velocidad", 0f, 0.15f, Time.deltaTime);
+            return;
+        }
+
         ProcesarMovimiento();
         ProcesarEsquive();
     }
@@ -156,13 +170,21 @@ public class ChoferController : MonoBehaviour
 
             if (direccionMovimiento.sqrMagnitude >= 0.001f)
             {
+                // Aturdimiento: la dirección se desvía con una oscilación lenta (mareo)
+                if (confusion > 0.01f)
+                {
+                    float desvio = Mathf.Sin(Time.time * 2.3f) * 38f * confusion;
+                    direccionMovimiento = Quaternion.Euler(0f, desvio, 0f) * direccionMovimiento;
+                }
+
                 // Rotar suavemente hacia la dirección de movimiento
                 Quaternion rotacionObjetivo = Quaternion.LookRotation(direccionMovimiento);
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
 
-                // Determinar si corre o camina
-                bool corriendo = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                // Determinar si corre o camina (no se puede correr aturdido)
+                bool corriendo = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && confusion < 0.3f;
                 float velocidadActual = corriendo ? velocidadCorrer : velocidadCaminar;
+                velocidadActual *= Mathf.Lerp(1f, 0.45f, confusion);
 
                 controller.Move(direccionMovimiento * velocidadActual * Time.deltaTime);
                 objetivoVelocidad = corriendo ? 2f : 1f;
