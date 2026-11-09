@@ -12,6 +12,7 @@ public class HUDEspiritual : MonoBehaviour
     public Slider sliderPoderEspiritual;
     public TextMeshProUGUI textoTotems;
     public TextMeshProUGUI textoRecuerdos;
+    public TextMeshProUGUI textoObjetivo;
 
     void Start()
     {
@@ -42,6 +43,25 @@ public class HUDEspiritual : MonoBehaviour
             inventarioChofer.OnCambioTotems += ActualizarTextoTotems;
             inventarioChofer.OnRecuerdoObtenido += NotificarRecuerdo;
         }
+
+        ActualizarObjetivoUI();
+    }
+
+    void ActualizarObjetivoUI()
+    {
+        if (textoObjetivo != null && GameManager.Instancia != null)
+        {
+            int totemsReq = GameManager.Instancia.totemsRequeridos;
+            int actual = inventarioChofer != null ? inventarioChofer.cantidadTotems : 0;
+            if (actual >= totemsReq)
+            {
+                textoObjetivo.text = "<color=#00FFAA>¡Portal Desbloqueado! Ve a la salida.</color>";
+            }
+            else
+            {
+                textoObjetivo.text = $"Objetivo: Reúne los tótems ({actual}/{totemsReq})";
+            }
+        }
     }
 
     void ActualizarBarraVida(float nuevaVida)
@@ -58,6 +78,7 @@ public class HUDEspiritual : MonoBehaviour
         {
             textoTotems.text = $"Tótems: {totalTotems}";
         }
+        ActualizarObjetivoUI();
     }
 
     void NotificarRecuerdo(string nombreRecuerdo)
