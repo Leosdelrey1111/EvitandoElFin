@@ -38,6 +38,13 @@ public class CamaraTerceraPersona : MonoBehaviour
     private float distanciaActual;
     private Vector3 posicionSuavizada;
 
+    [Header("Efectos (mareo / cinemáticas)")]
+    [Tooltip("Inclinación lateral extra de la cámara en grados (se usa para el mareo).")]
+    public float rollExtra = 0f;
+    [Tooltip("Variación extra del campo de visión.")]
+    public float fovExtra = 0f;
+    private float fovBase = -1f;
+
     void Awake()
     {
         // Si hay CinemachineBrain en la cámara, desactivarlo para que este script tenga el control fluido
@@ -70,6 +77,12 @@ public class CamaraTerceraPersona : MonoBehaviour
 
     void Update()
     {
+        // Si el juego está pausado (Time.timeScale == 0), no interceptar ni bloquear el cursor
+        if (Time.timeScale == 0f)
+        {
+            return;
+        }
+
         // Liberar cursor al presionar Escape o Alt, bloquear al hacer click
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.LeftAlt))
         {
@@ -101,10 +114,23 @@ public class CamaraTerceraPersona : MonoBehaviour
         }
 
         // 2. Calcular rotación orbital
-        Quaternion rotacionObjetivo = Quaternion.Euler(rotacionY, rotacionX, 0f);
+        Quaternion rotacionObjetivo = Quaternion.Euler(rotacionY, rotacionX, rollExtra);
+
+        Camera camComp = GetComponent<Camera>();
+        if (camComp != null)
+        {
+            if (fovBase < 0f) fovBase = camComp.fieldOfView;
+            camComp.fieldOfView = fovBase + fovExtra;
+        }
 
         // 3. Punto de mira (centro del Chofer)
         Vector3 puntoPivote = objetivo.position + desplazamientoObjetivo;
+
+        // Si otro script (como la transición de 1ra a 3ra persona) cambió 'distancia', actualizar distanciaDeseada
+        if (Mathf.Abs(distancia - distanciaDeseada) > 0.05f)
+        {
+            distanciaDeseada = distancia;
+        }
 
         // 4. Prevenir colisión con montañas o terreno
         float distanciaFinal = distanciaDeseada;

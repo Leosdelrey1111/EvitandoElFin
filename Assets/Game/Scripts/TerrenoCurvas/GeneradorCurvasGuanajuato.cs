@@ -43,6 +43,9 @@ public class GeneradorCurvasGuanajuato : MonoBehaviour
     [Header("Puntos de Control de la Sierra (Curvas de Guanajuato)")]
     public List<Vector3> puntosDeControl = new List<Vector3>();
 
+    [System.NonSerialized]
+    public List<PuntoRuta> rutaGenerada = new List<PuntoRuta>();
+
     // Contenedores internos
     private GameObject contenedorCarretera;
     private GameObject contenedorBarreras;
@@ -102,6 +105,7 @@ public class GeneradorCurvasGuanajuato : MonoBehaviour
         // 1. Muestrear la curva Catmull-Rom con peralte real
         List<PuntoRuta> ruta = MuestrearCurvaCatmullRom();
         if (ruta.Count < 2) return;
+        rutaGenerada = ruta;
 
         // 2. Construir la Malla Maestra de Asfalto, Acotamientos y Cuneta (Superficie Única Continua)
         ConstruirMallaCarretera(ruta);
@@ -234,7 +238,90 @@ public class GeneradorCurvasGuanajuato : MonoBehaviour
         return puntos;
     }
 
-    private Vector3 ObtenerPuntoCatmullRom(int tramo, float t)
+    public int ObtenerTotalTramos()
+    {
+        if (puntosDeControl == null || puntosDeControl.Count < 4) return 0;
+        return puntosDeControl.Count - 3;
+    }
+
+    /// <summary>
+    /// Evalúa posición, rotación completa (inclinación longitudinal y peralte transversal en curvas),
+    /// y vectores de dirección en el espacio de mundo para cualquier punto (s) y carril (offsetLateral).
+    /// </summary>
+    public bool EvaluarRutaCompleta(
+        float progresoTramos,
+        float desplazamientoLateral,
+        out Vector3 posMundo,
+        out Quaternion rotMundo,
+        out Vector3 fwdMundo,
+        out Vector3 upMundo,
+        out Vector3 rightMundo)
+    {
+        if (puntosDeControl == null || puntosDeControl.Count < 4)
+        {
+            InicializarCurvasDeGuanajuato();
+        }
+
+        int numTramos = puntosDeControl.Count - 3;
+        float sClamped = Mathf.Clamp(progresoTramos, 0f, Mathf.Max(0.001f, (float)numTramos - 0.0001f));
+        int tramo = Mathf.Clamp(Mathf.FloorToInt(sClamped), 0, numTramos - 1);
+        float t = Mathf.Clamp01(sClamped - tramo);
+
+        Vector3 posLocal = ObtenerPuntoCatmullRom(tramo, t);
+        Vector3 tanLocal = ObtenerTangenteCatmullRom(tramo, t).normalized;
+        if (tanLocal.sqrMagnitude < 0.0001f) tanLocal = Vector3.forward;
+
+        // Curvatura instantánea para inclinar el vehículo con el peralte de la sierra
+        Vector3 sigTan = ObtenerTangenteCatmullRom(tramo, Mathf.Clamp01(t + 0.04f)).normalized;
+        Vector3 cruz = Vector3.Cross(tanLocal, sigTan);
+        float curvatura = cruz.y * 20f;
+
+        Vector3 upLocal = Vector3.up;
+        Vector3 rightLocal = Vector3.Cross(upLocal, tanLocal).normalized;
+
+        if (factorPeralte > 0f)
+        {
+            float anguloPeralte = Mathf.Clamp(curvatura * factorPeralte, -12f, 12f);
+            Quaternion rotPeralte = Quaternion.AngleAxis(anguloPeralte, tanLocal);
+            rightLocal = rotPeralte * rightLocal;
+            upLocal = rotPeralte * upLocal;
+        }
+
+        // 0.05f coincide con el centro del asfalto generado en ConstruirMallaCarretera
+        Vector3 puntoConCarril = posLocal + rightLocal * desplazamientoLateral + upLocal * 0.05f;
+
+        posMundo = transform.TransformPoint(puntoConCarril);
+        fwdMundo = transform.TransformDirection(tanLocal).normalized;
+        upMundo = transform.TransformDirection(upLocal).normalized;
+        rightMundo = transform.TransformDirection(rightLocal).normalized;
+
+        rotMundo = Quaternion.LookRotation(fwdMundo, upMundo);
+        return true;
+    }
+
+    public Vector3 EvaluarPosicionMundo(float progresoTramos, float desplazamientoLateral)
+    {
+        Vector3 pos, fwd, up, right;
+        Quaternion rot;
+        if (EvaluarRutaCompleta(progresoTramos, desplazamientoLateral, out pos, out rot, out fwd, out up, out right))
+        {
+            return pos;
+        }
+        return Vector3.zero;
+    }
+
+    public Vector3 EvaluarAdelanteMundo(float progresoTramos)
+    {
+        Vector3 pos, fwd, up, right;
+        Quaternion rot;
+        if (EvaluarRutaCompleta(progresoTramos, 0f, out pos, out rot, out fwd, out up, out right))
+        {
+            return fwd;
+        }
+        return Vector3.forward;
+    }
+
+    public Vector3 ObtenerPuntoCatmullRom(int tramo, float t)
     {
         Vector3 p0 = puntosDeControl[tramo];
         Vector3 p1 = puntosDeControl[tramo + 1];
@@ -252,7 +339,7 @@ public class GeneradorCurvasGuanajuato : MonoBehaviour
         );
     }
 
-    private Vector3 ObtenerTangenteCatmullRom(int tramo, float t)
+    public Vector3 ObtenerTangenteCatmullRom(int tramo, float t)
     {
         Vector3 p0 = puntosDeControl[tramo];
         Vector3 p1 = puntosDeControl[tramo + 1];
