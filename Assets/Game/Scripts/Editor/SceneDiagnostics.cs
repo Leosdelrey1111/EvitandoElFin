@@ -99,7 +99,7 @@ public static class SceneDiagnostics
         }
 
         // 4. Diagnóstico de Tótems y Portal
-        TotemColeccionable[] totems = Object.FindObjectsByType<TotemColeccionable>(FindObjectsSortMode.None);
+        TotemColeccionable[] totems = Object.FindObjectsByType<TotemColeccionable>();
         Debug.Log($"[Diagnóstico] Tótems en el nivel: {totems.Length} {(totems.Length >= 3 ? "✅" : "⚠️ (Recomendado mínimo 3)")}");
 
         PortalVictoria portal = Object.FindAnyObjectByType<PortalVictoria>();
@@ -114,7 +114,7 @@ public static class SceneDiagnostics
         }
 
         // 5. Diagnóstico de Esbirros
-        EsbirroBaseIA[] esbirros = Object.FindObjectsByType<EsbirroBaseIA>(FindObjectsSortMode.None);
+        EsbirroBaseIA[] esbirros = Object.FindObjectsByType<EsbirroBaseIA>();
         Debug.Log($"[Diagnóstico] Esbirros enemigos en el nivel: {esbirros.Length} {(esbirros.Length > 0 ? "✅" : "⚠️ (No hay enemigos)")}");
 
         Debug.Log("================ DIAGNÓSTICO COMPLETADO ================");
