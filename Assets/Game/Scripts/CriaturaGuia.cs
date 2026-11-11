@@ -39,25 +39,55 @@ public class CriaturaGuia : MonoBehaviour
         }
     }
 
+    [Header("Narrador / Pista")]
+    [Tooltip("Si no es null, el alebrije vuela hacia ese objetivo para indicar el camino (lo asigna GuiaAlebrije).")]
+    public Transform apuntarA;
+    [Tooltip("Lo activa GuiaAlebrije mientras habla: la luz brilla más y el alebrije late.")]
+    public bool hablando;
+    public float distanciaPista = 4.5f;
+
+    private float brilloActual = 1f;
+    private Vector3 escalaBase;
+    private bool escalaGuardada;
+
     void LateUpdate()
     {
         if (objetivoChofer == null) return;
+        if (!escalaGuardada) { escalaBase = transform.localScale; escalaGuardada = true; }
 
-        // Calcular posición objetivo relativa al Chofer
-        Vector3 posicionDeseada = objetivoChofer.position 
-            + objetivoChofer.right * desplazamiento.x 
-            + Vector3.up * desplazamiento.y 
-            + objetivoChofer.forward * desplazamiento.z;
+        Vector3 posicionDeseada;
+        Quaternion rotacionDeseada;
+
+        if (apuntarA != null)
+        {
+            // Pista: se adelanta hacia el objetivo, a la altura de los ojos
+            Vector3 hacia = apuntarA.position - objetivoChofer.position; hacia.y = 0f;
+            if (hacia.sqrMagnitude < 0.01f) hacia = objetivoChofer.forward;
+            hacia.Normalize();
+            posicionDeseada = objetivoChofer.position + hacia * distanciaPista + Vector3.up * 2.4f;
+            rotacionDeseada = Quaternion.LookRotation(hacia);
+        }
+        else
+        {
+            // Posición relativa al Chofer (flotando sobre el hombro)
+            posicionDeseada = objetivoChofer.position
+                + objetivoChofer.right * desplazamiento.x
+                + Vector3.up * desplazamiento.y
+                + objetivoChofer.forward * desplazamiento.z;
+            rotacionDeseada = Quaternion.LookRotation(objetivoChofer.forward);
+        }
 
         // Efecto ondulante de vuelo
-        float balanceo = Mathf.Sin(Time.time * velocidadFlotacion) * alturaFlotacion;
-        posicionDeseada.y += balanceo;
+        posicionDeseada.y += Mathf.Sin(Time.time * velocidadFlotacion) * alturaFlotacion;
 
         // Movimiento amortiguado
         transform.position = Vector3.Lerp(transform.position, posicionDeseada, suavizadoSeguimiento * Time.deltaTime);
-
-        // Mirar suavemente hacia donde mira el Chofer o hacia donde camina
-        Quaternion rotacionDeseada = Quaternion.LookRotation(objetivoChofer.forward);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotacionDeseada, suavizadoSeguimiento * Time.deltaTime);
+
+        // Brillo y latido al hablar
+        brilloActual = Mathf.MoveTowards(brilloActual, hablando ? 1.7f : 1f, 3f * Time.deltaTime);
+        if (luzEspiritual != null) luzEspiritual.intensity = intensidadLuz * brilloActual;
+        float latido = hablando ? 1f + Mathf.Sin(Time.time * 11f) * 0.06f : 1f;
+        transform.localScale = escalaBase * latido;
     }
 }
