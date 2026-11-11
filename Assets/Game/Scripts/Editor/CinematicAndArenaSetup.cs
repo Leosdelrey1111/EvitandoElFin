@@ -11,16 +11,11 @@ public static class CinematicAndArenaSetup
     [MenuItem("EvitandoElFin/5. Montar Cinemática del Accidente (escena de la carretera)")]
     public static void MontarCinematica()
     {
-        // 1. Limpiar objetos de versiones anteriores o UIs residuales
-        BorrarSiExiste("Camion_Cinematica");
-        BorrarSiExiste("Ambulancia_Rescate");
-        BorrarSiExiste("ManagerCinematica");
-        BorrarSiExiste("Arena_Espiritual_Nivel1");
-        BorrarSiExiste("Canvas_Gameplay");
-        BorrarSiExiste("TextoNarrativo");
-        BorrarSiExiste("PanelFadeNegro");
-        BorrarSiExiste("HUD_Espiritual");
-        BorrarSiExiste("ManagerUI_Gameplay");
+        if (!ReparadorEscenas.AsegurarEscenaCinematica()) return;
+
+        // 1. Limpiar la escena: duplicados (también inactivos), extras de gameplay, terreno tapando la carretera y atmósfera nocturna
+        string informe = EscenaCarreteraSetup.Preparar();
+        Debug.Log("<color=#00FFAA>[Cinemática] Limpieza de la escena de la carretera:</color>\n" + informe);
 
         // 2. Normalizar la carretera (GeneradorCurvasGuanajuato) en el origen del mundo
         var gen = Object.FindAnyObjectByType<GeneradorCurvasGuanajuato>();
@@ -56,7 +51,9 @@ public static class CinematicAndArenaSetup
         cin.sirenaAzul = azul;
         cin.sirenaRoja = roja;
         cin.generadorCarretera = gen;
-        cin.escenaNivel1 = "Nivel1_Limbo";
+        cin.escenaNivel1 = "Nivel1_Bosque";
+        cin.forzarNoche = true;
+        cin.materialCieloNoche = EscenaCarreteraSetup.CargarCieloNoche();
 
         var chofer = Object.FindAnyObjectByType<ChoferController>(FindObjectsInactive.Include);
         if (chofer != null) cin.choferJugador = chofer.gameObject;
@@ -68,14 +65,16 @@ public static class CinematicAndArenaSetup
             cin.camaraJugadorScript = cam.GetComponent<CamaraTerceraPersona>();
         }
 
-        bool nivelExiste = AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/Scenes/Nivel1_Limbo.unity") != null;
+        informe += "\n" + CinematicaMejoradaSetup.Configurar(cin);
+
+        bool nivelExiste = AssetDatabase.LoadAssetAtPath<SceneAsset>("Assets/Scenes/Nivel1_Bosque.unity") != null;
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
         Debug.Log("<color=#00FFAA>[Cinemática] ¡Camión, ambulancia y manager montados con éxito!</color>");
         EditorUtility.DisplayDialog("Evitando El Fin",
-            "Cinemática montada con éxito en esta escena.\n\n" +
-            (nivelExiste ? "Nivel1_Limbo ya existe en el proyecto. ¡Dale Play a la escena para disfrutar la cinemática!"
-                         : "Aviso: Ejecuta 'EvitandoElFin > 6. Crear Escena Nivel1_Limbo' para que la transición funcione al terminar la cinemática."),
+            "Escena de la carretera limpia y lista (de noche).\n\n" + informe + "\n" +
+            (nivelExiste ? "Nivel1_Bosque existe. Guarda la escena (Ctrl+S) y dale Play."
+                         : "Aviso: ejecuta 'EvitandoElFin > 6. Crear Nivel 1 (Sierra de Guanajuato)' para que la transición al final de la cinemática funcione."),
             "Entendido");
     }
 
@@ -169,6 +168,30 @@ public static class CinematicAndArenaSetup
         Parte("Faro_I", PrimitiveType.Sphere, root.transform, new Vector3(-0.85f, 1.1f, 4.62f), new Vector3(0.35f, 0.3f, 0.2f), luz);
         Parte("Faro_D", PrimitiveType.Sphere, root.transform, new Vector3(0.85f, 1.1f, 4.62f), new Vector3(0.35f, 0.3f, 0.2f), luz);
 
+        // ---- DETALLES: espejos, escapes, guardafangos, loderas, luces de marcha, placa, limpiaparabrisas
+        Material cromo = Mat(new Color(0.8f, 0.82f, 0.86f), 0.9f, 0.9f);
+        Material ambar = Mat(new Color(1f, 0.6f, 0.05f), 0f, 0.8f);
+        if (ambar.HasProperty("_EmissionColor")) { ambar.EnableKeyword("_EMISSION"); ambar.SetColor("_EmissionColor", new Color(2.4f, 1.1f, 0.1f)); }
+        Material placa = Mat(new Color(0.95f, 0.95f, 0.9f), 0f, 0.5f);
+
+        foreach (float lado in new[] { -1f, 1f })
+        {
+            Parte("EspejoBrazo", PrimitiveType.Cube, root.transform, new Vector3(1.35f * lado, 2.45f, 3.45f), new Vector3(0.3f, 0.04f, 0.04f), negro);
+            Parte("Espejo", PrimitiveType.Cube, root.transform, new Vector3(1.55f * lado, 2.45f, 3.5f), new Vector3(0.08f, 0.5f, 0.26f), negro);
+            Parte("Escape", PrimitiveType.Cylinder, root.transform, new Vector3(1.0f * lado, 3.3f, 1.75f), new Vector3(0.13f, 1.3f, 0.13f), cromo);
+            Parte("EscapePunta", PrimitiveType.Cylinder, root.transform, new Vector3(1.0f * lado, 4.62f, 1.75f), new Vector3(0.17f, 0.05f, 0.17f), negro);
+            Parte("Guardafango", PrimitiveType.Cube, root.transform, new Vector3(1.38f * lado, 1.02f, 3.5f), new Vector3(0.45f, 0.07f, 1.35f), rojo);
+            Parte("GuardafangoTras", PrimitiveType.Cube, root.transform, new Vector3(1.38f * lado, 0.98f, -2.45f), new Vector3(0.5f, 0.07f, 2.9f), negro);
+            Parte("Lodera", PrimitiveType.Cube, root.transform, new Vector3(1.2f * lado, 0.34f, -5.15f), new Vector3(0.55f, 0.45f, 0.03f), negro);
+            Parte("Limpia", PrimitiveType.Cube, root.transform, new Vector3(0.45f * lado, 2.0f, 3.76f), new Vector3(0.04f, 0.8f, 0.03f), negro, new Vector3(0f, 0f, 14f * lado));
+            foreach (float z in new[] { -5.0f, -3.4f, -1.8f, -0.2f })
+                Parte("LuzMarcha", PrimitiveType.Cube, root.transform, new Vector3(1.32f * lado, 1.0f, z), new Vector3(0.05f, 0.08f, 0.2f), ambar);
+        }
+        foreach (float x in new[] { -0.6f, 0f, 0.6f })
+            Parte("LuzTecho", PrimitiveType.Cube, root.transform, new Vector3(x, 3.08f, 3.0f), new Vector3(0.28f, 0.1f, 0.14f), ambar);
+        Parte("Placa", PrimitiveType.Cube, root.transform, new Vector3(0f, 0.62f, -5.64f), new Vector3(0.52f, 0.2f, 0.03f), placa);
+        Parte("Antena", PrimitiveType.Cylinder, root.transform, new Vector3(-1.05f, 3.4f, 2.1f), new Vector3(0.025f, 0.85f, 0.025f), negro);
+
         GameObject luzFaros = new GameObject("LuzFaros");
         luzFaros.transform.SetParent(root.transform, false);
         luzFaros.transform.localPosition = new Vector3(0f, 1.1f, 4.7f);
@@ -218,6 +241,31 @@ public static class CinematicAndArenaSetup
         // Sirenas luminosas en el techo
         Parte("SirenaAzulVisual", PrimitiveType.Cube, root.transform, new Vector3(-0.5f, 2.95f, 1.6f), new Vector3(0.7f, 0.18f, 0.25f), matAzul);
         Parte("SirenaRojaVisual", PrimitiveType.Cube, root.transform, new Vector3(0.5f, 2.95f, 1.6f), new Vector3(0.7f, 0.18f, 0.25f), matRoja);
+
+        // ---- DETALLES: barra de luces, faros, luces traseras, espejos, estrella de la vida, parrilla y placa
+        Material estrella = Mat(new Color(0.1f, 0.35f, 0.95f), 0f, 0.7f);
+        Material faroMat = Mat(new Color(1f, 0.95f, 0.78f), 0f, 0.9f);
+        if (faroMat.HasProperty("_EmissionColor")) { faroMat.EnableKeyword("_EMISSION"); faroMat.SetColor("_EmissionColor", new Color(2f, 1.8f, 1.2f)); }
+        Material traseraMat = Mat(new Color(0.85f, 0.05f, 0.05f), 0f, 0.8f);
+        if (traseraMat.HasProperty("_EmissionColor")) { traseraMat.EnableKeyword("_EMISSION"); traseraMat.SetColor("_EmissionColor", new Color(1.6f, 0.1f, 0.1f)); }
+        Material limon = Mat(new Color(0.8f, 1f, 0.1f), 0f, 0.8f);
+        if (limon.HasProperty("_EmissionColor")) { limon.EnableKeyword("_EMISSION"); limon.SetColor("_EmissionColor", new Color(0.6f, 0.9f, 0.05f)); }
+
+        Parte("BarraLuces", PrimitiveType.Cube, root.transform, new Vector3(0f, 2.86f, 1.6f), new Vector3(1.7f, 0.1f, 0.36f), negro);
+        Parte("Parrilla", PrimitiveType.Cube, root.transform, new Vector3(0f, 0.95f, 3.14f), new Vector3(1.5f, 0.35f, 0.06f), negro);
+        Parte("Placa", PrimitiveType.Cube, root.transform, new Vector3(0f, 0.55f, -2.72f), new Vector3(0.5f, 0.18f, 0.03f), Mat(new Color(0.95f, 0.95f, 0.9f), 0f, 0.5f));
+        foreach (float lado in new[] { -1f, 1f })
+        {
+            Parte("Faro", PrimitiveType.Sphere, root.transform, new Vector3(0.82f * lado, 0.85f, 3.12f), new Vector3(0.3f, 0.26f, 0.15f), faroMat);
+            Parte("LuzTrasera", PrimitiveType.Cube, root.transform, new Vector3(1.05f * lado, 1.35f, -2.72f), new Vector3(0.18f, 0.5f, 0.05f), traseraMat);
+            Parte("Espejo", PrimitiveType.Cube, root.transform, new Vector3(1.4f * lado, 1.75f, 2.65f), new Vector3(0.08f, 0.42f, 0.22f), negro);
+            Parte("EspejoBrazo", PrimitiveType.Cube, root.transform, new Vector3(1.28f * lado, 1.75f, 2.65f), new Vector3(0.24f, 0.04f, 0.04f), negro);
+            // estrella de la vida (cruz azul con barras) y franja fluorescente
+            Parte("EstrellaH", PrimitiveType.Cube, root.transform, new Vector3(1.22f * lado, 1.75f, -1.75f), new Vector3(0.04f, 0.1f, 0.6f), estrella);
+            Parte("EstrellaV", PrimitiveType.Cube, root.transform, new Vector3(1.22f * lado, 1.75f, -1.75f), new Vector3(0.04f, 0.6f, 0.1f), estrella);
+            Parte("FranjaFluor", PrimitiveType.Cube, root.transform, new Vector3(1.215f * lado, 0.95f, -0.6f), new Vector3(0.03f, 0.12f, 4.2f), limon);
+        }
+        Parte("PuertasTraseras", PrimitiveType.Cube, root.transform, new Vector3(0f, 1.6f, -2.71f), new Vector3(0.03f, 2.3f, 0.03f), negro);
 
         GameObject sA = new GameObject("SirenaAzul");
         sA.transform.SetParent(root.transform, false);
