@@ -1,0 +1,44 @@
+{
+    "pares": [
+        {
+            "clip": "Running",
+            "tipo": "Run"
+        },
+        {
+            "clip": "Walking",
+            "tipo": "Walk"
+        },
+        {
+            "clip": "_01a18413_5da9_76ab_aab1_87740a0c9e4e",
+            "tipo": "Atacar3"
+        },
+        {
+            "clip": "_01a18414_8ac9_7562_bc00_93f3da064557",
+            "tipo": "AtaqueArea"
+        },
+        {
+            "clip": "_01a18416_0621_72ca_9483_e7bd33c2179c",
+            "tipo": "Golpeado"
+        },
+        {
+            "clip": "_01a18416_bee7_75af_ac6b_feeba17f8d25",
+            "tipo": "Muerte"
+        },
+        {
+            "clip": "_01a18417_d09c_711e_b28c_54c4ec169811",
+            "tipo": "Despertar"
+        },
+        {
+            "clip": "_01a18419_2d82_755f_bca9_5278ef7c02cb",
+            "tipo": "Saltar"
+        },
+        {
+            "clip": "_01a1841a_c4cc_717a_9da7_6cdf4370da74",
+            "tipo": "Atacar"
+        },
+        {
+            "clip": "_01a1841c_7318_70e6_b9f6_c866cf50fc3a",
+            "tipo": "Atacar2"
+        }
+    ]
+}

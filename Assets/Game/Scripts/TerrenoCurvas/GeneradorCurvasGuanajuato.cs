@@ -51,17 +51,24 @@ public class GeneradorCurvasGuanajuato : MonoBehaviour
     private GameObject contenedorBarreras;
     private GameObject contenedorDecoracion;
 
-    void Awake()
+    void OnEnable()
     {
         if (puntosDeControl == null || puntosDeControl.Count < 4)
         {
             InicializarCurvasDeGuanajuato();
         }
+
+        // Si en el Editor o en Play el mapa no tiene hijos o perdió la malla al recargar, regenerarlo automáticamente
+        MeshFilter mf = GetComponentInChildren<MeshFilter>();
+        if (transform.childCount == 0 || mf == null || mf.sharedMesh == null)
+        {
+            Generar();
+        }
     }
 
     void Start()
     {
-        if (Application.isPlaying && transform.childCount == 0)
+        if (transform.childCount == 0)
         {
             Generar();
         }

@@ -15,7 +15,7 @@ public static class NivelLimboSetup
     const string RutaModeloChofer = "Assets/Game/Models/Chofer/Meshy_AI_chofer_trailer_3d_biped_Character_output.fbx";
     const string RutaAnimController = "Assets/Game/Animations/Chofer/ChoferAnimController.controller";
 
-    [MenuItem("EvitandoElFin/6. Crear Escena Nivel1_Limbo (terreno vacío + Chofer confundido)")]
+    [MenuItem("EvitandoElFin/Antiguos/Crear Escena Nivel1_Limbo (ya no se usa: el Nivel 1 es el Bosque)")]
     public static void CrearEscenaLimbo()
     {
         if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
@@ -64,7 +64,7 @@ public static class NivelLimboSetup
     static void ConfigurarAmbiente()
     {
         // Luz direccional = luz de luna fría y baja
-        Light sol = Object.FindObjectsByType<Light>(FindObjectsSortMode.None).FirstOrDefault(l => l.type == LightType.Directional);
+        Light sol = Object.FindObjectsByType<Light>().FirstOrDefault(l => l.type == LightType.Directional);
         if (sol != null)
         {
             sol.name = "Luz_Luna_Limbo";

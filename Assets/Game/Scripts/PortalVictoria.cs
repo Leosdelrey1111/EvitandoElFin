@@ -12,6 +12,9 @@ public class PortalVictoria : MonoBehaviour
     [Tooltip("Distancia mínima para checar")]
     public string tagJugador = "Player";
 
+    private float ultimoAviso = -10f;
+    private Vector3 escalaBase = Vector3.zero;
+
     void Start()
     {
         // Asegurar que el collider sea trigger
@@ -31,7 +34,11 @@ public class PortalVictoria : MonoBehaviour
             
             // Mantenerlo activo y rotar suavemente el óvalo
             efectosPortalActivo.SetActive(true);
-            efectosPortalActivo.transform.Rotate(Vector3.up, 25f * Time.deltaTime, Space.Self);
+            efectosPortalActivo.transform.Rotate(Vector3.up, (desbloqueado ? 60f : 12f) * Time.deltaTime, Space.Self);
+            // sellado = vórtice apagado y pequeño; abierto = crece a su tamaño completo
+            if (escalaBase == Vector3.zero) escalaBase = efectosPortalActivo.transform.localScale;
+            Vector3 meta = desbloqueado ? escalaBase : new Vector3(escalaBase.x * 0.35f, escalaBase.y * 0.35f, escalaBase.z);
+            efectosPortalActivo.transform.localScale = Vector3.Lerp(efectosPortalActivo.transform.localScale, meta, 2.5f * Time.deltaTime);
         }
     }
 
@@ -51,7 +58,14 @@ public class PortalVictoria : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log($"[PortalVictoria] El portal está sellado. Necesitas reunir todos los tótems primero ({GameManager.Instancia.totemsRequeridos}).");
+                    if (Time.time - ultimoAviso > 3f)
+                    {
+                        ultimoAviso = Time.time;
+                        bool faltaJefe = GameManager.Instancia.jefeRequerido && GameManager.Instancia.TotemsCompletos();
+                        AvisosJuego.Mostrar(faltaJefe
+                            ? "El portal sigue sellado: el hechizo de La Bufa aún lo retiene."
+                            : "El portal está sellado. Reúne los " + GameManager.Instancia.totemsRequeridos + " tótems para abrirlo.", 3f);
+                    }
                 }
             }
         }

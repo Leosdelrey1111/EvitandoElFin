@@ -39,3 +39,7 @@ crash_dumps/
 *.apk
 *.aab
 *.unitypackage
+
+# Voces neuronales (Piper): entorno de Python y modelos descargados (se reinstalan con el menu 9c)
+/Tools/voces_piper/
+

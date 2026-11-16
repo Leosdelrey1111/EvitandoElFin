@@ -42,6 +42,9 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        // Estado inicial del nivel (DespertarConfusion lo pasa a Intro y luego a Jugando)
+        EstadoNivel.Reiniciar();
+
         // Reanudar tiempo y bloquear cursor para gameplay
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.Locked;
@@ -122,7 +125,8 @@ public class GameManager : MonoBehaviour
         // Alternar pausa con tecla Escape (o 'P')
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
-            if (!juegoTerminado)
+            // la tienda del Comerciante usa Esc para cerrarse: no debe abrir también la pausa
+            if (!juegoTerminado && !ComercianteMercader.BloqueaPausa && !CodiceHistoria.BloqueaPausa)
             {
                 AlternarPausa();
             }
@@ -143,6 +147,9 @@ public class GameManager : MonoBehaviour
         Time.timeScale = juegoPausado ? 0f : 1f;
         Cursor.lockState = juegoPausado ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = juegoPausado;
+
+        if (juegoPausado) EstadoNivel.Pausar();
+        else EstadoNivel.Reanudar();
     }
 
     public void ReanudarJuego()
@@ -165,15 +172,27 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public enum EstadoJefe { Ninguno, Dormido, Combate, Derrotado }
+
+    [Header("Jefe del nivel")]
+    [Tooltip("Si es true, el portal solo se abre después de vencer al jefe (además de reunir los tótems).")]
+    public bool jefeRequerido = false;
+    public EstadoJefe estadoJefe = EstadoJefe.Ninguno;
+
+    public bool TotemsCompletos() { return portalDesbloqueado || totemsRecolectados >= totemsRequeridos; }
+
+    public void CambiarEstadoJefe(EstadoJefe nuevo) { estadoJefe = nuevo; }
+
     public bool EstaPortalDesbloqueado()
     {
-        return portalDesbloqueado || totemsRecolectados >= totemsRequeridos;
+        return TotemsCompletos() && (!jefeRequerido || estadoJefe == EstadoJefe.Derrotado);
     }
 
     public void ProcesarVictoria()
     {
         if (juegoTerminado) return;
         juegoTerminado = true;
+        EstadoNivel.Terminar(ResultadoNivel.Victoria);
 
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;
@@ -196,6 +215,7 @@ public class GameManager : MonoBehaviour
     {
         if (juegoTerminado) return;
         juegoTerminado = true;
+        EstadoNivel.Terminar(ResultadoNivel.Derrota);
 
         StartCoroutine(RutinaGameOver());
     }
@@ -203,7 +223,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator RutinaGameOver()
     {
         // Breve retraso antes de congelar para ver la animación de caída/derrota
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(2.6f);
 
         Time.timeScale = 0f;
         Cursor.lockState = CursorLockMode.None;

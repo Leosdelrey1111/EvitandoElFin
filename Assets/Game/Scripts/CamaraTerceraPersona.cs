@@ -63,6 +63,9 @@ public class CamaraTerceraPersona : MonoBehaviour
             if (player != null) objetivo = player.transform;
         }
 
+        // Sensibilidad elegida por el jugador en Opciones
+        sensibilidadX *= OpcionesJuego.Sensibilidad;
+        sensibilidadY *= OpcionesJuego.Sensibilidad;
         distanciaDeseada = distancia;
         distanciaActual = distancia;
 
@@ -155,6 +158,25 @@ public class CamaraTerceraPersona : MonoBehaviour
         // 6. Aplicar posición y rotación suavizadas
         transform.position = Vector3.Lerp(transform.position, posicionObjetivo, Time.deltaTime * suavizadoMovimiento);
         transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, Time.deltaTime * suavizadoRotacion);
+
+        // 7. Sacudida (impactos del jefe, derrumbes...)
+        if (sacudida > 0.001f)
+        {
+            transform.position += Random.insideUnitSphere * sacudida;
+            sacudida = Mathf.MoveTowards(sacudida, 0f, 1.6f * Time.deltaTime);
+        }
+    }
+
+    /// <summary>Intensidad actual de la sacudida (se apaga sola).</summary>
+    [System.NonSerialized] public float sacudida = 0f;
+
+    /// <summary>Sacude la cámara principal (0.1 = leve, 0.4 = fuerte).</summary>
+    public static void Sacudir(float fuerza)
+    {
+        Camera c = Camera.main;
+        if (c == null) return;
+        CamaraTerceraPersona cam = c.GetComponent<CamaraTerceraPersona>();
+        if (cam != null) cam.sacudida = Mathf.Max(cam.sacudida, fuerza);
     }
 
     public void BloquearCursor(bool bloquear)
