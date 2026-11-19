@@ -1,0 +1,183 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4011748862867601521
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3303444351603762284}
+  - component: {fileID: 8872565271246823295}
+  - component: {fileID: 1954335295779313939}
+  - component: {fileID: 2504043085273255787}
+  m_Layer: 0
+  m_Name: Esbirro_Monja
+  m_TagString: Enemigo
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3303444351603762284
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4011748862867601521}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2821759211333922970}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &8872565271246823295
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4011748862867601521}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.45
+  m_SlopeLimit: 45
+  m_StepOffset: 0.4
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 1, z: 0}
+--- !u!114 &1954335295779313939
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4011748862867601521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 514007dff34f4ea4fbf598506439300b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoderEspiritual
+  maxPoder: 55
+  actualPoder: 55
+  invulnerable: 0
+--- !u!114 &2504043085273255787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4011748862867601521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19a21ca3be345a94290241d8740c8f9a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EsbirroBaseIA
+  tipo: 3
+  velocidadPersecucion: 3.8
+  velocidadPatrulla: 1.6
+  rangoDeteccion: 10
+  factorPerdida: 1.6
+  rangoAtaque: 1.8
+  radioPatrulla: 6
+  gravedad: -15
+  danio: 16
+  cooldownAtaque: 1.8
+  tiempoTelegrafiado: 0.55
+  hitboxAtaqueEnemigo: {fileID: 0}
+  resistenciaEmpuje: 1
+  ataqueADistancia: 0
+  velocidadProyectil: 11
+  colorProyectil: {r: 0.9, g: 0.4, b: 1, a: 1}
+  prefabTotemDrop: {fileID: 0}
+  cantidadTotemsADropear: 0
+  cantidadAlmasADropear: 3
+  alturaBarraVida: 2.4
+--- !u!1001 &2351545790964684657
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3303444351603762284}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7383910877443114823, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.03860875
+      objectReference: {fileID: 0}
+    - target: {fileID: -7383910877443114823, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.07052635
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_Name
+      value: Visual
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: f46dbc0719b7951448ab7406447c97dc, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+--- !u!4 &2821759211333922970 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 6ed5dc0d59f200e4c988313f31825d33, type: 3}
+  m_PrefabInstance: {fileID: 2351545790964684657}
+  m_PrefabAsset: {fileID: 0}

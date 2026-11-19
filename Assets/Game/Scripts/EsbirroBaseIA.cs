@@ -83,6 +83,7 @@ public class EsbirroBaseIA : MonoBehaviour
     private bool telegrafiando = false;
     private float faseAnim;
     private bool seMovio;
+    private Animator animator;
 
     // barra de vida
     private Transform barraRaiz;
@@ -113,6 +114,7 @@ public class EsbirroBaseIA : MonoBehaviour
             visualRotBase = visual.localRotation;
         }
         renderers = GetComponentsInChildren<Renderer>();
+        animator = GetComponentInChildren<Animator>();
         mpb = new MaterialPropertyBlock();
 
         CrearBarraVida();
@@ -172,6 +174,12 @@ public class EsbirroBaseIA : MonoBehaviour
                 }
                 break;
         }
+
+        if (animator != null)
+        {
+            float vel = seMovio ? (estado == Estado.Persecucion ? 2f : 1f) : 0f;
+            animator.SetFloat("Velocidad", vel, 0.1f, Time.deltaTime);
+        }
     }
 
     void Patrullar()
@@ -222,6 +230,8 @@ public class EsbirroBaseIA : MonoBehaviour
         }
         telegrafiando = false;
         if (estado == Estado.Muerto) yield break;   // murió justo al terminar el aviso: no revivirlo
+
+        if (animator != null) animator.SetTrigger("Atacar");
 
         // 2a) Ataque a distancia: lanza un murmullo hacia el Chofer
         if (ataqueADistancia)
@@ -303,6 +313,8 @@ public class EsbirroBaseIA : MonoBehaviour
         if (estado == Estado.Muerto) return;
         estado = Estado.Muerto;
         Debug.Log("[" + gameObject.name + "] Esbirro derrotado.");
+
+        if (animator != null) animator.SetTrigger("Muerte");
 
         gameObject.tag = "Untagged"; // deja de ser objetivo
         controller.enabled = false;
@@ -397,7 +409,7 @@ public class EsbirroBaseIA : MonoBehaviour
 
     void AnimarVisualProcedural()
     {
-        if (visual == null) return;
+        if (animator != null || visual == null) return;
 
         faseAnim += Time.deltaTime * (seMovio ? 9f : 2.5f);
 
