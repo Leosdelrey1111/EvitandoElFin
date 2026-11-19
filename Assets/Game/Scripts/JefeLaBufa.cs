@@ -1315,7 +1315,7 @@ public class JefeLaBufa : MonoBehaviour
             {
                 float x = (i - 2) * 0.22f;
                 float h = i == 2 ? 0.5f : (i == 1 || i == 3 ? 0.38f : 0.25f);
-                Parte(PrimitiveType.Cone, "Pico" + i, cabeza.transform, new Vector3(x, 0.65f, 0.25f), new Vector3(0.18f, h, 0.18f), matGrieta);
+                Parte(PrimitiveType.Cylinder, "Pico" + i, cabeza.transform, new Vector3(x, 0.65f, 0.25f), new Vector3(0.18f, h, 0.18f), matGrieta);
             }
             for (int i = 0; i < 7; i++)
             {

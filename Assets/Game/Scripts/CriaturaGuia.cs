@@ -19,6 +19,10 @@ public class CriaturaGuia : MonoBehaviour
     public Color colorLuzAlebrije = new Color(0.2f, 0.9f, 1f); // Celeste místico
     public float intensidadLuz = 2.5f;
 
+    [Header("Interacción Dinámica")]
+    public Transform apuntarA;
+    public bool hablando = false;
+
     void Start()
     {
         if (objetivoChofer == null)
@@ -49,15 +53,20 @@ public class CriaturaGuia : MonoBehaviour
             + Vector3.up * desplazamiento.y 
             + objetivoChofer.forward * desplazamiento.z;
 
-        // Efecto ondulante de vuelo
-        float balanceo = Mathf.Sin(Time.time * velocidadFlotacion) * alturaFlotacion;
+        // Efecto ondulante de vuelo (se intensifica ligeramente si está hablando)
+        float balanceo = Mathf.Sin(Time.time * (hablando ? velocidadFlotacion * 1.8f : velocidadFlotacion)) * (hablando ? alturaFlotacion * 1.4f : alturaFlotacion);
         posicionDeseada.y += balanceo;
 
         // Movimiento amortiguado
         transform.position = Vector3.Lerp(transform.position, posicionDeseada, suavizadoSeguimiento * Time.deltaTime);
 
-        // Mirar suavemente hacia donde mira el Chofer o hacia donde camina
-        Quaternion rotacionDeseada = Quaternion.LookRotation(objetivoChofer.forward);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotacionDeseada, suavizadoSeguimiento * Time.deltaTime);
+        // Mirar hacia la pista si existe, o hacia donde mira el Chofer
+        Vector3 dirMirada = (apuntarA != null) ? (apuntarA.position - transform.position) : objetivoChofer.forward;
+        dirMirada.y = 0f;
+        if (dirMirada.sqrMagnitude > 0.001f)
+        {
+            Quaternion rotacionDeseada = Quaternion.LookRotation(dirMirada.normalized);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotacionDeseada, suavizadoSeguimiento * Time.deltaTime);
+        }
     }
 }
