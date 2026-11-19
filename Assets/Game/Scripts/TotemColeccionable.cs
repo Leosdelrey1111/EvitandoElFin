@@ -18,10 +18,7 @@ public class TotemColeccionable : MonoBehaviour
 
     void Start()
     {
-<<<<<<< Updated upstream
         posicionInicial = transform.position;
-=======
-        posicionInicialLocal = transform.localPosition;
         if (string.IsNullOrEmpty(idTotem))
         {
             idTotem = gameObject.name + "_" + Mathf.RoundToInt(transform.position.x) + "_" + Mathf.RoundToInt(transform.position.z);
@@ -31,7 +28,6 @@ public class TotemColeccionable : MonoBehaviour
         {
             Destroy(gameObject);
         }
->>>>>>> Stashed changes
     }
 
     void Update()
