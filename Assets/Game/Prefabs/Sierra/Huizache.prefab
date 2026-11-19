@@ -100,7 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 420415247072567849}
   - component: {fileID: 4062229987225407729}
-  - component: {fileID: 5286027374806614634}
+  - component: {fileID: 6516954903082727900}
   m_Layer: 0
   m_Name: Huizache
   m_TagString: Untagged
@@ -149,7 +149,7 @@ CapsuleCollider:
   m_Height: 2.2
   m_Direction: 1
   m_Center: {x: 0, y: 1.1, z: 0}
---- !u!205 &5286027374806614634
+--- !u!205 &6516954903082727900
 LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

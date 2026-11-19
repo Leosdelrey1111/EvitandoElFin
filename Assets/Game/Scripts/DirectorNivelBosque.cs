@@ -69,6 +69,35 @@ public class DirectorNivelBosque : MonoBehaviour
         marcadoresAlma = almasMarcadores.ToArray();
         proximaReaparicion = Time.time + segundosReaparecerAlma;
         Debug.Log("[DirectorNivelBosque] Almas: " + almas + ", serpientes: " + serpientes + ", hombres de piedra: " + piedras + ", comadres: " + comadres);
+
+        AsegurarCheckpoints();
+    }
+
+    void AsegurarCheckpoints()
+    {
+        // Checkpoint 1: Cerca de las Cruces con veladoras
+        GameObject cruces = GameObject.Find("Zona_Cruces") ?? GameObject.Find("Hito_cruces") ?? GameObject.Find("Cruces");
+        if (cruces != null && cruces.GetComponent<PuntoControl>() == null)
+        {
+            PuntoControl pc = cruces.AddComponent<PuntoControl>();
+            pc.idCheckpoint = "Nivel1_Cruces";
+            pc.nombreAltar = "Altar de las Cruces";
+            SphereCollider sc = cruces.GetComponent<SphereCollider>() ?? cruces.AddComponent<SphereCollider>();
+            sc.isTrigger = true;
+            sc.radius = 4.5f;
+        }
+
+        // Checkpoint 2: Cerca del puesto de Don Chuy
+        GameObject chuy = GameObject.Find("Puesto_DonChuy") ?? GameObject.Find("Comerciante_DonChuy");
+        if (chuy != null && chuy.GetComponent<PuntoControl>() == null)
+        {
+            PuntoControl pc = chuy.AddComponent<PuntoControl>();
+            pc.idCheckpoint = "Nivel1_DonChuy";
+            pc.nombreAltar = "Puesto y Refugio de Don Chuy";
+            SphereCollider sc = chuy.GetComponent<SphereCollider>() ?? chuy.AddComponent<SphereCollider>();
+            sc.isTrigger = true;
+            sc.radius = 4.0f;
+        }
     }
 
     void Update()

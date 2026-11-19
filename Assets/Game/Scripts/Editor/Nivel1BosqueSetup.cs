@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +23,7 @@ public static class Nivel1BosqueSetup
     const string CarpetaMats = "Assets/Game/Materials/Sierra";
     const string CarpetaMeshes = "Assets/Game/Meshes/Sierra";
     const string RutaModeloChofer = "Assets/Game/Models/Chofer/Meshy_AI_chofer_trailer_3d_biped_Character_output.fbx";
-    const string RutaAnimController = "Assets/Game/Animations/Chofer/ChoferAnimController.controller";
+    const string RutaAnimController = "Assets/Game/Animations/Chofer/ChoferAnimV2.controller";
 
     static Shader shaderLit;
 
@@ -246,8 +246,7 @@ public static class Nivel1BosqueSetup
 
         Animator anim = modelo.GetComponentInChildren<Animator>();
         if (anim == null) anim = modelo.AddComponent<Animator>();
-        var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(AplicarAnimacionesChofer.RutaControllerNuevo);
-        if (controller == null) controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(RutaAnimController);
+        var controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(RutaAnimController);
         if (controller != null) anim.runtimeAnimatorController = controller;
         if (anim.avatar == null)
         {

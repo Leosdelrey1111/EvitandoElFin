@@ -12,6 +12,8 @@ public static class OpcionesJuego
     public static float Master { get { return PlayerPrefs.GetFloat(KMaster, 0.85f); } set { PlayerPrefs.SetFloat(KMaster, Mathf.Clamp01(value)); AudioListener.volume = Master; } }
     public static float Musica { get { return PlayerPrefs.GetFloat(KMusica, 0.7f); } set { PlayerPrefs.SetFloat(KMusica, Mathf.Clamp01(value)); } }
     public static float Efectos { get { return PlayerPrefs.GetFloat(KEfectos, 0.85f); } set { PlayerPrefs.SetFloat(KEfectos, Mathf.Clamp01(value)); } }
+    public static float Sfx { get { return Efectos; } set { Efectos = value; } }
+    public static float Voz { get { return PlayerPrefs.GetFloat("Opc_Voz", 0.9f); } set { PlayerPrefs.SetFloat("Opc_Voz", Mathf.Clamp01(value)); } }
     /// <summary>Multiplicador de sensibilidad de la cámara (0.3 a 2).</summary>
     public static float Sensibilidad { get { return PlayerPrefs.GetFloat(KSens, 1f); } set { PlayerPrefs.SetFloat(KSens, Mathf.Clamp(value, 0.3f, 2f)); } }
     /// <summary>0 = Baja, 1 = Media, 2 = Alta.</summary>

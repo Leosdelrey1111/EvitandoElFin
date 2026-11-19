@@ -186,6 +186,7 @@ public class CodiceHistoria : MonoBehaviour
                 id = "prologo", etiqueta = "PRÓLOGO", titulo = "La leyenda de La Bufa", subtitulo = "Lo que cuentan en la sierra",
                 cuerpo = ConLetraCapital(HistoriaNivel1.TextoPrologo, false), desbloqueada = true
             });
+            // --- Nivel 1: La Bufa
             for (int i = 0; i < HistoriaNivel1.Capitulos.GetLength(0); i++)
             {
                 string id = HistoriaNivel1.Capitulos[i, 0];
@@ -202,9 +203,55 @@ public class CodiceHistoria : MonoBehaviour
                 entradas.Add(new Entrada
                 {
                     id = id,
-                    etiqueta = "CAPÍTULO " + Romano(i + 1),
+                    etiqueta = "NIVEL 1 · CAP. " + Romano(i + 1),
                     titulo = HistoriaNivel1.Capitulos[i, 1],
-                    subtitulo = (acto > 0 ? "Acto " + Romano(acto) + "  ·  " + HistoriaNivel1.TituloActo(acto) : "") ,
+                    subtitulo = (acto > 0 ? "Acto " + Romano(acto) + "  ·  " + HistoriaNivel1.TituloActo(acto) : ""),
+                    cuerpo = ConLetraCapital(cuerpo, true), desbloqueada = ok, clavesVoz = claves
+                });
+            }
+
+            // --- Nivel 2: El Panteón de Santa Paula
+            for (int i = 0; i < HistoriaNivel2.Capitulos.GetLength(0); i++)
+            {
+                string id = HistoriaNivel2.Capitulos[i, 0];
+                string[] lineas = HistoriaNivel2.Lineas(id);
+                bool ok = Tiene(id);
+                var claves = new string[lineas != null ? lineas.Length : 0];
+                for (int k = 0; k < claves.Length; k++) claves[k] = HistoriaNivel2.ClaveLinea(id, k);
+
+                string cuerpo = "";
+                if (lineas != null)
+                    for (int k = 0; k < lineas.Length; k++) cuerpo += (k > 0 ? "\n\n" : "") + "— " + lineas[k];
+
+                entradas.Add(new Entrada
+                {
+                    id = id,
+                    etiqueta = "NIVEL 2 · CAP. " + Romano(i + 1),
+                    titulo = HistoriaNivel2.Capitulos[i, 1],
+                    subtitulo = "Acto " + Romano(1 + i / 5) + "  ·  Las Momias de Santa Paula",
+                    cuerpo = ConLetraCapital(cuerpo, true), desbloqueada = ok, clavesVoz = claves
+                });
+            }
+
+            // --- Nivel 3: Los Callejones y la Inquisición
+            for (int i = 0; i < HistoriaNivel3.Capitulos.GetLength(0); i++)
+            {
+                string id = HistoriaNivel3.Capitulos[i, 0];
+                string[] lineas = HistoriaNivel3.Lineas(id);
+                bool ok = Tiene(id);
+                var claves = new string[lineas != null ? lineas.Length : 0];
+                for (int k = 0; k < claves.Length; k++) claves[k] = HistoriaNivel3.ClaveLinea(id, k);
+
+                string cuerpo = "";
+                if (lineas != null)
+                    for (int k = 0; k < lineas.Length; k++) cuerpo += (k > 0 ? "\n\n" : "") + "— " + lineas[k];
+
+                entradas.Add(new Entrada
+                {
+                    id = id,
+                    etiqueta = "NIVEL 3 · CAP. " + Romano(i + 1),
+                    titulo = HistoriaNivel3.Capitulos[i, 1],
+                    subtitulo = "Acto " + Romano(1 + i / 5) + "  ·  El Callejón del Beso y la Basílica",
                     cuerpo = ConLetraCapital(cuerpo, true), desbloqueada = ok, clavesVoz = claves
                 });
             }
@@ -225,6 +272,36 @@ public class CodiceHistoria : MonoBehaviour
                     carta = true, numero = b.numero, icono = iconos[i % iconos.Length], colorCarta = colores[i % colores.Length]
                 });
             }
+
+            // Enemigos y Jefes de Nivel 2 y 3
+            entradas.Add(new Entrada
+            {
+                id = "bestia_momia", etiqueta = "CARTA No. 25", titulo = "La Momia de Santa Paula",
+                subtitulo = "Enemigo del Nivel 2", verso = "«De la gaveta salió y tus pasos siguió.»",
+                cuerpo = "Cadáveres exhumados del panteón más antiguo de Guanajuato. Rápidos y voraces.\n\n<b><color=#A3123F>Consejo:</color></b> Atacan en grupo; esquiva sus zarpazos laterales.",
+                desbloqueada = Tiene("bestia_momia"), carta = true, numero = 25, icono = UIMexicana.Icono.Calavera, colorCarta = colores[0]
+            });
+            entradas.Add(new Entrada
+            {
+                id = "bestia_general", etiqueta = "CARTA No. 28", titulo = "El General Momia",
+                subtitulo = "Jefe del Nivel 2", verso = "«Sable de mando y valor, del panteón el señor.»",
+                cuerpo = "Oficial incorrupto sepultado en Guanajuato que defiende las criptas con su sable.\n\n<b><color=#A3123F>Consejo:</color></b> Salta cuando clave su sable y ataca por la espalda tras su estocada.",
+                desbloqueada = Tiene("bestia_general"), carta = true, numero = 28, icono = UIMexicana.Icono.Golpe, colorCarta = colores[1]
+            });
+            entradas.Add(new Entrada
+            {
+                id = "bestia_monje", etiqueta = "CARTA No. 33", titulo = "El Monje Penitente",
+                subtitulo = "Enemigo del Nivel 3", verso = "«Con su hábito y candelero, busca purificar primero.»",
+                cuerpo = "Frailes de la época virreinal que golpean el suelo con fuego sagrado.\n\n<b><color=#A3123F>Consejo:</color></b> Aléjate del radio de su candelero antes de contratacar.",
+                desbloqueada = Tiene("bestia_monje"), carta = true, numero = 33, icono = UIMexicana.Icono.Flor, colorCarta = colores[2]
+            });
+            entradas.Add(new Entrada
+            {
+                id = "bestia_inquisidor", etiqueta = "CARTA No. 42", titulo = "El Clérigo Inquisidor",
+                subtitulo = "Jefe Final - Nivel 3", verso = "«En la basílica juzgó y su sentencia dictó.»",
+                cuerpo = "La sombra que corrompió las campanas y condenó los callejones de Guanajuato.\n\n<b><color=#A3123F>Consejo:</color></b> No te quedes en los círculos dorados y salta la lluvia de campanas.",
+                desbloqueada = Tiene("bestia_inquisidor"), carta = true, numero = 42, icono = UIMexicana.Icono.Flor, colorCarta = colores[3]
+            });
         }
         else
         {
@@ -233,9 +310,50 @@ public class CodiceHistoria : MonoBehaviour
                 id = "recuerdo1", etiqueta = "RECUERDO 1", titulo = "La promesa", subtitulo = "Recuperado al vencer a La Bufa",
                 cuerpo = ConLetraCapital(HistoriaNivel1.TextoRecuerdo, false), desbloqueada = Tiene("recuerdo1")
             });
-            string[] jefes = { "el General Momia", "el Clérigo Inquisidor", "Marcela la Bruja" };
-            for (int i = 0; i < jefes.Length; i++)
-                entradas.Add(new Entrada { id = "recuerdo" + (i + 2), etiqueta = "RECUERDO " + (i + 2), titulo = "Recuerdo " + (i + 2), subtitulo = "Se recupera al vencer a " + jefes[i], cuerpo = "", desbloqueada = false });
+            entradas.Add(new Entrada
+            {
+                id = "recuerdo2", etiqueta = "RECUERDO 2", titulo = "El rosario de plata y la familia", subtitulo = "Recuperado al vencer al General Momia",
+                cuerpo = ConLetraCapital(HistoriaNivel2.TextoRecuerdo, false), desbloqueada = Tiene("recuerdo2")
+            });
+            entradas.Add(new Entrada
+            {
+                id = "recuerdo3", etiqueta = "RECUERDO 3", titulo = "El amanecer y el regreso", subtitulo = "Recuperado al vencer al Clérigo Inquisidor",
+                cuerpo = ConLetraCapital(HistoriaNivel3.TextoRecuerdo, false), desbloqueada = Tiene("recuerdo3")
+            });
+
+            // Memorias y reflexiones de Juan el Chofer a lo largo del viaje
+            entradas.Add(new Entrada
+            {
+                id = "bitacora_trailer", etiqueta = "BITÁCORA I", titulo = "El tráiler en la Carretera 110", subtitulo = "Memorias del asfalto y la sierra",
+                cuerpo = ConLetraCapital(
+                    "El rugir familiar del motor diésel subiendo por las curvas de Santa Rosa de Lima.\n\n" +
+                    "La lluvia torrencial golpeaba el parabrisas y los faros amarillos apenas cortaban la neblina espesa de la sierra. " +
+                    "Recuerdo el vapor del café de olla saliendo de mi termo, y el cuadro de San Cristóbal tintineando en el tablero.\n\n" +
+                    "Estas curvas de Guanajuato no perdonan una distracción. Un derrape, un volantazo para esquivar una piedra caída en el asfalto... y el vacío.", false),
+                desbloqueada = true // Disponible desde el inicio
+            });
+
+            entradas.Add(new Entrada
+            {
+                id = "bitacora_alebrije", etiqueta = "BITÁCORA II", titulo = "Tonalli y las alas de luz", subtitulo = "Memorias del despertar espiritual",
+                cuerpo = ConLetraCapital(
+                    "Cuando desperté tirado en la tierra fría pensé que había sobrevivido al impacto. Pero al intentar respirar, el aire no llenaba mis pulmones.\n\n" +
+                    "Entonces apareció él: Tonalli. Un alebrije de colores imposibles, con alas turquesa y cola de fuego fatuo, revoloteando sobre mi pecho. " +
+                    "Me dijo que mi alma se había desprendido con el golpe y que la sierra de La Bufa atrapa a los que no tienen fuerza de voluntad.\n\n" +
+                    "No soy un guerrero místico, soy un chofer de transporte pesado. Pero si tengo que pelear con puños espirituales contra las momias y la piedra para volver a ver a mi gente, no voy a dar un paso atrás.", false),
+                desbloqueada = Tiene("recuerdo1") || Tiene("intro")
+            });
+
+            entradas.Add(new Entrada
+            {
+                id = "bitacora_guanajuato", etiqueta = "BITÁCORA III", titulo = "La cantera rosa y la fe", subtitulo = "Memorias de la cañada y el amor",
+                cuerpo = ConLetraCapital(
+                    "Guanajuato tiene algo en sus piedras. La cantera rosa guarda los rezos de los mineros y los suspiros de quienes amaron a escondidas en sus callejones.\n\n" +
+                    "En el Callejón del Beso entendí que la verdadera fuerza que rompe los sellos de la muerte no es la violencia, sino el amor que te ata al mundo de los vivos. " +
+                    "Cada vez que cierro los ojos escucho las sirenas de la ambulancia y el llanto de mi esposa tomándome de la mano.\n\n" +
+                    "¡Espérenme, que la última curva de la sierra ya la dejé atrás!", false),
+                desbloqueada = Tiene("recuerdo2") || Tiene("intro_ciudad")
+            });
         }
     }
 

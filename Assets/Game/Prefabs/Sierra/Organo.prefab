@@ -100,7 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5742666351400922847}
   - component: {fileID: 4353342210370503497}
-  - component: {fileID: 8747404520795182380}
+  - component: {fileID: 1457343943681505404}
   m_Layer: 0
   m_Name: Organo
   m_TagString: Untagged
@@ -147,7 +147,7 @@ CapsuleCollider:
   m_Height: 3
   m_Direction: 1
   m_Center: {x: 0, y: 1.5, z: 0}
---- !u!205 &8747404520795182380
+--- !u!205 &1457343943681505404
 LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

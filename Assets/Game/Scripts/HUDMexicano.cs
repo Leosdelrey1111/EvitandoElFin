@@ -365,9 +365,10 @@ public class HUDMexicano : MonoBehaviour
         BotonPanel(derrota, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(0f, -152f), new Vector2(460f, 66f), UIMexicana.Violeta);
 
         // ---------- VICTORIA
-        RectTransform victoria = CrearPanelBase(padre, "PanelVictoria", new Vector2(760f, 640f), UIMexicana.Dorado, "¡NIVEL 1 COMPLETADO!", "Rompiste el hechizo de La Bufa y cruzaste el portal espiritual.", UIMexicana.Icono.Flor);
-        BotonPanel(victoria, "BtnRejugar", "JUGAR DE NUEVO", new Vector2(0f, -70f), new Vector2(460f, 66f), UIMexicana.Turquesa);
-        BotonPanel(victoria, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(0f, -152f), new Vector2(460f, 66f), UIMexicana.Violeta);
+        RectTransform victoria = CrearPanelBase(padre, "PanelVictoria", new Vector2(760f, 680f), UIMexicana.Dorado, "¡NIVEL COMPLETADO!", "Superaste los desafíos espirituales y cruzaste el portal.", UIMexicana.Icono.Flor);
+        BotonPanel(victoria, "BtnSiguiente", "SIGUIENTE NIVEL", new Vector2(0f, -40f), new Vector2(460f, 62f), UIMexicana.Cempasuchil);
+        BotonPanel(victoria, "BtnRejugar", "JUGAR DE NUEVO", new Vector2(0f, -112f), new Vector2(460f, 62f), UIMexicana.Turquesa);
+        BotonPanel(victoria, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(0f, -184f), new Vector2(460f, 62f), UIMexicana.Violeta);
         textoResumen = UIMexicana.Texto("Resumen", (RectTransform)victoria.Find("Tarjeta"), "", 26, UIMexicana.Dorado, TextAlignmentOptions.Center, FontStyles.Bold, 2f);
         UIMexicana.AnclarCentro(textoResumen.rectTransform, new Vector2(0.5f, 0.5f), new Vector2(0f, 20f), new Vector2(640f, 44f));
         panelVictoria = victoria.gameObject;
@@ -478,8 +479,11 @@ public class HUDMexicano : MonoBehaviour
         vinetaDano.color = new Color(0.9f, 0.05f, 0.1f, Mathf.Max(alphaDano, baseAlerta));
 
         // ---- resumen de victoria
+        string escena = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string nombreColeccionable = (escena.Contains("Panteon") || escena.Contains("Nivel2")) ? "CIRIOS" :
+                                     ((escena.Contains("Ciudad") || escena.Contains("Nivel3")) ? "SELLOS" : "TÓTEMS");
         if (textoResumen != null && panelVictoria != null && panelVictoria.activeInHierarchy && inventario != null)
-            textoResumen.text = "TÓTEMS  " + inventario.cantidadTotems + "      ALMAS  " + Mathf.RoundToInt(inventario.energiaEspiritual);
+            textoResumen.text = nombreColeccionable + "  " + inventario.cantidadTotems + "      ALMAS  " + Mathf.RoundToInt(inventario.energiaEspiritual);
     }
 
     void ActualizarRecarga(Slot s, float progreso, float cooldownTotal)
@@ -499,14 +503,41 @@ public class HUDMexicano : MonoBehaviour
         if (textoObjetivo == null || gm == null) return;
         int req = gm.totemsRequeridos;
         int actual = inventario != null ? inventario.cantidadTotems : 0;
-        if (actual < req && gm.estadoJefe != GameManager.EstadoJefe.Combate && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
-            textoObjetivo.text = "REÚNE LOS TÓTEMS   <color=#F4C95D>" + actual + " / " + req + "</color>";
-        else if (gm.jefeRequerido && gm.estadoJefe == GameManager.EstadoJefe.Combate)
-            textoObjetivo.text = "<color=#E63946>¡VENCE A LA BUFA!</color>  Rompe el hechizo";
-        else if (gm.jefeRequerido && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
-            textoObjetivo.text = "ENTRA A LA <color=#F4C95D>CUEVA VIEJA</color>  y enfrenta a La Bufa";
+        string escena = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+
+        if (escena.Contains("Panteon") || escena.Contains("Nivel2"))
+        {
+            if (actual < req && gm.estadoJefe != GameManager.EstadoJefe.Combate && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
+                textoObjetivo.text = "ENCIENDE LOS CIRIOS DE SANTA PAULA   <color=#2EC4B6>" + actual + " / " + req + "</color>";
+            else if (gm.jefeRequerido && gm.estadoJefe == GameManager.EstadoJefe.Combate)
+                textoObjetivo.text = "<color=#2EC4B6>¡VENCE AL GENERAL MOMIA!</color>  Libera el camposanto militar";
+            else if (gm.jefeRequerido && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
+                textoObjetivo.text = "ENTRA AL <color=#2EC4B6>GRAN MAUSOLEO</color>  y desafía al General";
+            else
+                textoObjetivo.text = "<color=#00FFAA>¡PORTAL ABIERTO!</color>  Avanza hacia la cañada de Guanajuato";
+        }
+        else if (escena.Contains("Ciudad") || escena.Contains("Nivel3"))
+        {
+            if (actual < req && gm.estadoJefe != GameManager.EstadoJefe.Combate && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
+                textoObjetivo.text = "ROMPE LOS SELLOS INQUISITORIALES   <color=#FFA01C>" + actual + " / " + req + "</color>";
+            else if (gm.jefeRequerido && gm.estadoJefe == GameManager.EstadoJefe.Combate)
+                textoObjetivo.text = "<color=#E4007C>¡VENCE AL CLÉRIGO INQUISIDOR!</color>  Rompe la condena colonial";
+            else if (gm.jefeRequerido && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
+                textoObjetivo.text = "ENTRA AL <color=#FFA01C>ATRIO DE LA BASÍLICA</color>  al juicio final";
+            else
+                textoObjetivo.text = "<color=#00FFAA>¡PORTAL DORADO ABIERTO!</color>  Regresa al mundo de los vivos";
+        }
         else
-            textoObjetivo.text = "<color=#2EC4B6>¡PORTAL ABIERTO!</color>  Cruza el portal espiritual";
+        {
+            if (actual < req && gm.estadoJefe != GameManager.EstadoJefe.Combate && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
+                textoObjetivo.text = "REÚNE LOS TÓTEMS DE LA BUFA   <color=#F4C95D>" + actual + " / " + req + "</color>";
+            else if (gm.jefeRequerido && gm.estadoJefe == GameManager.EstadoJefe.Combate)
+                textoObjetivo.text = "<color=#E63946>¡VENCE A LA BUFA!</color>  Rompe el hechizo de piedra";
+            else if (gm.jefeRequerido && gm.estadoJefe != GameManager.EstadoJefe.Derrotado)
+                textoObjetivo.text = "ENTRA A LA <color=#F4C95D>CUEVA VIEJA</color>  y enfrenta a La Bufa";
+            else
+                textoObjetivo.text = "<color=#2EC4B6>¡PORTAL ABIERTO!</color>  Cruza el portal espiritual";
+        }
     }
 }
 

@@ -190,7 +190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8584519609756260125}
   - component: {fileID: 8520166369671519259}
-  - component: {fileID: 3286024582337276523}
+  - component: {fileID: 282497056950868391}
   m_Layer: 0
   m_Name: Mezquite2
   m_TagString: Untagged
@@ -238,7 +238,7 @@ CapsuleCollider:
   m_Height: 3.5
   m_Direction: 1
   m_Center: {x: 0, y: 1.75, z: 0}
---- !u!205 &3286024582337276523
+--- !u!205 &282497056950868391
 LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

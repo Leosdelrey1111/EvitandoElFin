@@ -1,0 +1,243 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8896293148199033637
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3099230210686399478}
+  - component: {fileID: 2118283427561433911}
+  - component: {fileID: 6859566498084686833}
+  - component: {fileID: 6911759078735574106}
+  - component: {fileID: 6556076230743525813}
+  - component: {fileID: 2788832997484459005}
+  m_Layer: 0
+  m_Name: Chofer
+  m_TagString: Player
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3099230210686399478
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896293148199033637}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4579037882903018256}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!143 &2118283427561433911
+CharacterController:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896293148199033637}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Height: 2
+  m_Radius: 0.5
+  m_SlopeLimit: 45
+  m_StepOffset: 0.3
+  m_SkinWidth: 0.08
+  m_MinMoveDistance: 0.001
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &6859566498084686833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896293148199033637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 618165f1b13994f40b2d51c21c34dbba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChoferController
+  velocidadCaminar: 4.5
+  velocidadCorrer: 7
+  gravedad: -15
+  velocidadRotacion: 14
+  modoControl: 0
+  teclaSalto: 32
+  alturaSalto: 1.25
+  teclaEsquive: 306
+  teclaEsquiveAlterna: 99
+  fuerzaEsquive: 10
+  duracionEsquive: 0.35
+  cooldownEsquive: 0.8
+  distanciaEsquive: 5.4
+  tiempoEsquive: 0.48
+  recargaEsquive: 0.55
+  permitirEsquiveEnAire: 1
+  controlBloqueado: 0
+  confusion: 0
+  animator: {fileID: 7596497683095773546}
+  multiplicadorVelocidad: 1
+--- !u!114 &6911759078735574106
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896293148199033637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 514007dff34f4ea4fbf598506439300b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoderEspiritual
+  maxPoder: 100
+  actualPoder: 0
+  invulnerable: 0
+--- !u!114 &6556076230743525813
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896293148199033637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb2027405dc37e94f9fe44772d0fd661, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventarioEspiritual
+  cantidadTotems: 0
+  energiaEspiritual: 0
+  recuerdosDesbloqueados: []
+--- !u!114 &2788832997484459005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8896293148199033637}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c7b548c2a69f38148b33a1f83aaf11a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SistemaCombateChofer
+  hitboxMele: {fileID: 0}
+  danioAtaque1: 20
+  danioAtaque2: 30
+  danioAtaque3: 45
+  alcanceGolpe: 2.4
+  anguloGolpe: 150
+  tiempoVentanaCombo: 0.9
+  duracionGolpe: 0.34
+  duracionGolpeFinal: 0.52
+  cooldownEntreGolpes: 0.06
+  impulsoAdelante: 4.5
+  velocidadMientrasAtaca: 0.45
+  teclaAtaqueArea: 113
+  radioArea: 5
+  danioArea: 50
+  cooldownArea: 5
+  colorEspiritual: {r: 0.35, g: 0.95, b: 1, a: 1}
+  volumenSfx: 0.8
+--- !u!1001 &4037120604753681659
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 3099230210686399478}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5898924354773450427, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.012635749
+      objectReference: {fileID: 0}
+    - target: {fileID: -5898924354773450427, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.02150979
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_Name
+      value: ChoferModelo
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 9834afb81bebc2242a4c9aa2dbb23d7a, type: 2}
+    - target: {fileID: 5866666021909216657, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+    - target: {fileID: 5866666021909216657, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+--- !u!4 &4579037882903018256 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+  m_PrefabInstance: {fileID: 4037120604753681659}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &7596497683095773546 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 5866666021909216657, guid: 239952381a648a048bb4ffa43d360f46, type: 3}
+  m_PrefabInstance: {fileID: 4037120604753681659}
+  m_PrefabAsset: {fileID: 0}

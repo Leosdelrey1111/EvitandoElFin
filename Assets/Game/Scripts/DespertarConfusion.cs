@@ -317,8 +317,16 @@ public class DespertarConfusion : MonoBehaviour
             camara.desplazamientoObjetivo = new Vector3(0f, 1.4f, 0f);
         }
 
-        // 4. Pasar a estado Jugando y disparar de inmediato la cinemática "intro" de Tonalli (sincronizada con voz y texto)
-        if (chofer != null) chofer.controlBloqueado = false;
+        // Asegurar que el Chofer esté de pie en locomoción y con velocidad de animación normal
+        if (chofer != null)
+        {
+            if (chofer.animator != null)
+            {
+                chofer.animator.speed = 1f;
+                chofer.ReproducirEstado("Locomocion", 0.2f);
+            }
+            chofer.controlBloqueado = false;
+        }
         if (EstadoNivel.Actual == EstadoDeNivel.Intro) EstadoNivel.Cambiar(EstadoDeNivel.Jugando);
 
         if (GuiaAlebrije.Instancia != null)

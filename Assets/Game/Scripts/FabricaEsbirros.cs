@@ -15,6 +15,10 @@ public static class FabricaEsbirros
         {
             case EsbirroBaseIA.TipoEsbirro.HombrePiedra: return CrearHombrePiedra(posicion);
             case EsbirroBaseIA.TipoEsbirro.Comadre: return CrearComadre(posicion);
+            case EsbirroBaseIA.TipoEsbirro.Momia: return CrearMomia(posicion);
+            case EsbirroBaseIA.TipoEsbirro.Catrin: return CrearCatrin(posicion);
+            case EsbirroBaseIA.TipoEsbirro.Cuervo: return CrearCuervo(posicion);
+            case EsbirroBaseIA.TipoEsbirro.Monje: return CrearMonje(posicion);
             default: return CrearSerpiente(posicion);
         }
     }
@@ -189,6 +193,224 @@ public static class FabricaEsbirros
         ia.colorProyectil = new Color(0.9f, 0.4f, 1f);
         ia.cantidadAlmasADropear = 4;
         ia.alturaBarraVida = 2.4f;
+        return ia;
+    }
+
+    // ------------------------------------------------------------------ MOMIA DE SANTA PAULA (Nivel 2)
+
+    static EsbirroBaseIA CrearMomia(Vector3 pos)
+    {
+        GameObject root = new GameObject("Momia");
+        root.transform.position = pos;
+        root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+        Etiquetar(root);
+
+        CharacterController cc = root.AddComponent<CharacterController>();
+        cc.height = 1.8f; cc.radius = 0.45f; cc.center = new Vector3(0f, 0.9f, 0f);
+
+        Material pergamino = Mat("piel_momia", new Color(0.58f, 0.50f, 0.38f), 0.2f);
+        Material venda = Mat("venda_momia", new Color(0.72f, 0.68f, 0.58f), 0.15f);
+        Material ojoEspectral = MatEmisivo("ojo_momia", new Color(0.1f, 0.8f, 0.4f), new Color(0.4f, 2.2f, 0.9f));
+
+        GameObject visual = new GameObject("Visual");
+        visual.transform.SetParent(root.transform, false);
+
+        // Tronco encorvado
+        GameObject torso = Parte(PrimitiveType.Cube, "Torso", visual.transform, new Vector3(0f, 1.05f, 0f), new Vector3(0.55f, 0.7f, 0.32f), venda);
+        torso.transform.localRotation = Quaternion.Euler(8f, 0f, 0f);
+
+        // Cabeza con mandíbula abierta típica de las momias de Guanajuato
+        GameObject cabeza = Parte(PrimitiveType.Cube, "Cabeza", visual.transform, new Vector3(0f, 1.55f, 0.08f), new Vector3(0.32f, 0.38f, 0.34f), pergamino);
+        Parte(PrimitiveType.Cube, "Mandibula", cabeza.transform, new Vector3(0f, -0.4f, 0.12f), new Vector3(0.7f, 0.35f, 0.6f), pergamino);
+        Parte(PrimitiveType.Sphere, "OjoI", cabeza.transform, new Vector3(-0.25f, 0.15f, 0.46f), Vector3.one * 0.22f, ojoEspectral);
+        Parte(PrimitiveType.Sphere, "OjoD", cabeza.transform, new Vector3(0.25f, 0.15f, 0.46f), Vector3.one * 0.22f, ojoEspectral);
+
+        // Brazos estirados al frente
+        Parte(PrimitiveType.Cube, "BrazoI", visual.transform, new Vector3(-0.35f, 1.15f, 0.32f), new Vector3(0.18f, 0.18f, 0.72f), venda);
+        Parte(PrimitiveType.Cube, "BrazoD", visual.transform, new Vector3(0.35f, 1.15f, 0.32f), new Vector3(0.18f, 0.18f, 0.72f), venda);
+
+        // Piernas
+        Parte(PrimitiveType.Cube, "PiernaI", visual.transform, new Vector3(-0.16f, 0.42f, 0f), new Vector3(0.2f, 0.85f, 0.22f), pergamino);
+        Parte(PrimitiveType.Cube, "PiernaD", visual.transform, new Vector3(0.16f, 0.42f, 0f), new Vector3(0.2f, 0.85f, 0.22f), pergamino);
+
+        PoderEspiritual vida = root.AddComponent<PoderEspiritual>();
+        vida.maxPoder = 45f; vida.actualPoder = 45f;
+
+        EsbirroBaseIA ia = root.AddComponent<EsbirroBaseIA>();
+        ia.tipo = EsbirroBaseIA.TipoEsbirro.Momia;
+        ia.velocidadPersecucion = 4.2f;
+        ia.velocidadPatrulla = 1.8f;
+        ia.rangoDeteccion = 11f;
+        ia.rangoAtaque = 1.7f;
+        ia.danio = 14f;
+        ia.cooldownAtaque = 1.4f;
+        ia.tiempoTelegrafiado = 0.5f;
+        ia.colorTelegrafiado = new Color(0.2f, 0.9f, 0.4f, 0.65f); // Verde cripta
+        ia.cantidadAlmasADropear = 3;
+        ia.alturaBarraVida = 2.0f;
+        return ia;
+    }
+
+    // ------------------------------------------------------------------ CATRÍN ESPECTRAL (Nivel 2)
+
+    static EsbirroBaseIA CrearCatrin(Vector3 pos)
+    {
+        GameObject root = new GameObject("Catrin");
+        root.transform.position = pos;
+        root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+        Etiquetar(root);
+
+        CharacterController cc = root.AddComponent<CharacterController>();
+        cc.height = 2.0f; cc.radius = 0.42f; cc.center = new Vector3(0f, 1.0f, 0f);
+
+        Material levita = Mat("traje_catrin", new Color(0.12f, 0.12f, 0.16f), 0.4f);
+        Material camisa = Mat("camisa_catrin", new Color(0.9f, 0.88f, 0.82f), 0.3f);
+        Material oro = Mat("dorado_catrin", new Color(0.92f, 0.72f, 0.18f), 0.8f);
+        Material ojoTurquesa = MatEmisivo("ojo_catrin", new Color(0.1f, 0.8f, 0.9f), new Color(0.3f, 2.4f, 2.5f));
+
+        GameObject visual = new GameObject("Visual");
+        visual.transform.SetParent(root.transform, false);
+
+        // Cuerpo estilizado y alto
+        Parte(PrimitiveType.Cube, "Torso", visual.transform, new Vector3(0f, 1.15f, 0f), new Vector3(0.5f, 0.75f, 0.28f), levita);
+        Parte(PrimitiveType.Cube, "Pechera", visual.transform, new Vector3(0f, 1.25f, 0.1f), new Vector3(0.24f, 0.45f, 0.1f), camisa);
+        Parte(PrimitiveType.Cube, "Corbata", visual.transform, new Vector3(0f, 1.35f, 0.16f), new Vector3(0.12f, 0.2f, 0.04f), oro);
+
+        // Cabeza con sombrero de copa
+        GameObject cabeza = Parte(PrimitiveType.Sphere, "Cabeza", visual.transform, new Vector3(0f, 1.65f, 0f), Vector3.one * 0.36f, camisa);
+        Parte(PrimitiveType.Sphere, "OjoI", cabeza.transform, new Vector3(-0.25f, 0.1f, 0.45f), Vector3.one * 0.22f, ojoTurquesa);
+        Parte(PrimitiveType.Sphere, "OjoD", cabeza.transform, new Vector3(0.25f, 0.1f, 0.45f), Vector3.one * 0.22f, ojoTurquesa);
+
+        // Sombrero de copa
+        Parte(PrimitiveType.Cylinder, "AlaSombrero", visual.transform, new Vector3(0f, 1.82f, 0f), new Vector3(0.6f, 0.03f, 0.6f), levita);
+        Parte(PrimitiveType.Cylinder, "CopaSombrero", visual.transform, new Vector3(0f, 2.05f, 0f), new Vector3(0.42f, 0.22f, 0.42f), levita);
+        Parte(PrimitiveType.Cylinder, "CintaSombrero", visual.transform, new Vector3(0f, 1.88f, 0f), new Vector3(0.43f, 0.04f, 0.43f), oro);
+
+        // Bastón elegante en mano derecha
+        Parte(PrimitiveType.Cylinder, "Baston", visual.transform, new Vector3(0.38f, 0.75f, 0.25f), new Vector3(0.05f, 0.7f, 0.05f), levita);
+        Parte(PrimitiveType.Sphere, "PomoBaston", visual.transform, new Vector3(0.38f, 1.45f, 0.25f), Vector3.one * 0.14f, oro);
+
+        // Piernas finas
+        Parte(PrimitiveType.Cube, "PiernaI", visual.transform, new Vector3(-0.15f, 0.45f, 0f), new Vector3(0.18f, 0.9f, 0.2f), levita);
+        Parte(PrimitiveType.Cube, "PiernaD", visual.transform, new Vector3(0.15f, 0.45f, 0f), new Vector3(0.18f, 0.9f, 0.2f), levita);
+
+        PoderEspiritual vida = root.AddComponent<PoderEspiritual>();
+        vida.maxPoder = 55f; vida.actualPoder = 55f;
+
+        EsbirroBaseIA ia = root.AddComponent<EsbirroBaseIA>();
+        ia.tipo = EsbirroBaseIA.TipoEsbirro.Catrin;
+        ia.velocidadPersecucion = 3.6f;
+        ia.velocidadPatrulla = 1.4f;
+        ia.rangoDeteccion = 15f;
+        ia.rangoAtaque = 6.5f; // Ataca a media distancia con bastón
+        ia.danio = 16f;
+        ia.cooldownAtaque = 2.0f;
+        ia.tiempoTelegrafiado = 0.65f;
+        ia.colorTelegrafiado = new Color(0.1f, 0.7f, 0.9f, 0.7f); // Turquesa
+        ia.cantidadAlmasADropear = 4;
+        ia.alturaBarraVida = 2.3f;
+        return ia;
+    }
+
+    // ------------------------------------------------------------------ CUERVO DE PANTEÓN (Nivel 2)
+
+    static EsbirroBaseIA CrearCuervo(Vector3 pos)
+    {
+        GameObject root = new GameObject("CuervoPanteon");
+        root.transform.position = pos;
+        root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+        Etiquetar(root);
+
+        CharacterController cc = root.AddComponent<CharacterController>();
+        cc.height = 1.0f; cc.radius = 0.4f; cc.center = new Vector3(0f, 0.8f, 0f);
+
+        Material pluma = Mat("pluma_cuervo", new Color(0.1f, 0.1f, 0.15f), 0.6f);
+        Material pico = Mat("pico_cuervo", new Color(0.2f, 0.18f, 0.15f), 0.4f);
+        Material ojoRojo = MatEmisivo("ojo_cuervo", new Color(1f, 0.1f, 0.1f), new Color(2.5f, 0.2f, 0.1f));
+
+        GameObject visual = new GameObject("Visual");
+        visual.transform.SetParent(root.transform, false);
+
+        // Cuerpo de ave
+        Parte(PrimitiveType.Sphere, "Cuerpo", visual.transform, new Vector3(0f, 0.8f, 0f), new Vector3(0.4f, 0.35f, 0.6f), pluma);
+        GameObject cabeza = Parte(PrimitiveType.Sphere, "Cabeza", visual.transform, new Vector3(0f, 1.0f, 0.26f), Vector3.one * 0.28f, pluma);
+        Parte(PrimitiveType.Cube, "Pico", cabeza.transform, new Vector3(0f, -0.1f, 0.45f), new Vector3(0.2f, 0.2f, 0.6f), pico);
+        Parte(PrimitiveType.Sphere, "OjoI", cabeza.transform, new Vector3(-0.35f, 0.2f, 0.2f), Vector3.one * 0.25f, ojoRojo);
+        Parte(PrimitiveType.Sphere, "OjoD", cabeza.transform, new Vector3(0.35f, 0.2f, 0.2f), Vector3.one * 0.25f, ojoRojo);
+
+        // Alas extendidas
+        Parte(PrimitiveType.Cube, "AlaI", visual.transform, new Vector3(-0.48f, 0.88f, 0f), new Vector3(0.65f, 0.06f, 0.35f), pluma);
+        Parte(PrimitiveType.Cube, "AlaD", visual.transform, new Vector3(0.48f, 0.88f, 0f), new Vector3(0.65f, 0.06f, 0.35f), pluma);
+
+        PoderEspiritual vida = root.AddComponent<PoderEspiritual>();
+        vida.maxPoder = 25f; vida.actualPoder = 25f;
+
+        EsbirroBaseIA ia = root.AddComponent<EsbirroBaseIA>();
+        ia.tipo = EsbirroBaseIA.TipoEsbirro.Cuervo;
+        ia.velocidadPersecucion = 5.8f; // Rápido en picada
+        ia.velocidadPatrulla = 2.4f;
+        ia.rangoDeteccion = 14f;
+        ia.rangoAtaque = 1.4f;
+        ia.danio = 9f;
+        ia.cooldownAtaque = 1.1f;
+        ia.tiempoTelegrafiado = 0.4f;
+        ia.colorTelegrafiado = new Color(0.9f, 0.2f, 0.1f, 0.7f);
+        ia.cantidadAlmasADropear = 2;
+        ia.alturaBarraVida = 1.4f;
+        return ia;
+    }
+
+    // ------------------------------------------------------------------ MONJE INQUISIDOR (Nivel 3)
+
+    static EsbirroBaseIA CrearMonje(Vector3 pos)
+    {
+        GameObject root = new GameObject("MonjePenitente");
+        root.transform.position = pos;
+        root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+        Etiquetar(root);
+
+        CharacterController cc = root.AddComponent<CharacterController>();
+        cc.height = 1.9f; cc.radius = 0.48f; cc.center = new Vector3(0f, 0.95f, 0f);
+
+        Material habito = Mat("habito_monje", new Color(0.24f, 0.18f, 0.13f), 0.2f);
+        Material cuerda = Mat("cuerda_monje", new Color(0.82f, 0.76f, 0.62f), 0.3f);
+        Material plata = Mat("plata_cruz", new Color(0.85f, 0.85f, 0.9f), 0.8f);
+        Material fuegoInquisicion = MatEmisivo("fuego_inquisicion", new Color(1f, 0.45f, 0.05f), new Color(2.5f, 1.2f, 0.2f));
+
+        GameObject visual = new GameObject("Visual");
+        visual.transform.SetParent(root.transform, false);
+
+        // Hábito amplio y capucha
+        Parte(PrimitiveType.Cylinder, "Sotana", visual.transform, new Vector3(0f, 0.75f, 0f), new Vector3(0.65f, 0.75f, 0.65f), habito);
+        Parte(PrimitiveType.Cylinder, "Cordon", visual.transform, new Vector3(0f, 0.85f, 0f), new Vector3(0.68f, 0.06f, 0.68f), cuerda);
+        Parte(PrimitiveType.Cube, "Torso", visual.transform, new Vector3(0f, 1.25f, 0f), new Vector3(0.6f, 0.5f, 0.4f), habito);
+
+        // Capucha con sombra profunda y ojos ardientes
+        GameObject capucha = Parte(PrimitiveType.Sphere, "Capucha", visual.transform, new Vector3(0f, 1.62f, 0f), new Vector3(0.48f, 0.48f, 0.48f), habito);
+        Parte(PrimitiveType.Cube, "SombraRostro", capucha.transform, new Vector3(0f, -0.05f, 0.26f), new Vector3(0.6f, 0.5f, 0.3f), Mat("sombra_rostro", Color.black, 0f));
+        Parte(PrimitiveType.Sphere, "OjoI", capucha.transform, new Vector3(-0.2f, 0.02f, 0.38f), Vector3.one * 0.18f, fuegoInquisicion);
+        Parte(PrimitiveType.Sphere, "OjoD", capucha.transform, new Vector3(0.2f, 0.02f, 0.38f), Vector3.one * 0.18f, fuegoInquisicion);
+
+        // Cruz de hierro / candelero
+        Parte(PrimitiveType.Cube, "MastilCruz", visual.transform, new Vector3(0.35f, 1.2f, 0.35f), new Vector3(0.06f, 0.8f, 0.06f), plata);
+        Parte(PrimitiveType.Cube, "BrazoCruz", visual.transform, new Vector3(0.35f, 1.45f, 0.35f), new Vector3(0.35f, 0.06f, 0.06f), plata);
+        Parte(PrimitiveType.Sphere, "LlamaCruz", visual.transform, new Vector3(0.35f, 1.65f, 0.35f), Vector3.one * 0.16f, fuegoInquisicion);
+
+        PoderEspiritual vida = root.AddComponent<PoderEspiritual>();
+        vida.maxPoder = 65f; vida.actualPoder = 65f;
+
+        EsbirroBaseIA ia = root.AddComponent<EsbirroBaseIA>();
+        ia.tipo = EsbirroBaseIA.TipoEsbirro.Monje;
+        ia.velocidadPersecucion = 2.9f;
+        ia.velocidadPatrulla = 1.2f;
+        ia.rangoDeteccion = 12f;
+        ia.rangoAtaque = 2.5f; // Golpe de área de fuego sagrado
+        ia.danio = 18f;
+        ia.cooldownAtaque = 1.8f;
+        ia.tiempoTelegrafiado = 0.7f;
+        ia.colorTelegrafiado = new Color(1f, 0.5f, 0.1f, 0.7f); // Naranja candente
+        ia.cantidadAlmasADropear = 5;
+        ia.alturaBarraVida = 2.2f;
         return ia;
     }
 

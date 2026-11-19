@@ -107,7 +107,7 @@ public static class HistoriaNivel1
 
     // ================================================================== VOCES
 
-    public enum VozPerfil { Tonalli, LaBufa, DonChuy }
+    public enum VozPerfil { Tonalli, LaBufa, DonChuy, GeneralMomia, Inquisidor }
 
     public struct Frase
     {

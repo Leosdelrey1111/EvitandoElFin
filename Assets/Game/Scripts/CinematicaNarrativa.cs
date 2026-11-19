@@ -258,7 +258,7 @@ public class CinematicaNarrativa : MonoBehaviour
 
         tomas = guion;
         idActual = id;
-        string[] lineas = HistoriaNivel1.Lineas(id);
+        string[] lineas = GuiaAlebrije.ObtenerLineas(id);
         totalLineas = lineas != null ? lineas.Length : 1;
         tomaIdx = -1; tomaPedida = Mathf.Clamp(idxInicial, 0, tomas.Count - 1);
         cortando = false; preparado = false;
@@ -703,9 +703,20 @@ public class CinematicaNarrativa : MonoBehaviour
 
     static readonly HashSet<string> conGuion = new HashSet<string>
     {
+        // Nivel 1: La Bufa
         "intro", "sierra", "serpientes", "hombres_piedra", "comadres",
         "corona", "tesoro", "arroyo", "cruces", "comerciante", "cueva",
-        "jefe_despierta", "jefe_derrotado"
+        "jefe_despierta", "jefe_derrotado",
+
+        // Nivel 2: Panteón de Santa Paula en la Sierra
+        "intro_panteon", "collado_sierra", "momias", "cirio1", "catrines",
+        "criptas_antiguas", "cirio2", "cuervos", "cirio3", "cripta",
+        "jefe_general", "jefe_general_derrota",
+
+        // Nivel 3: La Cañada Colonial y la Basílica
+        "intro_ciudad", "mirador_pipila", "monjes", "sello1", "callejon_beso",
+        "tuneles_mineros", "sello2", "sombras_callejon", "sello3", "basilica",
+        "jefe_inquisidor", "jefe_inquisidor_derrota"
     };
 
     bool TieneGuion(string id) { return conGuion.Contains(id); }
@@ -1390,6 +1401,396 @@ public class CinematicaNarrativa : MonoBehaviour
                     p.y = Suelo(j) + 1.9f;
                     return V(p, meta + arriba * 3f, Mathf.Lerp(54f, 44f, e));
                 }));
+                break;
+            }
+
+            // ================================================================ NIVEL 2: PANTEÓN DE SANTA PAULA
+            case "intro_panteon":
+            {
+                Transform criptaGeneral = Buscar("ArenaMausoleoGeneral") ?? Buscar("SepulcroGeneral");
+                Vector3 meta = criptaGeneral != null ? criptaGeneral.position : (j + f * 90f + arriba * 15f);
+                Vector3 dirMeta = Plano(meta - j);
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                // Toma 0: Chofer en la cumbre de la sierra observando las gavetas de piedra
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * Mathf.Lerp(3.5f, 5.0f, e) + r * 1.8f;
+                    p.y = Suelo(p) + Mathf.Lerp(1.6f, 2.2f, e);
+                    return V(p, j + arriba * 1.4f, Mathf.Lerp(52f, 46f, e), 0.005f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    NuevaLuz(j + f * 2f + arriba * 3f, new Color(0.2f, 0.95f, 0.5f), 10f, 18f);
+                }, "SIERRA DE SANTA PAULA", "«En este collado rocoso fundaron el panteón…»", false));
+
+                // Toma 1: Vista aérea del camposanto tallado en los riscos
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j + dirMeta * (20f * e) + arriba * Mathf.Lerp(6f, 16f, e) - r * 8f;
+                    return V(p, j + dirMeta * (40f * e) + arriba * 2f, Mathf.Lerp(58f, 48f, e), 0.006f);
+                }, () =>
+                {
+                    NuevaLuz(j + dirMeta * 30f + arriba * 12f, new Color(0.4f, 0.85f, 0.65f), 24f, 60f);
+                }, "CAMPOSANTO DE LA SIERRA", "«Los cuerpos quedaron momificados en la cantera…»", false));
+
+                // Toma 2: Panorámica de los riscos hacia el Gran Mausoleo
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = meta - dirMeta * Mathf.Lerp(25f, 12f, e) + arriba * Mathf.Lerp(8f, 14f, e);
+                    return V(p, meta + arriba * 2.5f, Mathf.Lerp(50f, 42f, e));
+                }, () =>
+                {
+                    NuevaLuz(meta + arriba * 8f, new Color(0.2f, 1.0f, 0.5f), 20f, 50f);
+                }, "EL GRAN MAUSOLEO", "«Debemos encender los 3 Cirios de Santa Paula»", false));
+                break;
+            }
+
+            case "collado_sierra":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 4f + r * Mathf.Lerp(3f, -2f, e);
+                    p.y = Suelo(p) + Mathf.Lerp(1.8f, 2.5f, e);
+                    return V(p, j + f * 10f + arriba * 1.5f, Mathf.Lerp(54f, 46f, e), 0.006f);
+                }, () =>
+                {
+                    NuevaLuz(j + f * 5f + arriba * 3f, new Color(0.3f, 0.9f, 0.6f), 12f, 22f);
+                }, "COLLADO DE LA SIERRA", "«El viento de la sierra sopla helado entre los riscos»", false));
+                break;
+            }
+
+            case "momias":
+            {
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 2.8f + r * 1.5f;
+                    p.y = Suelo(p) + 1.6f;
+                    return V(p, j + f * 4f + arriba * 1.2f, Mathf.Lerp(48f, 42f, e), 0.008f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Golpe", 0.15f);
+                    NuevaLuz(j + f * 3f + arriba * 2f, new Color(0.2f, 0.9f, 0.4f), 12f, 18f);
+                }, "CARTA No. 25 · LA MOMIA", "«De la gaveta salió y tus pasos siguió»", true));
+                break;
+            }
+
+            case "cirio1":
+            case "cirio2":
+            case "cirio3":
+            {
+                string num = id == "cirio1" ? "PRIMER" : (id == "cirio2" ? "SEGUNDO" : "TERCER");
+                Transform totem = Buscar("Totem_Cirio_" + (id == "cirio1" ? "1" : (id == "cirio2" ? "2" : "3")));
+                Vector3 posTotem = totem != null ? totem.position : (j + f * 4f);
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = posTotem - f * Mathf.Lerp(5f, 2.8f, e) + arriba * Mathf.Lerp(2.5f, 1.6f, e);
+                    return V(p, posTotem + arriba * 1.4f, Mathf.Lerp(50f, 40f, e), 0.005f);
+                }, () =>
+                {
+                    NuevaLuz(posTotem + arriba * 3f, new Color(0.1f, 1f, 0.45f), 18f, 28f);
+                }, "CIRIO DE SANTA PAULA", "«¡El " + num + " Cirio disipa la niebla de ultratumba!»", false));
+                break;
+            }
+
+            case "catrines":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j + f * Mathf.Lerp(6f, 3.5f, e) + r * 2.2f;
+                    p.y = Suelo(p) + 1.8f;
+                    return V(p, j + f * 5f + arriba * 1.5f, Mathf.Lerp(52f, 45f, e));
+                }, () =>
+                {
+                    NuevaLuz(j + f * 6f + arriba * 2.5f, new Color(0.1f, 0.8f, 0.9f), 14f, 22f);
+                }, "CARTA No. 27 · EL CATRÍN", "«Don Catrín con su bombín y fuego de postín»", true));
+                break;
+            }
+
+            case "criptas_antiguas":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 3f + r * Mathf.Lerp(-4f, 4f, e);
+                    p.y = Suelo(p) + 2.2f;
+                    return V(p, j + f * 8f + arriba * 2f, Mathf.Lerp(54f, 45f, e));
+                }, () =>
+                {
+                    NuevaLuz(j + f * 6f + arriba * 4f, new Color(0.4f, 0.7f, 0.6f), 14f, 30f);
+                }, "GAVETAS VIRREINALES", "«Talladas en la roca viva del cerro desde hace siglos»", false));
+                break;
+            }
+
+            case "cuervos":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 2.5f + arriba * Mathf.Lerp(1.5f, 3.5f, e);
+                    return V(p, j + f * 4f + arriba * 3f, Mathf.Lerp(52f, 44f, e), 0.008f);
+                }, () =>
+                {
+                    NuevaLuz(j + arriba * 4f, new Color(0.3f, 0.6f, 0.5f), 12f, 20f);
+                }, "CARTA No. 29 · EL CUERVO DE CRIPTA", "«Graznido en la cruz que vigila tu andar»", true));
+                break;
+            }
+
+            case "cripta":
+            {
+                Transform criptaGeneral = Buscar("ArenaMausoleoGeneral") ?? Buscar("SepulcroGeneral");
+                Vector3 meta = criptaGeneral != null ? criptaGeneral.position : (j + f * 12f);
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = meta - f * Mathf.Lerp(15f, 6f, e) + arriba * Mathf.Lerp(4f, 2.5f, e);
+                    return V(p, meta + arriba * 2f, Mathf.Lerp(52f, 42f, e), 0.015f);
+                }, () =>
+                {
+                    NuevaLuz(meta + arriba * 6f, new Color(0.15f, 0.95f, 0.45f), 22f, 40f);
+                }, "EL SEPULCRO DEL GENERAL", "«Las rejas del gran mausoleo están abiertas de par en par»", false));
+                break;
+            }
+
+            case "jefe_general":
+            {
+                JefeGeneralMomia jefe = JefeGeneralMomia.Instancia;
+                Vector3 posJefe = jefe != null ? jefe.transform.position : (j + f * 12f);
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = Vector3.Lerp(j - f * 3f + arriba * 1.8f, posJefe - f * 4f + arriba * 2.2f, e);
+                    return V(p, posJefe + arriba * 1.8f, Mathf.Lerp(54f, 44f, e), 0.02f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    NuevaLuz(posJefe + arriba * 5f, new Color(0.15f, 0.95f, 0.45f), 18f, 35f);
+                }, "CARTA No. 28 · EL GENERAL", "«Sable de mando y valor, del panteón el señor»", true));
+                break;
+            }
+
+            case "jefe_general_derrota":
+            {
+                JefeGeneralMomia jefe = JefeGeneralMomia.Instancia;
+                Vector3 posJefe = jefe != null ? jefe.transform.position : j;
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 2.5f + r * 1.2f;
+                    p.y = Suelo(p) + 1.7f;
+                    return V(p, j + arriba * 1.4f, Mathf.Lerp(48f, 40f, e), 0.005f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    NuevaLuz(j + arriba * 3f, new Color(1f, 0.85f, 0.3f), 15f, 25f);
+                }, "RECUERDO 2 RECUPERADO", "«El Rosario de Plata y la bendición de tu familia»", false));
+                break;
+            }
+
+            // ================================================================ NIVEL 3: CALLEJONES Y BASÍLICA
+            case "intro_ciudad":
+            {
+                Transform atrio = Buscar("AtrioBasílica_ArenaFinal") ?? Buscar("Atrio");
+                Vector3 meta = atrio != null ? atrio.position : (j + f * 100f);
+                Vector3 dirMeta = Plano(meta - j);
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                // Toma 0: Vista panorámica desde la sierra hacia la cañada colonial
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 4f + arriba * Mathf.Lerp(3f, 8f, e) + r * 2f;
+                    return V(p, j + dirMeta * 25f + arriba * 1f, Mathf.Lerp(56f, 46f, e), 0.006f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    NuevaLuz(j + f * 15f + arriba * 10f, new Color(1f, 0.75f, 0.35f), 22f, 45f);
+                }, "LA CAÑADA DE GUANAJUATO", "«Mira cómo las casas coloniales trepan por los riscos…»", false));
+
+                // Toma 1: Callejón empinado con escalinatas de cantera
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j + dirMeta * Mathf.Lerp(10f, 30f, e) + arriba * 3.5f - r * 3f;
+                    return V(p, j + dirMeta * (35f * e) + arriba * 1.5f, Mathf.Lerp(52f, 44f, e));
+                }, () =>
+                {
+                    NuevaLuz(j + dirMeta * 20f + arriba * 6f, new Color(0.9f, 0.5f, 0.2f), 16f, 35f);
+                }, "CALLEJONES VIRREINALES", "«Una joya nacida de las minas y de las peñas…»", false));
+
+                // Toma 2: El atrio de la basílica al fondo del cañón
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = meta - dirMeta * Mathf.Lerp(30f, 15f, e) + arriba * Mathf.Lerp(12f, 18f, e);
+                    return V(p, meta + arriba * 8f, Mathf.Lerp(54f, 45f, e));
+                }, () =>
+                {
+                    NuevaLuz(meta + arriba * 15f, new Color(1f, 0.8f, 0.3f), 28f, 75f);
+                }, "LA BASÍLICA DE GUANAJUATO", "«Debemos romper los 3 Sellos Inquisitoriales»", false));
+                break;
+            }
+
+            case "mirador_pipila":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 4f + arriba * Mathf.Lerp(2.5f, 6.5f, e);
+                    return V(p, j + f * 35f, Mathf.Lerp(58f, 46f, e));
+                }, () =>
+                {
+                    NuevaLuz(j + f * 10f + arriba * 6f, new Color(1f, 0.7f, 0.3f), 18f, 35f);
+                }, "MIRADOR DE LA SIERRA", "«Los techos de teja y los tiros de mina bajan hasta el fondo»", false));
+                break;
+            }
+
+            case "sello1":
+            case "sello2":
+            case "sello3":
+            {
+                string num = id == "sello1" ? "PRIMER" : (id == "sello2" ? "SEGUNDO" : "TERCER");
+                Transform totem = Buscar("Totem_Sello_" + (id == "sello1" ? "1" : (id == "sello2" ? "2" : "3")));
+                Vector3 posTotem = totem != null ? totem.position : (j + f * 4f);
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = posTotem - f * Mathf.Lerp(4.5f, 2.5f, e) + arriba * Mathf.Lerp(2f, 1.4f, e);
+                    return V(p, posTotem + arriba * 1.2f, Mathf.Lerp(50f, 42f, e), 0.005f);
+                }, () =>
+                {
+                    NuevaLuz(posTotem + arriba * 3f, new Color(1f, 0.8f, 0.2f), 20f, 30f);
+                }, "SELLO INQUISITORIAL", "«¡El " + num + " Sello ha sido destruido! Una campana dobla en la montaña»", false));
+                break;
+            }
+
+            case "callejon_beso":
+            {
+                Transform beso = Buscar("Hito_CallejonDelBeso") ?? Buscar("Balcon_Carmen");
+                Vector3 posBeso = beso != null ? beso.position : (j + f * 5f);
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = posBeso - f * Mathf.Lerp(4.5f, 2.5f, e) + arriba * Mathf.Lerp(1.5f, 4.2f, e);
+                    return V(p, posBeso + arriba * 4.5f, Mathf.Lerp(50f, 42f, e), 0.006f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    NuevaLuz(posBeso + arriba * 5.5f, new Color(1f, 0.45f, 0.65f), 14f, 25f);
+                }, "CARTA No. 30 · LOS AMANTES", "«El Callejón del Beso y la promesa de amor eterno»", true));
+                break;
+            }
+
+            case "tuneles_mineros":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 3f + r * Mathf.Lerp(-2f, 3f, e);
+                    p.y = Suelo(p) + 1.8f;
+                    return V(p, j + f * 12f + arriba * 2.5f, Mathf.Lerp(52f, 44f, e));
+                }, () =>
+                {
+                    NuevaLuz(j + f * 6f + arriba * 3f, new Color(0.9f, 0.6f, 0.2f), 16f, 28f);
+                }, "TÚNELES MINEROS", "«Arcos de cantera por donde corría la plata de la sierra»", false));
+                break;
+            }
+
+            case "sombras_callejon":
+            {
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 2.5f + arriba * Mathf.Lerp(1.5f, 3f, e);
+                    return V(p, j + f * 5f + arriba * 1.2f, Mathf.Lerp(50f, 42f, e), 0.01f);
+                }, () =>
+                {
+                    NuevaLuz(j + f * 4f + arriba * 3f, new Color(0.5f, 0.2f, 0.8f), 14f, 22f);
+                }, "GUARDIANES VIRREINALES", "«Sombras del tribunal acechan entre los empedrados»", false));
+                break;
+            }
+
+            case "basilica":
+            {
+                Transform atrio = Buscar("AtrioBasílica_ArenaFinal") ?? Buscar("Atrio");
+                Vector3 meta = atrio != null ? atrio.position : (j + f * 14f);
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = meta - f * Mathf.Lerp(18f, 8f, e) + arriba * Mathf.Lerp(6f, 3f, e);
+                    return V(p, meta + arriba * 4f, Mathf.Lerp(54f, 44f, e), 0.01f);
+                }, () =>
+                {
+                    NuevaLuz(meta + arriba * 10f, new Color(1.0f, 0.85f, 0.3f), 26f, 50f);
+                }, "EL GRAN ATRIO", "«El monumental atrio de la Basílica… el juicio final de tu existencia»", false));
+                break;
+            }
+
+            case "monjes":
+            {
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 2.8f - r * 1.8f;
+                    p.y = Suelo(p) + 1.7f;
+                    return V(p, j + f * 5f + arriba * 1.4f, Mathf.Lerp(50f, 43f, e), 0.01f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Golpe", 0.15f);
+                    NuevaLuz(j + f * 4f + arriba * 2.5f, new Color(1f, 0.5f, 0.1f), 12f, 20f);
+                }, "CARTA No. 33 · EL PENITENTE", "«Con su hábito y candelero, purifica el sendero»", true));
+                break;
+            }
+
+            case "jefe_inquisidor":
+            {
+                JefeInquisidor jefe = JefeInquisidor.Instancia;
+                Vector3 posJefe = jefe != null ? jefe.transform.position : (j + f * 14f);
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = Vector3.Lerp(j - f * 4f + arriba * 2f, posJefe - f * 5f + arriba * 3.5f, e);
+                    return V(p, posJefe + arriba * 2.8f, Mathf.Lerp(56f, 44f, e), 0.025f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Onda", 0.15f);
+                    NuevaLuz(posJefe + arriba * 8f, new Color(1.0f, 0.78f, 0.15f), 24f, 45f);
+                }, "CARTA No. 42 · EL INQUISIDOR", "«En la basílica juzgó y su sentencia dictó»", true));
+                break;
+            }
+
+            case "jefe_inquisidor_derrota":
+            {
+                Animator anim = chofer != null ? chofer.GetComponentInChildren<Animator>() : null;
+
+                l.Add(T(t =>
+                {
+                    float e = Progreso(t);
+                    Vector3 p = j - f * 3f + r * 1.5f;
+                    p.y = Suelo(p) + 1.8f;
+                    return V(p, j + arriba * 1.5f, Mathf.Lerp(48f, 38f, e), 0.004f);
+                }, () =>
+                {
+                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    NuevaLuz(j + arriba * 5f, new Color(1f, 0.95f, 0.6f), 25f, 40f);
+                }, "RECUERDO 3 · EL AMANECER", "«¡El latido de tu corazón te llama… vuelve a casa!»", false));
                 break;
             }
         }

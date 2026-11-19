@@ -100,7 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6898154377452675386}
   - component: {fileID: 7200789213112433508}
-  - component: {fileID: 2909213176153260729}
+  - component: {fileID: 3975842517675856505}
   m_Layer: 0
   m_Name: Nopal2
   m_TagString: Untagged
@@ -148,7 +148,7 @@ CapsuleCollider:
   m_Height: 1.5
   m_Direction: 1
   m_Center: {x: 0, y: 0.75, z: 0}
---- !u!205 &2909213176153260729
+--- !u!205 &3975842517675856505
 LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

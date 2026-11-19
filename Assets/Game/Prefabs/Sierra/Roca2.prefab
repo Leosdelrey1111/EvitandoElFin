@@ -100,7 +100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4824439288585406930}
   - component: {fileID: 991918988842337146}
-  - component: {fileID: 5630346299859887573}
+  - component: {fileID: 8478395984777037252}
   m_Layer: 0
   m_Name: Roca2
   m_TagString: Untagged
@@ -147,7 +147,7 @@ CapsuleCollider:
   m_Height: 1.8899999
   m_Direction: 1
   m_Center: {x: 0, y: 0.94499993, z: 0}
---- !u!205 &5630346299859887573
+--- !u!205 &8478395984777037252
 LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

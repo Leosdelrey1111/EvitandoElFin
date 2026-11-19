@@ -107,25 +107,53 @@ public class GuiaAlebrije : MonoBehaviour
     public void ContarHistoria(string id, bool urgente = false)
     {
         if (contadas.Contains(id)) return;
-        string[] lineas = HistoriaNivel1.Lineas(id);
+        string[] lineas = ObtenerLineas(id);
         if (lineas == null) return;
         contadas.Add(id);
-        if (HistoriaNivel1.IndiceCapitulo(id) >= 0) CodiceHistoria.Registrar(id);   // queda escrito en el libro
+        if (EsCapituloValido(id)) CodiceHistoria.Registrar(id);   // queda escrito en el libro
 
         List<Linea> destino = urgente ? prioritaria : normal;
 
         int acto; string tituloActo;
         if (HistoriaNivel1.AbreActo(id, out acto, out tituloActo))
             destino.Add(new Linea { tipo = TipoLinea.TarjetaActo, acto = acto, tituloActo = tituloActo });
+        else
+        {
+            for (int a = 0; a < HistoriaNivel2.Actos.GetLength(0); a++)
+                if (HistoriaNivel2.Actos[a, 0] == id) destino.Add(new Linea { tipo = TipoLinea.TarjetaActo, acto = a + 4, tituloActo = HistoriaNivel2.Actos[a, 1] });
+            for (int a = 0; a < HistoriaNivel3.Actos.GetLength(0); a++)
+                if (HistoriaNivel3.Actos[a, 0] == id) destino.Add(new Linea { tipo = TipoLinea.TarjetaActo, acto = a + 7, tituloActo = HistoriaNivel3.Actos[a, 1] });
+        }
 
         for (int i = 0; i < lineas.Length; i++)
             destino.Add(new Linea
             {
                 tipo = TipoLinea.Dialogo, quien = HistoriaNivel1.VozPerfil.Tonalli,
-                texto = lineas[i], clave = HistoriaNivel1.ClaveLinea(id, i),
+                texto = lineas[i], clave = ObtenerClaveLinea(id, i),
                 historia = id, indice = i
             });
         Arrancar();
+    }
+
+    public static string[] ObtenerLineas(string id)
+    {
+        string[] l = HistoriaNivel1.Lineas(id);
+        if (l != null) return l;
+        l = HistoriaNivel2.Lineas(id);
+        if (l != null) return l;
+        return HistoriaNivel3.Lineas(id);
+    }
+
+    public static string ObtenerClaveLinea(string id, int i)
+    {
+        if (HistoriaNivel1.Lineas(id) != null) return HistoriaNivel1.ClaveLinea(id, i);
+        if (HistoriaNivel2.Lineas(id) != null) return HistoriaNivel2.ClaveLinea(id, i);
+        return HistoriaNivel3.ClaveLinea(id, i);
+    }
+
+    public static bool EsCapituloValido(string id)
+    {
+        return HistoriaNivel1.IndiceCapitulo(id) >= 0 || HistoriaNivel2.IndiceCapitulo(id) >= 0 || HistoriaNivel3.IndiceCapitulo(id) >= 0;
     }
 
     /// <summary>
@@ -183,16 +211,17 @@ public class GuiaAlebrije : MonoBehaviour
                 Vector3 d = jugador.position - h.transform.position; d.y = 0f;
                 if (d.magnitude > h.radio) continue;
 
-                if (h.idHistoria == "cueva")
+                if (h.idHistoria == "cueva" || h.idHistoria == "cripta" || h.idHistoria == "basilica")
                 {
                     int req = GameManager.Instancia != null ? GameManager.Instancia.totemsRequeridos : 3;
                     int tengo = inventario != null ? inventario.cantidadTotems : 0;
-                    if (tengo >= req) { hitosHechos.Add(h); ContarHistoria("cueva"); }
+                    if (tengo >= req) { hitosHechos.Add(h); ContarHistoria(h.idHistoria); }
                     else if (Time.time >= proximoAvisoCueva)
                     {
                         proximoAvisoCueva = Time.time + 45f;
-                        contadas.Remove("cueva_cerrada");
-                        ContarHistoria("cueva_cerrada");
+                        string cerrada = (h.idHistoria == "cripta") ? "cripta_cerrada" : (h.idHistoria == "basilica" ? "basilica_cerrada" : "cueva_cerrada");
+                        contadas.Remove(cerrada);
+                        ContarHistoria(cerrada);
                     }
                 }
                 else
@@ -388,7 +417,13 @@ public class GuiaAlebrije : MonoBehaviour
 
     IEnumerator MostrarTarjetaActo(Linea l)
     {
-        txtActoNumero.text = "ACTO " + Romano(l.acto);
+        if (l.acto >= 4 && l.acto <= 6)
+            txtActoNumero.text = "NIVEL II  ·  ACTO " + Romano(l.acto - 3);
+        else if (l.acto >= 7)
+            txtActoNumero.text = "NIVEL III  ·  ACTO " + Romano(l.acto - 6);
+        else
+            txtActoNumero.text = "ACTO " + Romano(l.acto);
+
         txtActoTitulo.text = l.tituloActo;
         fuente.pitch = 1f;
         fuente.PlayOneShot(sonidoActo, 0.9f);
@@ -452,6 +487,28 @@ public class GuiaAlebrije : MonoBehaviour
                 imgIcono.sprite = UIMexicana.IconoSprite(UIMexicana.Icono.Alma);
                 imgIcono.color = UIMexicana.Crema;
                 txtTexto.fontStyle = FontStyles.Normal;
+                break;
+            case HistoriaNivel1.VozPerfil.GeneralMomia:
+                txtNombre.text = HistoriaNivel2.NombreJefe + "  ·  " + HistoriaNivel2.SubtituloJefe.ToUpper();
+                txtNombre.color = UIMexicana.H("2EC4B6");
+                imgBorde.color = UIMexicana.ConAlfa(UIMexicana.H("2EC4B6"), 0.9f);
+                imgBrillo.color = UIMexicana.ConAlfa(UIMexicana.H("00FFAA"), 0.8f);
+                imgDisco.color = UIMexicana.H("1F302B");
+                imgAro.color = UIMexicana.H("2EC4B6");
+                imgIcono.sprite = UIMexicana.IconoSprite(UIMexicana.Icono.Calavera);
+                imgIcono.color = UIMexicana.H("2EC4B6");
+                txtTexto.fontStyle = FontStyles.Italic;
+                break;
+            case HistoriaNivel1.VozPerfil.Inquisidor:
+                txtNombre.text = HistoriaNivel3.NombreJefe + "  ·  " + HistoriaNivel3.SubtituloJefe.ToUpper();
+                txtNombre.color = UIMexicana.H("E4007C");
+                imgBorde.color = UIMexicana.ConAlfa(UIMexicana.H("E4007C"), 0.9f);
+                imgBrillo.color = UIMexicana.ConAlfa(UIMexicana.H("FFA01C"), 0.8f);
+                imgDisco.color = UIMexicana.H("3A1020");
+                imgAro.color = UIMexicana.H("E4007C");
+                imgIcono.sprite = UIMexicana.IconoSprite(UIMexicana.Icono.Calavera);
+                imgIcono.color = UIMexicana.H("FFA01C");
+                txtTexto.fontStyle = FontStyles.Italic;
                 break;
             default:
                 txtNombre.text = HistoriaNivel1.NombreGuia + "  ·  ALEBRIJE";

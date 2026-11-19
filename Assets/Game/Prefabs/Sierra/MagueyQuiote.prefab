@@ -190,7 +190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 13273214341672177}
   - component: {fileID: 5389407883656534868}
-  - component: {fileID: 3729419858031683897}
+  - component: {fileID: 305360672341320618}
   m_Layer: 0
   m_Name: MagueyQuiote
   m_TagString: Untagged
@@ -239,7 +239,7 @@ CapsuleCollider:
   m_Height: 1.4
   m_Direction: 1
   m_Center: {x: 0, y: 0.7, z: 0}
---- !u!205 &3729419858031683897
+--- !u!205 &305360672341320618
 LODGroup:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

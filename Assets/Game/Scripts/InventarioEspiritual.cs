@@ -27,6 +27,36 @@ public class InventarioEspiritual : MonoBehaviour
         Instancia = this;
     }
 
+    void Start()
+    {
+        string escena = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        // Cargar datos previos de la sesión o guardado sólo si corresponden a esta misma escena
+        if (SistemaGuardado.Datos != null)
+        {
+            if (SistemaGuardado.Datos.escenaActual == escena && SistemaGuardado.Datos.totemsNivelActual > 0)
+            {
+                cantidadTotems = SistemaGuardado.Datos.totemsNivelActual;
+                OnCambioTotems?.Invoke(cantidadTotems);
+            }
+            else
+            {
+                cantidadTotems = 0;
+                OnCambioTotems?.Invoke(0);
+            }
+
+            if (SistemaGuardado.Datos.almasTotales > 0)
+            {
+                energiaEspiritual = SistemaGuardado.Datos.almasTotales;
+                OnCambioEnergia?.Invoke(energiaEspiritual);
+            }
+        }
+        else
+        {
+            cantidadTotems = 0;
+            OnCambioTotems?.Invoke(0);
+        }
+    }
+
     public void AgregarTotems(int cantidad)
     {
         if (cantidad <= 0) return;

@@ -158,7 +158,11 @@ public class AlmaRecolectable : MonoBehaviour
 
     void Recolectar()
     {
-        if (InventarioEspiritual.Instancia != null) InventarioEspiritual.Instancia.AgregarEnergia(energia);
+        if (InventarioEspiritual.Instancia != null)
+        {
+            InventarioEspiritual.Instancia.AgregarEnergia(energia);
+            SistemaGuardado.SincronizarAlmas(Mathf.RoundToInt(InventarioEspiritual.Instancia.energiaEspiritual));
+        }
 
         PoderEspiritual v = jugador != null ? jugador.GetComponent<PoderEspiritual>() : null;
         if (v != null && curacion > 0f) v.Curar(curacion);

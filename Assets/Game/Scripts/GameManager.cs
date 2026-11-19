@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Nombres de Escenas")]
     public string nombreMenuPrincipal = "MainMenu";
+    public string siguienteEscena = "Nivel2_Panteon";
 
     [Header("Audio SFX (Opcional)")]
     public AudioSource audioSource;
@@ -60,6 +61,26 @@ public class GameManager : MonoBehaviour
 
         // Suscribirse a los eventos del jugador
         ConectarEventosJugador();
+
+        // Si venimos de un checkpoint guardado en esta escena
+        VerificarCheckpointInicial();
+    }
+
+    void VerificarCheckpointInicial()
+    {
+        if (SistemaGuardado.HayPartidaGuardada() && SistemaGuardado.Datos.escenaActual == SceneManager.GetActiveScene().name)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null && !string.IsNullOrEmpty(SistemaGuardado.Datos.idUltimoCheckpoint))
+            {
+                CharacterController cc = player.GetComponent<CharacterController>();
+                if (cc != null) cc.enabled = false;
+                player.transform.position = SistemaGuardado.ObtenerPosicionReaparicion(player.transform.position);
+                player.transform.rotation = SistemaGuardado.ObtenerRotacionReaparicion(player.transform.rotation);
+                if (cc != null) cc.enabled = true;
+                Debug.Log("[GameManager] Jugador reubicado en el checkpoint: " + SistemaGuardado.Datos.idUltimoCheckpoint);
+            }
+        }
     }
 
     void ConectarBotonesUI()
@@ -82,6 +103,7 @@ public class GameManager : MonoBehaviour
         // Panel Victoria
         if (panelVictoria != null)
         {
+            AsignarAccionBoton(panelVictoria.transform, "BtnSiguiente", ContinuarSiguienteNivel);
             AsignarAccionBoton(panelVictoria.transform, "BtnRejugar", ReiniciarNivel);
             AsignarAccionBoton(panelVictoria.transform, "BtnMenu", IrAlMenuPrincipal);
         }
@@ -240,6 +262,39 @@ public class GameManager : MonoBehaviour
         }
 
         Debug.Log("[GameManager] El Chofer ha perecido. Fin de la partida.");
+    }
+
+    public void ContinuarSiguienteNivel()
+    {
+        ReproducirClick();
+        Time.timeScale = 1f;
+
+        string actual = SceneManager.GetActiveScene().name;
+        int nuevoNivel = 2;
+        string destino = siguienteEscena;
+
+        if (actual.Contains("Nivel2") || actual.Contains("Panteon"))
+        {
+            nuevoNivel = 3;
+            destino = "Nivel3_Ciudad";
+        }
+        else if (actual.Contains("Nivel3") || actual.Contains("Ciudad"))
+        {
+            nuevoNivel = 4;
+            destino = nombreMenuPrincipal;
+        }
+
+        SistemaGuardado.SincronizarNivel(nuevoNivel, destino);
+
+        if (!string.IsNullOrEmpty(destino) && Application.CanStreamedLevelBeLoaded(destino))
+        {
+            SceneManager.LoadScene(destino);
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] La escena destino '" + destino + "' no está en Build Settings. Volviendo al Menú Principal.");
+            IrAlMenuPrincipal();
+        }
     }
 
     public void ReiniciarNivel()

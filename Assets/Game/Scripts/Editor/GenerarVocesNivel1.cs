@@ -93,9 +93,13 @@ public static class GenerarVocesNivel1
             return;
         }
 
-        // manifiesto con todas las frases del guion
+        // manifiesto con todas las frases del guion (Nivel 1, Nivel 2 y Nivel 3)
         var m = new ManifiestoJson();
         foreach (HistoriaNivel1.Frase f in HistoriaNivel1.TodasLasFrases())
+            m.frases.Add(new FraseJson { clave = f.clave, texto = f.texto, voz = f.voz.ToString() });
+        foreach (HistoriaNivel1.Frase f in HistoriaNivel2.TodasLasFrases())
+            m.frases.Add(new FraseJson { clave = f.clave, texto = f.texto, voz = f.voz.ToString() });
+        foreach (HistoriaNivel1.Frase f in HistoriaNivel3.TodasLasFrases())
             m.frases.Add(new FraseJson { clave = f.clave, texto = f.texto, voz = f.voz.ToString() });
         string manifiesto = Path.Combine(Path.GetTempPath(), "voces_evitando_el_fin.json");
         File.WriteAllText(manifiesto, JsonUtility.ToJson(m), new UTF8Encoding(false));
