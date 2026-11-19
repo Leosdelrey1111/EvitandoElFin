@@ -419,52 +419,74 @@ public class JefeInquisidor : MonoBehaviour
         matFuegoNegro.EnableKeyword("_EMISSION");
         matFuegoNegro.SetColor("_EmissionColor", PurpuraHerejia * 2.0f);
 
-        // Cuerpo con túnica ceremonial
-        GameObject sotana = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        sotana.transform.SetParent(visualRoot.transform, false);
-        sotana.transform.localPosition = new Vector3(0, 1.1f, 0);
-        sotana.transform.localScale = new Vector3(0.85f, 1.1f, 0.85f);
-        sotana.GetComponent<Renderer>().material = matSotana;
-        Destroy(sotana.GetComponent<Collider>());
+        // Intentar instanciar el modelo 3D real del Clérigo Inquisidor
+        GameObject prefabClerigo = Resources.Load<GameObject>("Prefabs/Jefe_ClerigoInquisidor");
+        #if UNITY_EDITOR
+        if (prefabClerigo == null)
+            prefabClerigo = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/Jefe_ClerigoInquisidor.prefab");
+        #endif
 
-        // Estola dorada de juicio
-        GameObject estola = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        estola.transform.SetParent(visualRoot.transform, false);
-        estola.transform.localPosition = new Vector3(0, 1.4f, 0.38f);
-        estola.transform.localScale = new Vector3(0.35f, 1.3f, 0.1f);
-        estola.GetComponent<Renderer>().material = matDorado;
-        Destroy(estola.GetComponent<Collider>());
+        if (prefabClerigo != null)
+        {
+            GameObject inst = Instantiate(prefabClerigo, visualRoot.transform, false);
+            inst.name = "ModeloClerigo3D";
+            inst.transform.localPosition = Vector3.zero;
+            inst.transform.localRotation = Quaternion.identity;
+            inst.transform.localScale = Vector3.one * 1.3f;
 
-        // Cabeza con mitra episcopal inquisitorial
-        GameObject cabeza = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cabeza.transform.SetParent(visualRoot.transform, false);
-        cabeza.transform.localPosition = new Vector3(0, 2.3f, 0);
-        cabeza.transform.localScale = new Vector3(0.42f, 0.5f, 0.42f);
-        cabeza.GetComponent<Renderer>().material = matSotana;
-        Destroy(cabeza.GetComponent<Collider>());
+            var clerigoScript = inst.GetComponent<JefeClerigoInquisidor>(); if (clerigoScript != null) Destroy(clerigoScript);
+            var col = inst.GetComponent<Collider>(); if (col != null) Destroy(col);
+            var poder = inst.GetComponent<PoderEspiritual>(); if (poder != null) Destroy(poder);
+        }
+        else
+        {
+            // Cuerpo con túnica ceremonial
+            GameObject sotana = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            sotana.transform.SetParent(visualRoot.transform, false);
+            sotana.transform.localPosition = new Vector3(0, 1.1f, 0);
+            sotana.transform.localScale = new Vector3(0.85f, 1.1f, 0.85f);
+            sotana.GetComponent<Renderer>().material = matSotana;
+            Destroy(sotana.GetComponent<Collider>());
 
-        // Mitra alta
-        GameObject mitra = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        mitra.transform.SetParent(cabeza.transform, false);
-        mitra.transform.localPosition = new Vector3(0, 0.7f, 0);
-        mitra.transform.localScale = new Vector3(1.1f, 1.4f, 0.7f);
-        mitra.GetComponent<Renderer>().material = matDorado;
-        Destroy(mitra.GetComponent<Collider>());
+            // Estola dorada de juicio
+            GameObject estola = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            estola.transform.SetParent(visualRoot.transform, false);
+            estola.transform.localPosition = new Vector3(0, 1.4f, 0.38f);
+            estola.transform.localScale = new Vector3(0.35f, 1.3f, 0.1f);
+            estola.GetComponent<Renderer>().material = matDorado;
+            Destroy(estola.GetComponent<Collider>());
 
-        // Ojos de fuego sagrado
-        GameObject ojoI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        ojoI.transform.SetParent(cabeza.transform, false);
-        ojoI.transform.localPosition = new Vector3(-0.25f, 0.1f, 0.5f);
-        ojoI.transform.localScale = Vector3.one * 0.22f;
-        ojoI.GetComponent<Renderer>().material = matFuegoSagrado;
-        Destroy(ojoI.GetComponent<Collider>());
+            // Cabeza con mitra episcopal inquisitorial
+            GameObject cabeza = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cabeza.transform.SetParent(visualRoot.transform, false);
+            cabeza.transform.localPosition = new Vector3(0, 2.3f, 0);
+            cabeza.transform.localScale = new Vector3(0.42f, 0.5f, 0.42f);
+            cabeza.GetComponent<Renderer>().material = matSotana;
+            Destroy(cabeza.GetComponent<Collider>());
 
-        GameObject ojoD = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        ojoD.transform.SetParent(cabeza.transform, false);
-        ojoD.transform.localPosition = new Vector3(0.25f, 0.1f, 0.5f);
-        ojoD.transform.localScale = Vector3.one * 0.22f;
-        ojoD.GetComponent<Renderer>().material = matFuegoSagrado;
-        Destroy(ojoD.GetComponent<Collider>());
+            // Mitra alta
+            GameObject mitra = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            mitra.transform.SetParent(cabeza.transform, false);
+            mitra.transform.localPosition = new Vector3(0, 0.7f, 0);
+            mitra.transform.localScale = new Vector3(1.1f, 1.4f, 0.7f);
+            mitra.GetComponent<Renderer>().material = matDorado;
+            Destroy(mitra.GetComponent<Collider>());
+
+            // Ojos de fuego sagrado
+            GameObject ojoI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ojoI.transform.SetParent(cabeza.transform, false);
+            ojoI.transform.localPosition = new Vector3(-0.25f, 0.1f, 0.5f);
+            ojoI.transform.localScale = Vector3.one * 0.22f;
+            ojoI.GetComponent<Renderer>().material = matFuegoSagrado;
+            Destroy(ojoI.GetComponent<Collider>());
+
+            GameObject ojoD = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ojoD.transform.SetParent(cabeza.transform, false);
+            ojoD.transform.localPosition = new Vector3(0.25f, 0.1f, 0.5f);
+            ojoD.transform.localScale = Vector3.one * 0.22f;
+            ojoD.GetComponent<Renderer>().material = matFuegoSagrado;
+            Destroy(ojoD.GetComponent<Collider>());
+        }
 
         // Libro Inquisitorial flotando en la mano izquierda
         libroObj = GameObject.CreatePrimitive(PrimitiveType.Cube);

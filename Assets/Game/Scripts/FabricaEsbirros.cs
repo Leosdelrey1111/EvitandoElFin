@@ -9,6 +9,53 @@ public static class FabricaEsbirros
     static Shader shaderLit;
     static readonly System.Collections.Generic.Dictionary<string, Material> cache = new System.Collections.Generic.Dictionary<string, Material>();
 
+    public static GameObject CargarPrefab(string nombre)
+    {
+        GameObject p = Resources.Load<GameObject>("Prefabs/" + nombre);
+        #if UNITY_EDITOR
+        if (p == null)
+        {
+            p = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/" + nombre + ".prefab");
+            if (p == null)
+                p = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Resources/Prefabs/" + nombre + ".prefab");
+        }
+        #endif
+        return p;
+    }
+
+    public static EsbirroBaseIA InstanciarPrefab(string nombrePrefab, Vector3 pos, EsbirroBaseIA.TipoEsbirro tipo)
+    {
+        GameObject prefab = CargarPrefab(nombrePrefab);
+        if (prefab != null)
+        {
+            GameObject inst = Object.Instantiate(prefab, pos, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
+            inst.name = nombrePrefab;
+            Etiquetar(inst);
+            EsbirroBaseIA ia = inst.GetComponent<EsbirroBaseIA>();
+            if (ia == null) ia = inst.AddComponent<EsbirroBaseIA>();
+            ia.tipo = tipo;
+
+            // Asegurar CharacterController configurado
+            CharacterController cc = inst.GetComponent<CharacterController>();
+            if (cc == null)
+            {
+                cc = inst.AddComponent<CharacterController>();
+                cc.height = 2f; cc.radius = 0.5f; cc.center = new Vector3(0f, 1f, 0f);
+            }
+
+            // Asegurar PoderEspiritual
+            PoderEspiritual vida = inst.GetComponent<PoderEspiritual>();
+            if (vida == null)
+            {
+                vida = inst.AddComponent<PoderEspiritual>();
+                vida.maxPoder = 50f; vida.actualPoder = 50f;
+            }
+
+            return ia;
+        }
+        return null;
+    }
+
     public static EsbirroBaseIA Crear(EsbirroBaseIA.TipoEsbirro tipo, Vector3 posicion)
     {
         switch (tipo)
@@ -27,6 +74,13 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearSerpiente(Vector3 pos)
     {
+        // Alterna entre Alma Espectral 3D y Serpiente
+        if (Random.value > 0.4f)
+        {
+            EsbirroBaseIA desdePrefab = InstanciarPrefab("Esbirro_Alma", pos, EsbirroBaseIA.TipoEsbirro.Serpiente);
+            if (desdePrefab != null) return desdePrefab;
+        }
+
         GameObject root = new GameObject("Serpiente");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -79,6 +133,9 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearHombrePiedra(Vector3 pos)
     {
+        EsbirroBaseIA desdePrefab = InstanciarPrefab("Esbirro_HombrePiedra", pos, EsbirroBaseIA.TipoEsbirro.HombrePiedra);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("HombreDePiedra");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -140,6 +197,10 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearComadre(Vector3 pos)
     {
+        string prefabBruja = Random.value > 0.5f ? "Esbirro_BrujaMorada" : "Esbirro_Bruja";
+        EsbirroBaseIA desdePrefab = InstanciarPrefab(prefabBruja, pos, EsbirroBaseIA.TipoEsbirro.Comadre);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("Comadre");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -200,6 +261,10 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearMomia(Vector3 pos)
     {
+        string prefabMomia = Random.value > 0.4f ? "Esbirro_GuerreroIndigena" : "Esbirro_Calavera";
+        EsbirroBaseIA desdePrefab = InstanciarPrefab(prefabMomia, pos, EsbirroBaseIA.TipoEsbirro.Momia);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("Momia");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -255,6 +320,10 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearCatrin(Vector3 pos)
     {
+        string prefabCatrin = Random.value > 0.5f ? "Esbirro_Catrina" : "Esbirro_Calavera";
+        EsbirroBaseIA desdePrefab = InstanciarPrefab(prefabCatrin, pos, EsbirroBaseIA.TipoEsbirro.Catrin);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("Catrin");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -364,6 +433,9 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearMonje(Vector3 pos)
     {
+        EsbirroBaseIA desdePrefab = InstanciarPrefab("Esbirro_Monja", pos, EsbirroBaseIA.TipoEsbirro.Monje);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("MonjePenitente");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);

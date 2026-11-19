@@ -1270,42 +1270,75 @@ public class JefeLaBufa : MonoBehaviour
         visualRoot = new GameObject("Visual").transform;
         visualRoot.SetParent(transform, false);
 
-        // ---------------- fase 1: la joven de piedra (monolito)
-        piedraRoot = new GameObject("JovenDePiedra");
-        piedraRoot.transform.SetParent(visualRoot, false);
-        Transform p = piedraRoot.transform;
+        // ---------------- fase 1: la joven de piedra (monolito / doncella encantada)
+        GameObject prefabBufa = Resources.Load<GameObject>("Prefabs/Jefe_BufaHumana");
+        #if UNITY_EDITOR
+        if (prefabBufa == null)
+            prefabBufa = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/Jefe_BufaHumana.prefab");
+        #endif
 
-        Parte(PrimitiveType.Cylinder, "Falda", p, new Vector3(0f, 1.3f, 0f), new Vector3(2.9f, 1.3f, 2.9f), roca);
-        Parte(PrimitiveType.Sphere, "FaldaBorde", p, new Vector3(0f, 0.45f, 0f), new Vector3(3.2f, 0.9f, 3.2f), musgo);
-        Parte(PrimitiveType.Sphere, "Cintura", p, new Vector3(0f, 2.75f, 0f), new Vector3(1.8f, 1.4f, 1.4f), rocaClara);
-        Parte(PrimitiveType.Sphere, "Torso", p, new Vector3(0f, 3.45f, 0.05f), new Vector3(2.0f, 1.6f, 1.45f), roca);
-        Parte(PrimitiveType.Sphere, "HombroI", p, new Vector3(-1.05f, 3.85f, 0f), Vector3.one * 0.75f, rocaClara);
-        Parte(PrimitiveType.Sphere, "HombroD", p, new Vector3(1.05f, 3.85f, 0f), Vector3.one * 0.75f, rocaClara);
-        GameObject cabeza = Parte(PrimitiveType.Sphere, "Cabeza", p, new Vector3(0f, 4.55f, 0.1f), new Vector3(1.0f, 1.1f, 1.0f), rocaClara);
-        Parte(PrimitiveType.Sphere, "OjoI", cabeza.transform, new Vector3(-0.22f, 0.08f, 0.45f), new Vector3(0.2f, 0.12f, 0.12f), matOjos);
-        Parte(PrimitiveType.Sphere, "OjoD", cabeza.transform, new Vector3(0.22f, 0.08f, 0.45f), new Vector3(0.2f, 0.12f, 0.12f), matOjos);
-        // cabello de lajas
-        for (int i = 0; i < 7; i++)
+        if (prefabBufa != null)
         {
-            float x = (i - 3) * 0.28f;
-            GameObject laja = Parte(PrimitiveType.Cube, "Laja" + i, p, new Vector3(x, 4.2f - Mathf.Abs(i - 3) * 0.12f, -0.55f), new Vector3(0.3f, 1.9f - Mathf.Abs(i - 3) * 0.2f, 0.22f), roca);
-            laja.transform.localRotation = Quaternion.Euler(Random.Range(-8f, 8f), 0f, (i - 3) * 4f);
+            piedraRoot = Instantiate(prefabBufa, visualRoot, false);
+            piedraRoot.name = "JovenDePiedra";
+            piedraRoot.transform.localPosition = Vector3.zero;
+            piedraRoot.transform.localRotation = Quaternion.identity;
+            piedraRoot.transform.localScale = Vector3.one * 1.5f;
+
+            var clerigo = piedraRoot.GetComponent<JefeClerigoInquisidor>(); if (clerigo != null) Destroy(clerigo);
+            var col = piedraRoot.GetComponent<Collider>(); if (col != null) Destroy(col);
+            var poder = piedraRoot.GetComponent<PoderEspiritual>(); if (poder != null) Destroy(poder);
         }
-        // brazos extendidos hacia delante (pidiendo ayuda)
-        GameObject brI = Parte(PrimitiveType.Capsule, "BrazoI", p, new Vector3(-1.35f, 3.1f, 0.35f), new Vector3(0.55f, 1.1f, 0.55f), roca);
-        brI.transform.localRotation = Quaternion.Euler(-20f, 0f, 12f);
-        GameObject brD = Parte(PrimitiveType.Capsule, "BrazoD", p, new Vector3(1.35f, 3.1f, 0.35f), new Vector3(0.55f, 1.1f, 0.55f), roca);
-        brD.transform.localRotation = Quaternion.Euler(-20f, 0f, -12f);
-        Parte(PrimitiveType.Sphere, "ManoI", p, new Vector3(-1.5f, 2.1f, 0.7f), Vector3.one * 0.65f, rocaClara);
-        Parte(PrimitiveType.Sphere, "ManoD", p, new Vector3(1.5f, 2.1f, 0.7f), Vector3.one * 0.65f, rocaClara);
-        // grietas de ámbar (el hechizo)
-        Grieta(p, new Vector3(0.35f, 3.5f, 0.66f), new Vector3(0.07f, 0.95f, 0.07f), 15f);
-        Grieta(p, new Vector3(-0.55f, 3.2f, 0.62f), new Vector3(0.06f, 0.75f, 0.06f), -25f);
-        Grieta(p, new Vector3(0.25f, 2.5f, 0.72f), new Vector3(0.06f, 0.85f, 0.06f), 8f);
-        Grieta(p, new Vector3(0f, 1.6f, 1.42f), new Vector3(0.07f, 1.3f, 0.07f), 0f);
-        Grieta(p, new Vector3(-0.9f, 1.2f, 1.0f), new Vector3(0.06f, 1.0f, 0.06f), -12f);
-        Grieta(p, new Vector3(0.95f, 1.0f, 0.95f), new Vector3(0.06f, 1.0f, 0.06f), 14f);
-        Grieta(cabeza.transform, new Vector3(0.1f, 0.42f, 0.4f), new Vector3(0.05f, 0.3f, 0.05f), 20f);
+        else
+        {
+            piedraRoot = new GameObject("JovenDePiedra");
+            piedraRoot.transform.SetParent(visualRoot, false);
+            Transform p = piedraRoot.transform;
+
+            Parte(PrimitiveType.Cylinder, "Falda", p, new Vector3(0f, 1.3f, 0f), new Vector3(2.9f, 1.3f, 2.9f), roca);
+            Parte(PrimitiveType.Sphere, "FaldaBorde", p, new Vector3(0f, 0.45f, 0f), new Vector3(3.2f, 0.9f, 3.2f), musgo);
+            Parte(PrimitiveType.Sphere, "Cintura", p, new Vector3(0f, 2.75f, 0f), new Vector3(1.8f, 1.4f, 1.4f), rocaClara);
+            Parte(PrimitiveType.Sphere, "Torso", p, new Vector3(0f, 3.45f, 0.05f), new Vector3(2.0f, 1.6f, 1.45f), roca);
+            Parte(PrimitiveType.Sphere, "HombroI", p, new Vector3(-1.05f, 3.85f, 0f), Vector3.one * 0.75f, rocaClara);
+            Parte(PrimitiveType.Sphere, "HombroD", p, new Vector3(1.05f, 3.85f, 0f), Vector3.one * 0.75f, rocaClara);
+            GameObject cabeza = Parte(PrimitiveType.Sphere, "Cabeza", p, new Vector3(0f, 4.55f, 0.1f), new Vector3(1.0f, 1.1f, 1.0f), rocaClara);
+            Parte(PrimitiveType.Sphere, "OjoI", cabeza.transform, new Vector3(-0.22f, 0.08f, 0.45f), new Vector3(0.2f, 0.12f, 0.12f), matOjos);
+            Parte(PrimitiveType.Sphere, "OjoD", cabeza.transform, new Vector3(0.22f, 0.08f, 0.45f), new Vector3(0.2f, 0.12f, 0.12f), matOjos);
+            // cabello de lajas
+            for (int i = 0; i < 7; i++)
+            {
+                float x = (i - 3) * 0.28f;
+                GameObject laja = Parte(PrimitiveType.Cube, "Pelo" + i, cabeza.transform, new Vector3(x, 0.1f, -0.45f), new Vector3(0.22f, 1.1f, 0.35f), roca);
+            }
+            // corona de cuarzo
+            for (int i = 0; i < 5; i++)
+            {
+                float x = (i - 2) * 0.22f;
+                float h = i == 2 ? 0.5f : (i == 1 || i == 3 ? 0.38f : 0.25f);
+                Parte(PrimitiveType.Cone, "Pico" + i, cabeza.transform, new Vector3(x, 0.65f, 0.25f), new Vector3(0.18f, h, 0.18f), matGrieta);
+            }
+            for (int i = 0; i < 7; i++)
+            {
+                float x = (i - 3) * 0.28f;
+                GameObject laja = Parte(PrimitiveType.Cube, "Laja" + i, p, new Vector3(x, 4.2f - Mathf.Abs(i - 3) * 0.12f, -0.55f), new Vector3(0.3f, 1.9f - Mathf.Abs(i - 3) * 0.2f, 0.22f), roca);
+                laja.transform.localRotation = Quaternion.Euler(Random.Range(-8f, 8f), 0f, (i - 3) * 4f);
+            }
+            // brazos extendidos hacia delante (pidiendo ayuda)
+            GameObject brI = Parte(PrimitiveType.Capsule, "BrazoI", p, new Vector3(-1.35f, 3.1f, 0.35f), new Vector3(0.55f, 1.1f, 0.55f), roca);
+            brI.transform.localRotation = Quaternion.Euler(-20f, 0f, 12f);
+            GameObject brD = Parte(PrimitiveType.Capsule, "BrazoD", p, new Vector3(1.35f, 3.1f, 0.35f), new Vector3(0.55f, 1.1f, 0.55f), roca);
+            brD.transform.localRotation = Quaternion.Euler(-20f, 0f, -12f);
+            Parte(PrimitiveType.Sphere, "ManoI", p, new Vector3(-1.5f, 2.1f, 0.7f), Vector3.one * 0.65f, rocaClara);
+            Parte(PrimitiveType.Sphere, "ManoD", p, new Vector3(1.5f, 2.1f, 0.7f), Vector3.one * 0.65f, rocaClara);
+            // grietas de ámbar (el hechizo)
+            Grieta(p, new Vector3(0.35f, 3.5f, 0.66f), new Vector3(0.07f, 0.95f, 0.07f), 15f);
+            Grieta(p, new Vector3(-0.55f, 3.2f, 0.62f), new Vector3(0.06f, 0.75f, 0.06f), -25f);
+            Grieta(p, new Vector3(0.25f, 2.5f, 0.72f), new Vector3(0.06f, 0.85f, 0.06f), 8f);
+            Grieta(p, new Vector3(0f, 1.6f, 1.42f), new Vector3(0.07f, 1.3f, 0.07f), 0f);
+            Grieta(p, new Vector3(-0.9f, 1.2f, 1.0f), new Vector3(0.06f, 1.0f, 0.06f), -12f);
+            Grieta(p, new Vector3(0.95f, 1.0f, 0.95f), new Vector3(0.06f, 1.0f, 0.06f), 14f);
+            Grieta(cabeza.transform, new Vector3(0.1f, 0.42f, 0.4f), new Vector3(0.05f, 0.3f, 0.05f), 20f);
+        }
 
         GameObject luz = new GameObject("LuzCuerpo");
         luz.transform.SetParent(visualRoot, false);

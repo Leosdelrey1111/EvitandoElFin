@@ -428,59 +428,81 @@ public class JefeGeneralMomia : MonoBehaviour
         matFuegoFatuo.EnableKeyword("_EMISSION");
         matFuegoFatuo.SetColor("_EmissionColor", VerdeEsmeralda * 1.8f);
 
-        // Torso con pechera y hombreras doradas
-        GameObject torso = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        torso.transform.SetParent(visualRoot.transform, false);
-        torso.transform.localPosition = new Vector3(0, 1.4f, 0);
-        torso.transform.localScale = new Vector3(0.9f, 1.1f, 0.55f);
-        torso.GetComponent<Renderer>().material = matUniforme;
-        Destroy(torso.GetComponent<Collider>());
+        // Intentar instanciar el modelo 3D real del Comandante Momia
+        GameObject prefabGeneral = Resources.Load<GameObject>("Prefabs/Esbirro_GuerreroIndigena");
+        #if UNITY_EDITOR
+        if (prefabGeneral == null)
+            prefabGeneral = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/Esbirro_GuerreroIndigena.prefab");
+        #endif
 
-        // Hombreras militares
-        GameObject hombroI = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        hombroI.transform.SetParent(visualRoot.transform, false);
-        hombroI.transform.localPosition = new Vector3(-0.6f, 1.85f, 0);
-        hombroI.transform.localScale = new Vector3(0.4f, 0.15f, 0.55f);
-        hombroI.GetComponent<Renderer>().material = matFuegoFatuo;
-        Destroy(hombroI.GetComponent<Collider>());
+        if (prefabGeneral != null)
+        {
+            GameObject inst = Instantiate(prefabGeneral, visualRoot.transform, false);
+            inst.name = "ModeloGeneral3D";
+            inst.transform.localPosition = Vector3.zero;
+            inst.transform.localRotation = Quaternion.identity;
+            inst.transform.localScale = Vector3.one * 1.35f;
 
-        GameObject hombroD = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        hombroD.transform.SetParent(visualRoot.transform, false);
-        hombroD.transform.localPosition = new Vector3(0.6f, 1.85f, 0);
-        hombroD.transform.localScale = new Vector3(0.4f, 0.15f, 0.55f);
-        hombroD.GetComponent<Renderer>().material = matFuegoFatuo;
-        Destroy(hombroD.GetComponent<Collider>());
+            var ia = inst.GetComponent<EsbirroBaseIA>(); if (ia != null) Destroy(ia);
+            var col = inst.GetComponent<Collider>(); if (col != null) Destroy(col);
+            var poder = inst.GetComponent<PoderEspiritual>(); if (poder != null) Destroy(poder);
+        }
+        else
+        {
+            // Torso con pechera y hombreras doradas
+            GameObject torso = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            torso.transform.SetParent(visualRoot.transform, false);
+            torso.transform.localPosition = new Vector3(0, 1.4f, 0);
+            torso.transform.localScale = new Vector3(0.9f, 1.1f, 0.55f);
+            torso.GetComponent<Renderer>().material = matUniforme;
+            Destroy(torso.GetComponent<Collider>());
 
-        // Cabeza con sombrero bicornio militar
-        GameObject cabeza = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cabeza.transform.SetParent(visualRoot.transform, false);
-        cabeza.transform.localPosition = new Vector3(0, 2.15f, 0);
-        cabeza.transform.localScale = new Vector3(0.45f, 0.55f, 0.45f);
-        cabeza.GetComponent<Renderer>().material = matVendas;
-        Destroy(cabeza.GetComponent<Collider>());
+            // Hombreras militares
+            GameObject hombroI = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            hombroI.transform.SetParent(visualRoot.transform, false);
+            hombroI.transform.localPosition = new Vector3(-0.6f, 1.85f, 0);
+            hombroI.transform.localScale = new Vector3(0.4f, 0.15f, 0.55f);
+            hombroI.GetComponent<Renderer>().material = matFuegoFatuo;
+            Destroy(hombroI.GetComponent<Collider>());
 
-        // Sombrero bicornio
-        GameObject bicornio = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        bicornio.transform.SetParent(cabeza.transform, false);
-        bicornio.transform.localPosition = new Vector3(0, 0.65f, 0);
-        bicornio.transform.localScale = new Vector3(1.7f, 0.5f, 0.65f);
-        bicornio.GetComponent<Renderer>().material = matUniforme;
-        Destroy(bicornio.GetComponent<Collider>());
+            GameObject hombroD = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            hombroD.transform.SetParent(visualRoot.transform, false);
+            hombroD.transform.localPosition = new Vector3(0.6f, 1.85f, 0);
+            hombroD.transform.localScale = new Vector3(0.4f, 0.15f, 0.55f);
+            hombroD.GetComponent<Renderer>().material = matFuegoFatuo;
+            Destroy(hombroD.GetComponent<Collider>());
 
-        // Ojos de fuego fatuo
-        GameObject ojoI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        ojoI.transform.SetParent(cabeza.transform, false);
-        ojoI.transform.localPosition = new Vector3(-0.25f, 0.15f, 0.5f);
-        ojoI.transform.localScale = Vector3.one * 0.25f;
-        ojoI.GetComponent<Renderer>().material = matFuegoFatuo;
-        Destroy(ojoI.GetComponent<Collider>());
+            // Cabeza con sombrero bicornio militar
+            GameObject cabeza = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cabeza.transform.SetParent(visualRoot.transform, false);
+            cabeza.transform.localPosition = new Vector3(0, 2.15f, 0);
+            cabeza.transform.localScale = new Vector3(0.45f, 0.55f, 0.45f);
+            cabeza.GetComponent<Renderer>().material = matVendas;
+            Destroy(cabeza.GetComponent<Collider>());
 
-        GameObject ojoD = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        ojoD.transform.SetParent(cabeza.transform, false);
-        ojoD.transform.localPosition = new Vector3(0.25f, 0.15f, 0.5f);
-        ojoD.transform.localScale = Vector3.one * 0.25f;
-        ojoD.GetComponent<Renderer>().material = matFuegoFatuo;
-        Destroy(ojoD.GetComponent<Collider>());
+            // Sombrero bicornio
+            GameObject bicornio = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            bicornio.transform.SetParent(cabeza.transform, false);
+            bicornio.transform.localPosition = new Vector3(0, 0.65f, 0);
+            bicornio.transform.localScale = new Vector3(1.7f, 0.5f, 0.65f);
+            bicornio.GetComponent<Renderer>().material = matUniforme;
+            Destroy(bicornio.GetComponent<Collider>());
+
+            // Ojos de fuego fatuo
+            GameObject ojoI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ojoI.transform.SetParent(cabeza.transform, false);
+            ojoI.transform.localPosition = new Vector3(-0.25f, 0.15f, 0.5f);
+            ojoI.transform.localScale = Vector3.one * 0.25f;
+            ojoI.GetComponent<Renderer>().material = matFuegoFatuo;
+            Destroy(ojoI.GetComponent<Collider>());
+
+            GameObject ojoD = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ojoD.transform.SetParent(cabeza.transform, false);
+            ojoD.transform.localPosition = new Vector3(0.25f, 0.15f, 0.5f);
+            ojoD.transform.localScale = Vector3.one * 0.25f;
+            ojoD.GetComponent<Renderer>().material = matFuegoFatuo;
+            Destroy(ojoD.GetComponent<Collider>());
+        }
 
         // Sable de mando
         sableObj = new GameObject("SableGeneral");
