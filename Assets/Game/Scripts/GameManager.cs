@@ -64,6 +64,12 @@ public class GameManager : MonoBehaviour
 
         // Si venimos de un checkpoint guardado en esta escena
         VerificarCheckpointInicial();
+
+        // Iniciar música base de exploración en loop mientras no estemos peleando contra un jefe
+        if (estadoJefe != EstadoJefe.Combate)
+        {
+            ReproductorMusicaLoop.ReproducirExploracion();
+        }
     }
 
     void VerificarCheckpointInicial()
@@ -214,7 +220,21 @@ public class GameManager : MonoBehaviour
 
     public bool TotemsCompletos() { return portalDesbloqueado || totemsRecolectados >= totemsRequeridos; }
 
-    public void CambiarEstadoJefe(EstadoJefe nuevo) { estadoJefe = nuevo; }
+    public void CambiarEstadoJefe(EstadoJefe nuevo)
+    {
+        estadoJefe = nuevo;
+        if (nuevo == EstadoJefe.Combate)
+        {
+            if (ReproductorMusicaLoop.Instancia == null || !ReproductorMusicaLoop.Instancia.EnCombateJefe)
+            {
+                ReproductorMusicaLoop.IniciarCombateJefeNivelActual();
+            }
+        }
+        else if (nuevo == EstadoJefe.Derrotado)
+        {
+            ReproductorMusicaLoop.FinalizarCombateJefe();
+        }
+    }
 
     public bool EstaPortalDesbloqueado()
     {

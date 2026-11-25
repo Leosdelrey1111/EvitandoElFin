@@ -722,7 +722,8 @@ public class JefeLaBufa : MonoBehaviour
         StartCoroutine(LiberarJoven());
         StartCoroutine(LevantarPilares(false));
 
-        // el hechizo se rompe: se abre el portal
+        // el hechizo se rompe: se abre el portal y vuelve a sonar CaminoEntornoBase en loop
+        ReproductorMusicaLoop.FinalizarCombateJefe();
         if (GameManager.Instancia != null) GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Derrotado);
         AvisosJuego.Mostrar("¡El hechizo se rompió! El portal espiritual se ha abierto.", 5f);
 
@@ -1495,6 +1496,11 @@ public class JefeLaBufa : MonoBehaviour
 
     void IniciarMusica()
     {
+        if (ReproductorMusicaLoop.ObtenerClip(PistaMusica.JefeNivel1Pelea) != null)
+        {
+            ReproductorMusicaLoop.IniciarCombateJefe(PistaMusica.JefeNivel1Pelea);
+            return;
+        }
         musica.clip = ClipMusica();
         musica.volume = 0f;
         musica.Play();
@@ -1502,6 +1508,7 @@ public class JefeLaBufa : MonoBehaviour
 
     void ActualizarMusica()
     {
+        if (ReproductorMusicaLoop.ObtenerClip(PistaMusica.JefeNivel1Pelea) != null) return;
         if (musica == null || musica.clip == null) return;
         bool sonando = estado == Estado.Despertando || estado == Estado.Combate || estado == Estado.Transformando;
         volumenMusica = Mathf.MoveTowards(volumenMusica, sonando ? 0.32f : 0f, (sonando ? 0.15f : 0.12f) * Time.unscaledDeltaTime);

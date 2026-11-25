@@ -13,6 +13,13 @@ public class AmbienteSonoroBosque : MonoBehaviour
 
     void Start()
     {
+        // Si ya está disponible la pista real CaminoEntornoBase de REAPER, usarla en loop en lugar del placeholder procedural
+        if (clipPropio == null && ReproductorMusicaLoop.ObtenerClip(PistaMusica.CaminoEntornoBase) != null)
+        {
+            ReproductorMusicaLoop.ReproducirExploracion();
+            return;
+        }
+
         AudioSource amb = gameObject.AddComponent<AudioSource>();
         amb.loop = true;
         amb.spatialBlend = 0f;

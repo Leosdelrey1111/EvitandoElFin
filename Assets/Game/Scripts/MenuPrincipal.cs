@@ -26,6 +26,7 @@ public class MenuPrincipal : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
+        ReproductorMusicaLoop.ReproducirMenu();
         MostrarPanelPrincipal();
     }
 

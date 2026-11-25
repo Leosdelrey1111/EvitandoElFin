@@ -615,6 +615,7 @@ public class MenuMexicano : MonoBehaviour
             float k = Mathf.Clamp01(t / dur);
             fundido.color = new Color(0f, 0f, 0f, k);
             if (musica != null) musica.volume = Mathf.Lerp(vol, 0f, k);
+            if (ReproductorMusicaLoop.Instancia != null) ReproductorMusicaLoop.Instancia.multiplicadorFadeExterno = 1f - k;
             yield return null;
         }
         string escena = escenaJuego;
@@ -732,6 +733,12 @@ public class MenuMexicano : MonoBehaviour
 
     void IniciarMusica()
     {
+        if (ReproductorMusicaLoop.ObtenerClip(PistaMusica.MenuEvitandoElFin) != null)
+        {
+            ReproductorMusicaLoop.ReproducirMenu();
+            return;
+        }
+
         musica = gameObject.AddComponent<AudioSource>();
         musica.loop = true;
         musica.spatialBlend = 0f;
