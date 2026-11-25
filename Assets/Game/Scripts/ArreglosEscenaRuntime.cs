@@ -78,6 +78,7 @@ public class ArreglosEscenaRuntime : MonoBehaviour
     public static void EjecutarAhora(string nombre)
     {
         if (string.IsNullOrEmpty(nombre)) nombre = SceneManager.GetActiveScene().name;
+        ActualizarSkinTonalli();
         ArreglarParticulas();
         DesactivarColisionesVegetacion();
         if (string.IsNullOrEmpty(nombre) || nombre.Contains("Nivel2") || nombre.Contains("Panteon"))
@@ -528,6 +529,37 @@ public class ArreglosEscenaRuntime : MonoBehaviour
                 bc.size = new Vector3(4.5f, 5.0f, 4.5f);
             }
         }
+    }
+
+    /// <summary>Reemplaza al Tonalli antiguo de esferas por el nuevo prefab 3D (colibrí alebrije) en cualquier nivel.</summary>
+    static void ActualizarSkinTonalli()
+    {
+        CriaturaGuia vieja = FindAnyObjectByType<CriaturaGuia>();
+        if (vieja == null) return;
+        bool esVieja = vieja.transform.Find("Cuerpo") != null || vieja.transform.Find("AlaI") != null;
+        if (!esVieja) return;
+
+        GameObject prefab = Resources.Load<GameObject>("Prefabs/Criatura_Alebrije");
+        #if UNITY_EDITOR
+        if (prefab == null)
+            prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/Criatura_Alebrije.prefab");
+        #endif
+        if (prefab == null) return;
+
+        GameObject nueva = Instantiate(prefab, vieja.transform.position, vieja.transform.rotation);
+        nueva.name = "Criatura_Alebrije";
+        CriaturaGuia cg = nueva.GetComponent<CriaturaGuia>();
+        if (cg != null)
+        {
+            cg.objetivoChofer = vieja.objetivoChofer;
+            if (cg.objetivoChofer == null)
+            {
+                GameObject p = GameObject.FindGameObjectWithTag("Player");
+                if (p != null) cg.objetivoChofer = p.transform;
+            }
+        }
+        vieja.gameObject.SetActive(false);
+        Destroy(vieja.gameObject);
     }
 
     // ================================================================== DESPEJE DE SENDEROS Y COLISIONES
