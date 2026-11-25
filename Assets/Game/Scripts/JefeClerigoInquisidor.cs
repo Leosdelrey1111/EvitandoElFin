@@ -178,6 +178,11 @@ public class JefeClerigoInquisidor : MonoBehaviour
     void Despertar()
     {
         estado = EstadoJefe.Persecucion;
+        PistaMusica pistaJefe = (!string.IsNullOrEmpty(nombreJefe) && nombreJefe.ToLowerInvariant().Contains("bufa"))
+            ? PistaMusica.JefeNivel1Pelea
+            : PistaMusica.JefeNivel3Pelea;
+        ReproductorMusicaLoop.IniciarCombateJefe(pistaJefe);
+        if (GameManager.Instancia != null) GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Combate);
         if (grupoUI != null) StartCoroutine(AparecerUI());
         CamaraTerceraPersona.Sacudir(0.25f);
         Debug.Log($"[Jefe] ¡{nombreJefe} ha despertado!");
@@ -344,6 +349,9 @@ public class JefeClerigoInquisidor : MonoBehaviour
 
         OcultarTelegrafiado();
         if (animator != null) animator.SetTrigger("Muerte");
+
+        if (GameManager.Instancia != null) GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Derrotado);
+        ReproductorMusicaLoop.FinalizarCombateJefe();
 
         // Soltar almas de recompensa (energía espiritual)
         for (int i = 0; i < 8; i++)

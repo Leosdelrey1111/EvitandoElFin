@@ -178,6 +178,7 @@ public class JefeGeneralMomia : MonoBehaviour
     IEnumerator RutinaDespertar()
     {
         estado = Estado.Despertando;
+        ReproductorMusicaLoop.IniciarCombateJefe(PistaMusica.JefeNivel2);
 
         if (GuiaAlebrije.Instancia != null)
         {
@@ -398,6 +399,7 @@ public class JefeGeneralMomia : MonoBehaviour
         {
             GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Derrotado);
         }
+        ReproductorMusicaLoop.FinalizarCombateJefe();
 
         // Desvanecer visual
         float t = 0f;

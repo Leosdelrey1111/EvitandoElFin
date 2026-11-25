@@ -18,7 +18,7 @@ public class ChoferController : MonoBehaviour
     [Header("Salto")]
     public KeyCode teclaSalto = KeyCode.Space;
     [Tooltip("Altura del salto en metros")]
-    public float alturaSalto = 1.7f;
+    public float alturaSalto = 1.25f;
 
     [Header("Esquive (Dodge Roll)")]
     public KeyCode teclaEsquive = KeyCode.LeftControl;
@@ -102,12 +102,9 @@ public class ChoferController : MonoBehaviour
         combate = GetComponent<SistemaCombateChofer>();
         if (controller != null)
         {
-            controller.height = 2f;
-            controller.radius = 0.45f;
             controller.center = Vector3.zero;
-            controller.stepOffset = 1.2f;
-            controller.slopeLimit = 85f;
-            controller.skinWidth = 0.05f;
+            controller.height = 2f;
+            controller.radius = 0.5f;
         }
 
         CentrarModeloVisual();
@@ -261,6 +258,17 @@ public class ChoferController : MonoBehaviour
             return;
         }
 
+        // Salvaguarda: si el control está libre, el Animator debe tener velocidad normal y estar en locomoción
+        if (animator != null && animator.runtimeAnimatorController != null)
+        {
+            if (animator.speed < 0.1f) animator.speed = 1f;
+            var infoEstado = animator.GetCurrentAnimatorStateInfo(0);
+            if (infoEstado.IsName("Despertar"))
+            {
+                ReproducirEstado("Locomocion", 0.12f);
+            }
+        }
+
         ProcesarMovimiento();
         ProcesarSalto();
         ProcesarEsquive();
@@ -348,16 +356,6 @@ public class ChoferController : MonoBehaviour
                 // Rotar suavemente hacia la dirección de movimiento
                 Quaternion rotacionObjetivo = Quaternion.LookRotation(direccionMovimiento);
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
-
-                // Proyectar movimiento sobre la pendiente del terreno para subir lomas y desniveles sin atascarse
-                RaycastHit hitSuelo;
-                if (Physics.Raycast(transform.position + Vector3.up * 0.5f, Vector3.down, out hitSuelo, 1.8f))
-                {
-                    if (hitSuelo.normal.y > 0.05f)
-                    {
-                        direccionMovimiento = Vector3.ProjectOnPlane(direccionMovimiento, hitSuelo.normal).normalized;
-                    }
-                }
 
                 // Determinar si corre o camina (no se puede correr aturdido)
                 bool corriendo = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && confusion < 0.3f;

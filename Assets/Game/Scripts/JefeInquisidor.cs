@@ -174,6 +174,7 @@ public class JefeInquisidor : MonoBehaviour
     IEnumerator RutinaDespertar()
     {
         estado = Estado.Despertando;
+        ReproductorMusicaLoop.IniciarCombateJefe(PistaMusica.JefeNivel3Pelea);
 
         if (GuiaAlebrije.Instancia != null)
         {
@@ -396,6 +397,7 @@ public class JefeInquisidor : MonoBehaviour
         {
             GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Derrotado);
         }
+        ReproductorMusicaLoop.FinalizarCombateJefe();
 
         float t = 0f;
         while (t < 3.5f)
