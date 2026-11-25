@@ -275,6 +275,18 @@ public static class Nivel1BosqueSetup
 
     static void CrearCriatura(GameObject chofer)
     {
+        const string rutaPrefab = "Assets/Game/Prefabs/Criatura_Alebrije.prefab";
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(rutaPrefab);
+        if (prefab != null)
+        {
+            GameObject inst = (GameObject)PrefabUtility.InstantiatePrefab(prefab);
+            inst.name = "Criatura_Alebrije";
+            inst.transform.position = chofer.transform.position + new Vector3(1.2f, 1.8f, -0.8f);
+            CriaturaGuia g = inst.GetComponent<CriaturaGuia>();
+            if (g != null) g.objetivoChofer = chofer.transform;
+            return;
+        }
+
         GameObject root = new GameObject("Criatura_Alebrije");
         root.transform.position = chofer.transform.position + new Vector3(1.2f, 1.8f, -0.8f);
 
