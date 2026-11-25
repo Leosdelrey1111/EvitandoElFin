@@ -58,7 +58,6 @@ public class SistemaCombateChofer : MonoBehaviour
     private Transform modelo;
     private Vector3 modeloPosBase;
     private Quaternion modeloRotBase;
-    private bool modeloInicializado;
 
     private int comboPaso = 0;
     private float tiempoUltimoGolpe = -10f;

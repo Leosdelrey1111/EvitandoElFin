@@ -90,9 +90,6 @@ public class EsbirroBaseIA : MonoBehaviour
     private Transform barraRelleno;
     private float barraVisibleHasta = 0f;
 
-    // sistema de presentación
-    private bool presentacionMostrada = false;
-
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -107,9 +104,6 @@ public class EsbirroBaseIA : MonoBehaviour
 
         if (hitboxAtaqueEnemigo != null) hitboxAtaqueEnemigo.SetActive(false);
 
-        anim = GetComponentInChildren<Animator>();
-        tieneAnimadorReal = anim != null && anim.runtimeAnimatorController != null;
-
         // Visual procedural (hijo "Visual") o cualquier hijo con renderers
         visual = transform.Find("Visual");
         if (visual == null && transform.childCount > 0) visual = transform.GetChild(0);
@@ -118,41 +112,11 @@ public class EsbirroBaseIA : MonoBehaviour
             visualEscalaBase = visual.localScale;
             visualPosBase = visual.localPosition;
             visualRotBase = visual.localRotation;
-            AlinearPiesAlSuelo();
         }
         renderers = GetComponentsInChildren<Renderer>();
         mpb = new MaterialPropertyBlock();
 
         CrearBarraVida();
-    }
-
-    private bool tieneAnimadorReal = false;
-    private Animator anim;
-
-    /// <summary>
-    /// Evita que los personajes 3D aparezcan enterrados en el suelo.
-    /// Para modelos humanoides (hombres de piedra, brujas, calaveras, etc.) coloca la base del modelo
-    /// a ras de suelo con respecto al CharacterController, impidiendo que queden hundidos hasta la cintura.
-    /// </summary>
-    void AlinearPiesAlSuelo()
-    {
-        if (visual == null) return;
-
-        if (anim == null) anim = GetComponentInChildren<Animator>();
-        tieneAnimadorReal = anim != null && anim.runtimeAnimatorController != null;
-
-        // La serpiente procedural se arrastra por el suelo y no necesita elevar pies
-        if (tipo == TipoEsbirro.Serpiente) return;
-
-        // Para personajes 3D (hombres de piedra, brujas, catrinas, momias, monjas):
-        // el pivote de la malla de Meshy/Mixamo está en las caderas (~0.95m).
-        // Garantizamos que su altura base sea como mínimo 0.95f para que las piernas y faldas
-        // queden perfectamente apoyadas sobre el terreno y no enterradas.
-        if (visual.localPosition.y < 0.85f)
-        {
-            visual.localPosition = new Vector3(visual.localPosition.x, 0.95f, visual.localPosition.z);
-        }
-        visualPosBase = visual.localPosition;
     }
 
     void BuscarJugador()
@@ -191,14 +155,6 @@ public class EsbirroBaseIA : MonoBehaviour
             case Estado.Persecucion:
                 if (!jugadorVivo || dist > rangoDeteccion * factorPerdida) { estado = Estado.Patrulla; puntoOrigen = transform.position; break; }
                 MirarHacia(haciaJugador, 9f);
-
-                // Intentar mostrar presentación del enemigo si no se ha mostrado
-                if (!presentacionMostrada && SistemaPresentacionEnemigos.Instancia != null)
-                {
-                    presentacionMostrada = true;
-                    SistemaPresentacionEnemigos.Instancia.IntentarMostrarPresentacion(this);
-                }
-
                 if (ataqueADistancia && dist < rangoAtaque * 0.4f)
                 {
                     // las tiradoras guardan la distancia
@@ -216,11 +172,6 @@ public class EsbirroBaseIA : MonoBehaviour
                     StartCoroutine(RutinaAtaque());
                 }
                 break;
-        }
-
-        if (tieneAnimadorReal && anim != null)
-        {
-            anim.SetFloat("Velocidad", seMovio ? (estado == Estado.Persecucion ? 1.0f : 0.45f) : 0f);
         }
     }
 
@@ -272,8 +223,6 @@ public class EsbirroBaseIA : MonoBehaviour
         }
         telegrafiando = false;
         if (estado == Estado.Muerto) yield break;   // murió justo al terminar el aviso: no revivirlo
-
-        if (tieneAnimadorReal && anim != null) anim.SetTrigger("Atacar");
 
         // 2a) Ataque a distancia: lanza un murmullo hacia el Chofer
         if (ataqueADistancia)
