@@ -851,10 +851,12 @@ public class CinematicaAccidenteCamion : MonoBehaviour
     }
 
     /// <summary>Proyecta un punto al suelo (terreno o asfalto) para que los personajes no floten ni se hundan.</summary>
-    Vector3 AlSuelo(Vector3 p)
+    Vector3 AlSuelo(Vector3 p, float alturaMinimaOrigen = -9999f)
     {
         Vector3 suelo, normal;
-        if (BuscarSuelo(p + Vector3.up * 6f, 24f, out suelo, out normal)) return suelo;
+        float origenY = Mathf.Max(p.y + 12f, alturaMinimaOrigen);
+        Vector3 origen = new Vector3(p.x, origenY, p.z);
+        if (BuscarSuelo(origen, 48f, out suelo, out normal)) return suelo;
         return p;
     }
 
@@ -911,26 +913,41 @@ public class CinematicaAccidenteCamion : MonoBehaviour
 
     IEnumerator FaseRescate()
     {
-        // La ambulancia se estaciona SOBRE la carretera, en el carril derecho (+3.2m), cerca del camión siniestrado
-        float sRescate = puntoAccidente + 0.20f;
+        // La ambulancia se estaciona SOBRE la carretera, en el carril derecho (+3.0m), cerca del accidente
+        float sRescate = puntoAccidente + 0.22f;
         Vector3 posAmbulancia, fwdAmbulancia, upAmbulancia, rightAmbulancia;
         Quaternion rotAmbulancia;
-        EvaluarRuta(sRescate, 3.2f, out posAmbulancia, out rotAmbulancia, out fwdAmbulancia, out upAmbulancia, out rightAmbulancia);
+        EvaluarRuta(sRescate, 3.0f, out posAmbulancia, out rotAmbulancia, out fwdAmbulancia, out upAmbulancia, out rightAmbulancia);
 
-        // Punto junto a la cabina del camión (del lado de la carretera) de donde salen los paramédicos con la camilla
-        Vector3 haciaCarretera = posAmbulancia - camionTransform.position;
-        haciaCarretera.y = 0f;
-        if (haciaCarretera.sqrMagnitude < 0.01f) haciaCarretera = -rightAmbulancia;
-        Vector3 bordeVallaRota = AlSuelo(camionTransform.position + camionTransform.forward * 3.0f + haciaCarretera.normalized * 2.5f);
-
-        Vector3 traseraAmbulancia = posAmbulancia - fwdAmbulancia * 3.6f;
-
+        // Calcular el desplazamiento vertical exacto de la ambulancia para que sus llantas toquen el asfalto (ni flotando ni hundidas)
+        float offsetLlantasAmb = 0f;
         if (ambulanciaObjeto != null)
         {
-            ambulanciaObjeto.transform.position = posAmbulancia + upAmbulancia * 0.08f;
+            ambulanciaObjeto.transform.position = posAmbulancia;
             ambulanciaObjeto.transform.rotation = rotAmbulancia;
             ambulanciaObjeto.SetActive(true);
+            float minY = float.MaxValue;
+            foreach (Renderer r in ambulanciaObjeto.GetComponentsInChildren<Renderer>())
+                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            if (minY < float.MaxValue)
+                offsetLlantasAmb = posAmbulancia.y - minY;
+            ambulanciaObjeto.transform.position = posAmbulancia + upAmbulancia * offsetLlantasAmb;
         }
+
+        // Inicio y fin del recorrido de la camilla SOBRE el asfalto (usando la misma spline de la carretera)
+        float sInicioCamilla = puntoAccidente + 0.02f;
+        float latInicioCamilla = 2.4f;
+        float sFinCamilla = sRescate - 0.14f;
+        float latFinCamilla = 3.0f;
+
+        Vector3 posIniC, fwdIniC, upIniC, rightIniC; Quaternion rotIniC;
+        EvaluarRuta(sInicioCamilla, latInicioCamilla, out posIniC, out rotIniC, out fwdIniC, out upIniC, out rightIniC);
+
+        Vector3 posFinC, fwdFinC, upFinC, rightFinC; Quaternion rotFinC;
+        EvaluarRuta(sFinCamilla, latFinCamilla, out posFinC, out rotFinC, out fwdFinC, out upFinC, out rightFinC);
+
+        Vector3 bordeVallaRota = posIniC;
+        Vector3 traseraAmbulancia = posFinC;
 
         sirenasActivas = true;
         if (audioSourceSirena != null)
@@ -947,18 +964,22 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         if (actor1 != null) actor1.brazosAtras = true;
         corteBajoRescate = false;
 
-        // Bengalas rojas sobre el asfalto mojado detrás de la ambulancia y una junto al camión
+        // Bengalas rojas sobre el asfalto mojado detrás de la ambulancia y junto a la valla rota
         if (bengalasDeEmergencia && ambienteLluvia != null)
         {
             for (int i = 0; i < 3; i++)
-                ambienteLluvia.CrearBengala(AlSuelo(posAmbulancia - fwdAmbulancia * (7f + i * 5.5f) + rightAmbulancia * (0.8f - i * 0.8f)));
-            ambienteLluvia.CrearBengala(AlSuelo(posAmbulancia + fwdAmbulancia * 9f + rightAmbulancia * 1.2f));
+            {
+                Vector3 pB, fB, uB, rB; Quaternion qB;
+                EvaluarRuta(sRescate - 0.18f - i * 0.14f, 2.2f - i * 0.6f, out pB, out qB, out fB, out uB, out rB);
+                ambienteLluvia.CrearBengala(pB + uB * 0.03f);
+            }
+            ambienteLluvia.CrearBengala(posIniC + rightIniC * 1.2f + upIniC * 0.03f);
         }
 
-        // Cámara de rescate encuadrando la ambulancia, el asfalto mojado y las sirenas
+        // Cámara de rescate encuadrando la ambulancia, las bengalas y la valla rota sobre la carretera
         Vector3 centroEscena = (posAmbulancia + bordeVallaRota) * 0.5f;
-        Vector3 posCamRescate = centroEscena - rightAmbulancia * 12.5f - fwdAmbulancia * 2.5f + Vector3.up * 2.8f;
-        Vector3 miraCamRescate = centroEscena + Vector3.up * 1.1f;
+        Vector3 posCamRescate = centroEscena - rightAmbulancia * 11.5f - fwdAmbulancia * 2.0f + Vector3.up * 2.6f;
+        Vector3 miraCamRescate = centroEscena + Vector3.up * 1.15f;
 
         if (camaraPrincipal != null)
         {
@@ -977,11 +998,7 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         yield return Fade(fadeCanvas, 1f, 0f, 1.2f);
         MostrarSub(textoParamedico1, 2.4f);
 
-        // Los paramédicos cargan la camilla caminando desde la valla hasta la puerta trasera de la ambulancia
-        Vector3 dirCamilla = (traseraAmbulancia - bordeVallaRota);
-        dirCamilla.y = 0f;
-        dirCamilla.Normalize();
-
+        // Los paramédicos cargan la camilla caminando sobre la carretera hasta la puerta trasera de la ambulancia
         float durCaminata = 4.2f;
         float tCam = 0f;
 
@@ -989,21 +1006,31 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         {
             tCam += Time.deltaTime;
             float k = Mathf.SmoothStep(0f, 1f, tCam / durCaminata);
-            Vector3 posPaso = Vector3.Lerp(bordeVallaRota, traseraAmbulancia, k);
-            float rebotePaso = Mathf.Sin(tCam * 8f) * 0.035f;
+            float sPaso = Mathf.Lerp(sInicioCamilla, sFinCamilla, k);
+            float latPaso = Mathf.Lerp(latInicioCamilla, latFinCamilla, k);
 
-            // Todos caminan pegados al terreno (la ladera sube hacia la carretera)
-            Vector3 pCamilla = AlSuelo(posPaso);
-            Vector3 pMed1 = AlSuelo(posPaso + dirCamilla * 1.25f);
-            Vector3 pMed2 = AlSuelo(posPaso - dirCamilla * 1.25f);
+            Vector3 pCamilla, fwdPaso, upPaso, rightPaso; Quaternion rotPaso;
+            EvaluarRuta(sPaso, latPaso, out pCamilla, out rotPaso, out fwdPaso, out upPaso, out rightPaso);
 
-            camilla.transform.position = pCamilla + Vector3.up * (0.85f + rebotePaso);
+            Vector3 dirCamilla = fwdPaso;
+            dirCamilla.y = 0f;
+            if (dirCamilla.sqrMagnitude < 0.001f) dirCamilla = Vector3.forward;
+            dirCamilla.Normalize();
+
+            float rebotePaso = Mathf.Sin(tCam * 8f) * 0.03f;
+
+            Vector3 pMed1, f1, u1, r1; Quaternion q1;
+            EvaluarRuta(sPaso + 0.035f, latPaso, out pMed1, out q1, out f1, out u1, out r1);
+            Vector3 pMed2, f2, u2, r2; Quaternion q2;
+            EvaluarRuta(sPaso - 0.035f, latPaso, out pMed2, out q2, out f2, out u2, out r2);
+
+            camilla.transform.position = pCamilla + upPaso * (0.86f + rebotePaso);
             camilla.transform.rotation = Quaternion.LookRotation(dirCamilla, Vector3.up);
 
-            med1.transform.position = pMed1 + Vector3.up * rebotePaso;
+            med1.transform.position = pMed1 + upPaso * rebotePaso;
             med1.transform.rotation = Quaternion.LookRotation(dirCamilla, Vector3.up);
 
-            med2.transform.position = pMed2 + Vector3.up * rebotePaso;
+            med2.transform.position = pMed2 + upPaso * rebotePaso;
             med2.transform.rotation = Quaternion.LookRotation(dirCamilla, Vector3.up);
 
             if (tCam < 2.1f)
@@ -1012,13 +1039,15 @@ public class CinematicaAccidenteCamion : MonoBehaviour
             }
             else
             {
-                // CORTE a un plano bajo, casi al ras del asfalto mojado: se ven los reflejos de las sirenas y las bengalas
-                Vector3 camBaja = AlSuelo(traseraAmbulancia - fwdAmbulancia * 6.5f - rightAmbulancia * 2.6f) + Vector3.up * 0.5f;
+                // CORTE a un plano bajo sobre el asfalto mojado: se ven los reflejos de las sirenas y las bengalas
+                Vector3 pCamB, fCB, uCB, rCB; Quaternion qCB;
+                EvaluarRuta(sFinCamilla - 0.14f, 0.4f, out pCamB, out qCB, out fCB, out uCB, out rCB);
+                Vector3 camBaja = pCamB + uCB * 0.55f;
                 Vector3 miraBaja = Vector3.Lerp(pCamilla, traseraAmbulancia, 0.5f) + Vector3.up * 1.0f;
                 if (!corteBajoRescate)
                 {
                     corteBajoRescate = true;
-                    if (camaraPrincipal != null) { camaraPrincipal.transform.position = camBaja; camaraPrincipal.fieldOfView = 40f; }
+                    if (camaraPrincipal != null) { camaraPrincipal.transform.position = camBaja; camaraPrincipal.fieldOfView = 42f; }
                     if (ambienteLluvia != null) ambienteLluvia.GotasExtra(5);
                 }
                 PosicionarCamara(camBaja + fwdAmbulancia * Mathf.Min(tCam - 2.1f, 2.5f) * 0.35f, miraBaja, 5f);
@@ -1056,7 +1085,7 @@ public class CinematicaAccidenteCamion : MonoBehaviour
             Quaternion rotPista;
             EvaluarRuta(sAmbulancia, 3.0f, out posPista, out rotPista, out fwdPista, out upPista, out rightPista);
 
-            ambulanciaObjeto.transform.position = posPista + upPista * 0.08f;
+            ambulanciaObjeto.transform.position = posPista + upPista * offsetLlantasAmb;
             ambulanciaObjeto.transform.rotation = rotPista;
 
             RotarRuedas(ruedasAmbulancia, ambulanciaObjeto != null ? ambulanciaObjeto.transform : null, dt * velAmbulancia * 520f);

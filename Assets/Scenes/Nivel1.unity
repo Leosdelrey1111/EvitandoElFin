@@ -1819,6 +1819,7 @@ MonoBehaviour:
   velocidadRotacion: 60
   amplitudFlotacion: 0.2
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!135 &136580021
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3089,6 +3090,8 @@ MonoBehaviour:
   luzEspiritual: {fileID: 0}
   colorLuzAlebrije: {r: 0.2, g: 0.9, b: 1, a: 1}
   intensidadLuz: 2.5
+  apuntarA: {fileID: 0}
+  hablando: 0
 --- !u!114 &266942847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3970,6 +3973,11 @@ MonoBehaviour:
   velocidadAvance: 0.4
   puntoAccidente: 2.45
   multiplicadorRitmoConduccion: 0.7
+  ambienteLluvia: {fileID: 0}
+  prefabChoferHerido: {fileID: 0}
+  posChoferEnCamilla: {x: 0, y: 0.2, z: 0.9}
+  rotChoferEnCamilla: {x: -90, y: 0, z: 0}
+  bengalasDeEmergencia: 1
   forzarNoche: 1
   materialCieloNoche: {fileID: 0}
   escenaNivel1: Nivel1_Bosque
@@ -7199,8 +7207,12 @@ MonoBehaviour:
   danio: 15
   cooldownAtaque: 1.8
   tiempoTelegrafiado: 0.55
+  colorTelegrafiado: {r: 1, g: 0.25, b: 0.2, a: 1}
   hitboxAtaqueEnemigo: {fileID: 1628770549}
   resistenciaEmpuje: 1
+  ataqueADistancia: 0
+  velocidadProyectil: 11
+  colorProyectil: {r: 0.9, g: 0.4, b: 1, a: 1}
   prefabTotemDrop: {fileID: 0}
   cantidadTotemsADropear: 2
   cantidadAlmasADropear: 3
@@ -15943,7 +15955,7 @@ Transform:
   m_GameObject: {fileID: 1274756759}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.3, y: -1, z: 2.4}
+  m_LocalPosition: {x: 8.8, y: -2, z: 2.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -16098,6 +16110,7 @@ MonoBehaviour:
   velocidadRotacion: 60
   amplitudFlotacion: 0.2
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!135 &1281916637
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -19921,6 +19934,10 @@ MonoBehaviour:
   fuerzaEsquive: 10
   duracionEsquive: 0.35
   cooldownEsquive: 0.8
+  distanciaEsquive: 5.4
+  tiempoEsquive: 0.48
+  recargaEsquive: 0.55
+  permitirEsquiveEnAire: 1
   controlBloqueado: 0
   confusion: 0
   animator: {fileID: 0}
@@ -20113,7 +20130,7 @@ Transform:
   m_GameObject: {fileID: 1496647592}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 8.3, y: -0.83000183, z: 0.8}
+  m_LocalPosition: {x: 10.8, y: -1.8300018, z: 0.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -21371,6 +21388,7 @@ MonoBehaviour:
   velocidadRotacion: 60
   amplitudFlotacion: 0.2
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!135 &1542236778
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -28371,10 +28389,13 @@ MonoBehaviour:
   panelGameOver: {fileID: 1322716404}
   panelVictoria: {fileID: 1843491365}
   nombreMenuPrincipal: MainMenu
+  siguienteEscena: Nivel2_Panteon
   audioSource: {fileID: 0}
   clipVictoria: {fileID: 0}
   clipGameOver: {fileID: 0}
   clipBoton: {fileID: 0}
+  jefeRequerido: 0
+  estadoJefe: 0
 --- !u!4 &2046980439
 Transform:
   m_ObjectHideFlags: 0
@@ -29511,8 +29532,12 @@ MonoBehaviour:
   danio: 15
   cooldownAtaque: 1.8
   tiempoTelegrafiado: 0.55
+  colorTelegrafiado: {r: 1, g: 0.25, b: 0.2, a: 1}
   hitboxAtaqueEnemigo: {fileID: 580377169}
   resistenciaEmpuje: 1
+  ataqueADistancia: 0
+  velocidadProyectil: 11
+  colorProyectil: {r: 0.9, g: 0.4, b: 1, a: 1}
   prefabTotemDrop: {fileID: 0}
   cantidadTotemsADropear: 2
   cantidadAlmasADropear: 3

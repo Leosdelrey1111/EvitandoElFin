@@ -4,9 +4,9 @@ using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// Cinemática final del Nivel 3 (Basílica de Guanajuato):
+/// Cinemática final de producción del Nivel 3 (Basílica de Guanajuato):
 /// Al cruzar el Portal Dorado tras vencer al Clérigo Inquisidor, el alma del Chofer
-/// regresa a su cuerpo en el mundo real bajo la luz del amanecer y despierta vivo.
+/// regresa a su cuerpo real (prefab Chofer) en la camilla del hospital al amanecer.
 /// </summary>
 public class CinematicaRegresoAlma : MonoBehaviour
 {
@@ -19,12 +19,13 @@ public class CinematicaRegresoAlma : MonoBehaviour
         return true;
     }
 
-    Material Mat(Color c, float emision = 0f)
+    Material Mat(Color c, float emision = 0f, float suavidad = 0.35f)
     {
         Shader s = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
         Material m = new Material(s);
         m.color = c;
         if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
+        if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", suavidad);
         if (emision > 0f)
         {
             m.EnableKeyword("_EMISSION");
@@ -47,12 +48,58 @@ public class CinematicaRegresoAlma : MonoBehaviour
         return g;
     }
 
+    GameObject InstanciarActorChofer(Transform padre, Vector3 posLocal)
+    {
+        GameObject prefab = Resources.Load<GameObject>("Chofer") ?? Resources.Load<GameObject>("Player");
+        #if UNITY_EDITOR
+        if (prefab == null)
+            prefab = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Resources/Chofer.prefab");
+        #endif
+
+        GameObject contenedor = new GameObject("ActorChoferReal");
+        contenedor.transform.SetParent(padre, false);
+        contenedor.transform.localPosition = posLocal;
+
+        if (prefab != null)
+        {
+            GameObject inst = Instantiate(prefab, contenedor.transform, false);
+            inst.name = "ModeloChofer";
+            inst.tag = "Untagged";
+
+            foreach (MonoBehaviour mb in inst.GetComponentsInChildren<MonoBehaviour>(true))
+            {
+                if (mb is Animator) continue;
+                mb.enabled = false;
+                Destroy(mb);
+            }
+            foreach (CharacterController cc in inst.GetComponentsInChildren<CharacterController>(true)) Destroy(cc);
+            foreach (Collider col in inst.GetComponentsInChildren<Collider>(true)) Destroy(col);
+
+            Animator anim = inst.GetComponentInChildren<Animator>();
+            if (anim != null) anim.applyRootMotion = false;
+
+            // Acostar boca arriba sobre el colchón (cabeza hacia +Z, pies hacia -Z)
+            inst.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+            inst.transform.localPosition = Vector3.zero;
+
+            float minY = float.MaxValue;
+            foreach (Renderer r in inst.GetComponentsInChildren<Renderer>())
+                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            if (minY < float.MaxValue)
+                inst.transform.position += Vector3.up * (contenedor.transform.position.y - minY);
+        }
+        else
+        {
+            Parte(contenedor.transform, "CuerpoRespaldo", PrimitiveType.Cube, new Vector3(0f, 0.14f, 0f), new Vector3(0.55f, 0.25f, 1.5f), Vector3.zero, Mat(new Color(0.32f, 0.65f, 0.68f)));
+        }
+        return contenedor;
+    }
+
     IEnumerator Rutina(System.Action alTerminar)
     {
-        // Pausar control del jugador y ocultar HUD
         GameObject player = GameObject.FindGameObjectWithTag("Player");
-        ChoferController chofer = player != null ? player.GetComponent<ChoferController>() : null;
-        if (chofer != null) chofer.controlBloqueado = true;
+        ChoferController choferCtrl = player != null ? player.GetComponent<ChoferController>() : null;
+        if (choferCtrl != null) choferCtrl.controlBloqueado = true;
 
         CamaraTerceraPersona camTP = Object.FindAnyObjectByType<CamaraTerceraPersona>();
         if (camTP != null) camTP.enabled = false;
@@ -65,62 +112,87 @@ public class CinematicaRegresoAlma : MonoBehaviour
         Quaternion rotCamOrig = cam != null ? cam.transform.rotation : Quaternion.identity;
         float fovOrig = cam != null ? cam.fieldOfView : 60f;
 
-        // Escenario aislado en lo alto (y = 320) para la escena del despertar al amanecer
-        GameObject escenario = new GameObject("Escenario_RegresoAlma");
-        escenario.transform.position = new Vector3(0f, 320f, 0f);
-        Transform r = escenario.transform;
+        GameObject sala = new GameObject("SalaHospital_RegresoAlma");
+        sala.transform.position = new Vector3(0f, 320f, 0f);
+        Transform r = sala.transform;
 
-        Material pisoMat = Mat(new Color(0.22f, 0.24f, 0.28f));
-        Material sabanaMat = Mat(new Color(0.88f, 0.90f, 0.94f));
-        Material metalMat = Mat(new Color(0.55f, 0.58f, 0.62f));
-        Material pielMat = Mat(new Color(0.84f, 0.64f, 0.50f));
-        Material camisaMat = Mat(new Color(0.32f, 0.65f, 0.68f));
-        Material pantalonMat = Mat(new Color(0.18f, 0.24f, 0.34f));
-        Material gorraMat = Mat(new Color(0.16f, 0.42f, 0.72f));
-        Material oroMat = Mat(new Color(1f, 0.85f, 0.35f), 2.2f);
-        Material almaMat = Mat(new Color(0.25f, 0.95f, 0.85f), 3.2f);
-        Material monitorMat = Mat(new Color(0.15f, 0.95f, 0.45f), 2.0f);
+        Material pisoMat = Mat(new Color(0.76f, 0.78f, 0.80f), 0f, 0.6f);
+        Material paredMat = Mat(new Color(0.86f, 0.88f, 0.86f), 0f, 0.2f);
+        Material zocaloMat = Mat(new Color(0.28f, 0.42f, 0.46f));
+        Material metalMat = Mat(new Color(0.65f, 0.68f, 0.72f), 0f, 0.75f);
+        Material sabanaMat = Mat(new Color(0.92f, 0.94f, 0.96f));
+        Material cobijaMat = Mat(new Color(0.24f, 0.52f, 0.58f));
+        Material maderaMat = Mat(new Color(0.42f, 0.28f, 0.18f));
+        Material cieloAmanecer = Mat(new Color(1f, 0.74f, 0.42f), 1.6f);
+        Material oroMat = Mat(new Color(1f, 0.86f, 0.35f), 2.4f);
+        Material almaMat = Mat(new Color(0.25f, 0.95f, 0.85f), 3.4f);
+        Material monitorMat = Mat(new Color(0.06f, 0.12f, 0.14f));
+        Material pulsoMat = Mat(new Color(0.18f, 0.95f, 0.48f), 2.8f);
+        Material cempasuchilMat = Mat(new Color(1f, 0.58f, 0.08f), 0.7f);
 
-        Parte(r, "Piso", PrimitiveType.Cube, new Vector3(0f, -0.25f, 0f), new Vector3(24f, 0.5f, 24f), Vector3.zero, pisoMat);
+        Parte(r, "Piso", PrimitiveType.Cube, new Vector3(0f, -0.15f, 0f), new Vector3(11f, 0.3f, 11f), Vector3.zero, pisoMat);
+        Parte(r, "Techo", PrimitiveType.Cube, new Vector3(0f, 4.6f, 0f), new Vector3(11f, 0.25f, 11f), Vector3.zero, paredMat);
+        Parte(r, "ParedFondo", PrimitiveType.Cube, new Vector3(0f, 2.25f, 4.5f), new Vector3(11f, 4.5f, 0.3f), Vector3.zero, paredMat);
+        Parte(r, "ParedDer", PrimitiveType.Cube, new Vector3(4.5f, 2.25f, 0f), new Vector3(0.3f, 4.5f, 11f), Vector3.zero, paredMat);
+        Parte(r, "ZocaloFondo", PrimitiveType.Cube, new Vector3(0f, 0.55f, 4.34f), new Vector3(10.8f, 1.1f, 0.04f), Vector3.zero, zocaloMat);
 
-        // Camilla de urgencias / hospital al amanecer
-        Parte(r, "BaseCamilla", PrimitiveType.Cube, new Vector3(0f, 0.55f, 0f), new Vector3(1.2f, 0.14f, 2.5f), Vector3.zero, metalMat);
-        Parte(r, "Colchon", PrimitiveType.Cube, new Vector3(0f, 0.70f, 0f), new Vector3(1.12f, 0.18f, 2.38f), Vector3.zero, sabanaMat);
-        Parte(r, "Almohada", PrimitiveType.Cube, new Vector3(0f, 0.84f, 0.9f), new Vector3(0.7f, 0.12f, 0.4f), Vector3.zero, sabanaMat);
+        Parte(r, "ParedIzqBaja", PrimitiveType.Cube, new Vector3(-4.2f, 0.6f, 0f), new Vector3(0.3f, 1.2f, 11f), Vector3.zero, paredMat);
+        Parte(r, "ParedIzqAlta", PrimitiveType.Cube, new Vector3(-4.2f, 4.0f, 0f), new Vector3(0.3f, 1.2f, 11f), Vector3.zero, paredMat);
+        Parte(r, "MarcoVentana1", PrimitiveType.Cube, new Vector3(-4.2f, 2.3f, -2.5f), new Vector3(0.35f, 2.4f, 0.2f), Vector3.zero, metalMat);
+        Parte(r, "MarcoVentana2", PrimitiveType.Cube, new Vector3(-4.2f, 2.3f, 2.5f), new Vector3(0.35f, 2.4f, 0.2f), Vector3.zero, metalMat);
+        Parte(r, "CieloAmanecer", PrimitiveType.Cube, new Vector3(-6.2f, 2.5f, 0f), new Vector3(0.2f, 5.5f, 12f), Vector3.zero, cieloAmanecer);
 
-        // Cuerpo del Chofer acostado
-        Transform cuerpo = new GameObject("CuerpoChofer").transform;
-        cuerpo.SetParent(r, false);
-        cuerpo.localPosition = new Vector3(0f, 0.86f, 0f);
-        Parte(cuerpo, "Piernas", PrimitiveType.Cube, new Vector3(0f, 0.05f, -0.55f), new Vector3(0.42f, 0.2f, 0.9f), Vector3.zero, pantalonMat);
-        Parte(cuerpo, "Torso", PrimitiveType.Cube, new Vector3(0f, 0.10f, 0.20f), new Vector3(0.52f, 0.24f, 0.7f), Vector3.zero, camisaMat);
-        Parte(cuerpo, "Cabeza", PrimitiveType.Sphere, new Vector3(0f, 0.14f, 0.82f), new Vector3(0.36f, 0.36f, 0.36f), Vector3.zero, pielMat);
-        Parte(cuerpo, "Rosario", PrimitiveType.Sphere, new Vector3(0f, 0.24f, 0.28f), new Vector3(0.12f, 0.04f, 0.18f), Vector3.zero, oroMat);
-        Parte(cuerpo, "GorraMesita", PrimitiveType.Sphere, new Vector3(0.88f, 0.0f, 0.85f), new Vector3(0.28f, 0.14f, 0.28f), Vector3.zero, gorraMat);
+        Parte(r, "EstructuraCama", PrimitiveType.Cube, new Vector3(0f, 0.52f, 0.3f), new Vector3(1.35f, 0.14f, 2.6f), Vector3.zero, metalMat);
+        for (int ix = -1; ix <= 1; ix += 2)
+            for (int iz = -1; iz <= 1; iz += 2)
+                Parte(r, "Pata" + ix + iz, PrimitiveType.Cylinder, new Vector3(ix * 0.58f, 0.26f, 0.3f + iz * 1.15f), new Vector3(0.08f, 0.26f, 0.08f), Vector3.zero, metalMat);
+        Parte(r, "Cabecera", PrimitiveType.Cube, new Vector3(0f, 0.92f, 1.56f), new Vector3(1.4f, 0.72f, 0.08f), Vector3.zero, metalMat);
+        Parte(r, "Piecera", PrimitiveType.Cube, new Vector3(0f, 0.75f, -0.96f), new Vector3(1.4f, 0.42f, 0.08f), Vector3.zero, metalMat);
+        Parte(r, "BarandalI", PrimitiveType.Cube, new Vector3(-0.68f, 0.84f, 0.4f), new Vector3(0.05f, 0.22f, 1.35f), Vector3.zero, metalMat);
+        Parte(r, "BarandalD", PrimitiveType.Cube, new Vector3(0.68f, 0.84f, 0.4f), new Vector3(0.05f, 0.22f, 1.35f), Vector3.zero, metalMat);
+        Parte(r, "Colchon", PrimitiveType.Cube, new Vector3(0f, 0.68f, 0.3f), new Vector3(1.24f, 0.22f, 2.45f), Vector3.zero, sabanaMat);
+        Parte(r, "Almohada", PrimitiveType.Cube, new Vector3(0f, 0.84f, 1.24f), new Vector3(0.75f, 0.12f, 0.42f), Vector3.zero, sabanaMat);
+        Parte(r, "Cobija", PrimitiveType.Cube, new Vector3(0f, 0.82f, -0.32f), new Vector3(1.26f, 0.08f, 1.25f), Vector3.zero, cobijaMat);
 
-        // Monitor de signos vitales junto a la camilla
-        Parte(r, "PosteMonitor", PrimitiveType.Cylinder, new Vector3(-0.95f, 0.7f, 0.7f), new Vector3(0.08f, 0.7f, 0.08f), Vector3.zero, metalMat);
-        Parte(r, "PantallaMonitor", PrimitiveType.Cube, new Vector3(-0.95f, 1.45f, 0.7f), new Vector3(0.45f, 0.32f, 0.15f), new Vector3(0f, 25f, 0f), monitorMat);
+        GameObject actorChofer = InstanciarActorChofer(r, new Vector3(0f, 0.80f, 0.35f));
+        Parte(r, "RosarioPecho", PrimitiveType.Sphere, new Vector3(0f, 1.05f, 0.55f), new Vector3(0.14f, 0.04f, 0.20f), Vector3.zero, oroMat);
 
-        // Orbe luminoso del alma que desciende del cielo hacia el pecho del Chofer
-        GameObject alma = Parte(r, "AlmaChofer", PrimitiveType.Sphere, new Vector3(0f, 9f, -4f), Vector3.one * 0.45f, Vector3.zero, almaMat);
+        Parte(r, "Mesita", PrimitiveType.Cube, new Vector3(1.35f, 0.4f, 1.0f), new Vector3(0.65f, 0.8f, 0.65f), Vector3.zero, maderaMat);
+        Parte(r, "Florero", PrimitiveType.Cylinder, new Vector3(1.35f, 0.92f, 1.0f), new Vector3(0.18f, 0.12f, 0.18f), Vector3.zero, zocaloMat);
+        Parte(r, "Cempasuchil", PrimitiveType.Sphere, new Vector3(1.35f, 1.08f, 1.0f), new Vector3(0.32f, 0.24f, 0.32f), Vector3.zero, cempasuchilMat);
+
+        Parte(r, "PosteSuero", PrimitiveType.Cylinder, new Vector3(1.05f, 1.05f, 1.75f), new Vector3(0.05f, 1.05f, 0.05f), Vector3.zero, metalMat);
+        Parte(r, "BolsaSuero", PrimitiveType.Cube, new Vector3(0.92f, 1.85f, 1.75f), new Vector3(0.14f, 0.28f, 0.08f), Vector3.zero, sabanaMat);
+
+        Parte(r, "BaseMonitor", PrimitiveType.Cylinder, new Vector3(-1.15f, 0.7f, 1.35f), new Vector3(0.06f, 0.7f, 0.06f), Vector3.zero, metalMat);
+        Parte(r, "CajaMonitor", PrimitiveType.Cube, new Vector3(-1.15f, 1.52f, 1.35f), new Vector3(0.55f, 0.42f, 0.22f), new Vector3(0f, 25f, 0f), monitorMat);
+        GameObject barraPulso = Parte(r, "PulsoMonitor", PrimitiveType.Cube, new Vector3(-1.10f, 1.52f, 1.24f), new Vector3(0.38f, 0.05f, 0.03f), new Vector3(0f, 25f, 0f), pulsoMat);
+
+        GameObject alma = Parte(r, "AlmaChofer", PrimitiveType.Sphere, new Vector3(-3.2f, 2.8f, 0.4f), Vector3.one * 0.42f, Vector3.zero, almaMat);
         Light luzAlma = alma.AddComponent<Light>();
         luzAlma.type = LightType.Point;
         luzAlma.color = new Color(0.35f, 1f, 0.88f);
         luzAlma.range = 10f;
         luzAlma.intensity = 3.5f;
 
-        // Luz cálida de amanecer
-        GameObject luzSol = new GameObject("LuzAmanecer");
-        luzSol.transform.SetParent(r, false);
-        luzSol.transform.localPosition = new Vector3(4f, 5f, 3f);
-        Light lSol = luzSol.AddComponent<Light>();
+        GameObject luzVentana = new GameObject("LuzAmanecer");
+        luzVentana.transform.SetParent(r, false);
+        luzVentana.transform.localPosition = new Vector3(-3.0f, 2.9f, 0.4f);
+        Light lSol = luzVentana.AddComponent<Light>();
         lSol.type = LightType.Point;
-        lSol.color = new Color(1f, 0.82f, 0.48f);
-        lSol.range = 25f;
-        lSol.intensity = 2.8f;
+        lSol.color = new Color(1f, 0.80f, 0.46f);
+        lSol.range = 16f;
+        lSol.intensity = 3.4f;
 
-        // UI cinematográfica (franjas negras + subtítulo)
+        GameObject luzTecho = new GameObject("LuzSala");
+        luzTecho.transform.SetParent(r, false);
+        luzTecho.transform.localPosition = new Vector3(0f, 4.1f, 0f);
+        Light lTecho = luzTecho.AddComponent<Light>();
+        lTecho.type = LightType.Point;
+        lTecho.color = new Color(0.82f, 0.92f, 1f);
+        lTecho.range = 15f;
+        lTecho.intensity = 1.8f;
+
         Canvas canvas = UIMexicana.CrearCanvas("Canvas_RegresoAlma", 60);
         canvas.transform.SetParent(transform, false);
         Image fade = UIMexicana.Imagen("Fade", canvas.transform, UIMexicana.Blanco(), new Color(0f, 0f, 0f, 1f));
@@ -128,83 +200,80 @@ public class CinematicaRegresoAlma : MonoBehaviour
 
         Image barraSup = UIMexicana.Imagen("BarraSup", canvas.transform, UIMexicana.Blanco(), Color.black);
         barraSup.rectTransform.anchorMin = new Vector2(0f, 1f); barraSup.rectTransform.anchorMax = new Vector2(1f, 1f);
-        barraSup.rectTransform.pivot = new Vector2(0.5f, 1f); barraSup.rectTransform.sizeDelta = new Vector2(0f, 90f);
+        barraSup.rectTransform.pivot = new Vector2(0.5f, 1f); barraSup.rectTransform.sizeDelta = new Vector2(0f, 88f);
 
         Image barraInf = UIMexicana.Imagen("BarraInf", canvas.transform, UIMexicana.Blanco(), Color.black);
         barraInf.rectTransform.anchorMin = new Vector2(0f, 0f); barraInf.rectTransform.anchorMax = new Vector2(1f, 0f);
-        barraInf.rectTransform.pivot = new Vector2(0.5f, 0f); barraInf.rectTransform.sizeDelta = new Vector2(0f, 110f);
+        barraInf.rectTransform.pivot = new Vector2(0.5f, 0f); barraInf.rectTransform.sizeDelta = new Vector2(0f, 108f);
 
-        TextMeshProUGUI txt = UIMexicana.Texto("Subtitulo", barraInf.transform, "", 24, UIMexicana.Crema, TextAlignmentOptions.Center, FontStyles.Normal, 1f);
+        TextMeshProUGUI txt = UIMexicana.Texto("Subtitulo", barraInf.transform, "", 23, UIMexicana.Crema, TextAlignmentOptions.Center, FontStyles.Normal, 1f);
         UIMexicana.Estirar(txt.rectTransform);
         txt.rectTransform.offsetMin = new Vector2(80f, 10f); txt.rectTransform.offsetMax = new Vector2(-80f, -10f);
 
-        // Sonido suave de latido
         AudioSource aud = gameObject.AddComponent<AudioSource>();
         aud.spatialBlend = 0f;
         AudioClip latido = UIMexicana.Pluck(new[] { 110f, 146.83f }, 0.35f, 0.14f);
         AudioClip despertar = UIMexicana.Pluck(new[] { 392f, 493.88f, 587.33f, 783.99f }, 0.9f, 0.14f);
 
-        // Toma 1: Desvanecimiento dorado y llegada al amanecer (3.5s)
-        txt.text = "El Portal Dorado se cierra detrás de ti... el camino de regreso por fin se abre.";
+        txt.text = "El Portal Dorado se cierra detrás de ti... el amanecer ilumina el mundo de los vivos.";
         float t = 0f;
-        while (t < 3.5f)
+        while (t < 3.8f)
         {
             t += Time.deltaTime;
-            float e = Mathf.Clamp01(t / 3.5f);
-            fade.color = new Color(0f, 0f, 0f, Mathf.Lerp(1f, 0f, Mathf.Clamp01(e * 2f)));
-            alma.transform.localPosition = Vector3.Lerp(new Vector3(0f, 7.5f, -3.5f), new Vector3(0f, 3.2f, -0.5f), e);
+            float e = Mathf.Clamp01(t / 3.8f);
+            fade.color = new Color(0f, 0f, 0f, Mathf.Lerp(1f, 0f, Mathf.Clamp01(e * 2.2f)));
+            alma.transform.localPosition = Vector3.Lerp(new Vector3(-3.2f, 2.7f, 0.4f), new Vector3(-0.8f, 2.1f, 0.45f), e);
+            barraPulso.transform.localScale = new Vector3(0.38f, 0.04f + Mathf.Abs(Mathf.Sin(t * 4f)) * 0.08f, 0.03f);
             if (cam != null)
             {
-                cam.transform.position = r.position + Vector3.Lerp(new Vector3(3.4f, 3.2f, -3.5f), new Vector3(2.4f, 2.2f, -1.6f), e);
-                cam.transform.LookAt(cuerpo.position + Vector3.up * 0.4f);
+                cam.transform.position = r.position + Vector3.Lerp(new Vector3(2.8f, 2.5f, -2.8f), new Vector3(2.1f, 2.0f, -1.6f), e);
+                cam.transform.LookAt(r.position + new Vector3(0f, 1.0f, 0.45f));
                 cam.fieldOfView = Mathf.Lerp(54f, 46f, e);
             }
             yield return null;
         }
 
-        // Toma 2: El alma desciende hasta el pecho del Chofer (3.5s)
-        txt.text = "El latido de tu corazón te llama. Tu alma desciende de vuelta a tu cuerpo...";
-        if (aud != null && latido != null) aud.PlayOneShot(latido, 0.55f);
+        txt.text = "Tu corazón vuelve a latir con fuerza. Tu alma regresa a tu cuerpo...";
+        if (aud != null && latido != null) aud.PlayOneShot(latido, 0.6f);
         t = 0f;
-        while (t < 3.5f)
+        while (t < 3.6f)
         {
             t += Time.deltaTime;
-            float e = Mathf.Clamp01(t / 3.5f);
+            float e = Mathf.Clamp01(t / 3.6f);
             float eSuave = e * e * (3f - 2f * e);
-            alma.transform.localPosition = Vector3.Lerp(new Vector3(0f, 3.2f, -0.5f), new Vector3(0f, 1.05f, 0.25f), eSuave);
-            alma.transform.localScale = Vector3.one * Mathf.Lerp(0.45f, 0.18f, eSuave);
-            luzAlma.intensity = Mathf.Lerp(3.5f, 6.0f, eSuave);
+            alma.transform.localPosition = Vector3.Lerp(new Vector3(-0.8f, 2.1f, 0.45f), new Vector3(0f, 1.06f, 0.55f), eSuave);
+            alma.transform.localScale = Vector3.one * Mathf.Lerp(0.42f, 0.16f, eSuave);
+            luzAlma.intensity = Mathf.Lerp(3.5f, 6.5f, eSuave);
+            barraPulso.transform.localScale = new Vector3(0.38f, 0.05f + Mathf.Abs(Mathf.Sin(t * 6f)) * 0.12f, 0.03f);
             if (cam != null)
             {
-                cam.transform.position = r.position + Vector3.Lerp(new Vector3(2.4f, 2.2f, -1.6f), new Vector3(1.5f, 1.85f, 0.2f), eSuave);
-                cam.transform.LookAt(cuerpo.position + new Vector3(0f, 0.2f, 0.35f));
-                cam.fieldOfView = Mathf.Lerp(46f, 40f, eSuave);
+                cam.transform.position = r.position + Vector3.Lerp(new Vector3(2.1f, 2.0f, -1.6f), new Vector3(1.45f, 1.65f, 0.1f), eSuave);
+                cam.transform.LookAt(r.position + new Vector3(0f, 0.95f, 0.6f));
+                cam.fieldOfView = Mathf.Lerp(46f, 39f, eSuave);
             }
             yield return null;
         }
 
-        // Toma 3: Destello al entrar el alma y el Chofer despierta (3.5s)
         alma.SetActive(false);
-        if (aud != null && despertar != null) aud.PlayOneShot(despertar, 0.7f);
+        if (aud != null && despertar != null) aud.PlayOneShot(despertar, 0.75f);
         txt.text = "¡Has evitado el fin! Despiertas con vida: tu familia te espera en Guanajuato.";
         t = 0f;
-        while (t < 3.5f)
+        while (t < 3.8f)
         {
             t += Time.deltaTime;
-            float e = Mathf.Clamp01(t / 3.5f);
-            fade.color = new Color(1f, 0.96f, 0.85f, Mathf.Lerp(0.75f, 0f, Mathf.Clamp01(e * 2.5f)));
-            lSol.intensity = Mathf.Lerp(2.8f, 4.5f, e);
-            // El Chofer se incorpora ligeramente al despertar
-            cuerpo.localRotation = Quaternion.Euler(Mathf.Lerp(0f, -18f, Mathf.Clamp01(e * 1.4f)), 0f, 0f);
+            float e = Mathf.Clamp01(t / 3.8f);
+            fade.color = new Color(1f, 0.96f, 0.85f, Mathf.Lerp(0.8f, 0f, Mathf.Clamp01(e * 2.4f)));
+            lSol.intensity = Mathf.Lerp(3.4f, 5.2f, e);
+            barraPulso.transform.localScale = new Vector3(0.38f, 0.06f + Mathf.Abs(Mathf.Sin(t * 7f)) * 0.14f, 0.03f);
+            actorChofer.transform.localRotation = Quaternion.Euler(Mathf.Lerp(0f, -18f, Mathf.Clamp01(e * 1.4f)), 0f, 0f);
             if (cam != null)
             {
-                cam.transform.position = r.position + Vector3.Lerp(new Vector3(1.5f, 1.85f, 0.2f), new Vector3(1.9f, 2.1f, 1.3f), e);
-                cam.transform.LookAt(cuerpo.position + new Vector3(0f, 0.35f, 0.65f));
+                cam.transform.position = r.position + Vector3.Lerp(new Vector3(1.45f, 1.65f, 0.1f), new Vector3(1.65f, 1.85f, 1.25f), e);
+                cam.transform.LookAt(r.position + new Vector3(0f, 1.05f, 0.85f));
             }
             yield return null;
         }
 
-        // Fundido final a negro antes de mostrar la pantalla de victoria
         t = 0f;
         while (t < 0.8f)
         {
@@ -219,7 +288,7 @@ public class CinematicaRegresoAlma : MonoBehaviour
             cam.transform.rotation = rotCamOrig;
             cam.fieldOfView = fovOrig;
         }
-        Destroy(escenario);
+        Destroy(sala);
         Destroy(gameObject);
 
         alTerminar?.Invoke();

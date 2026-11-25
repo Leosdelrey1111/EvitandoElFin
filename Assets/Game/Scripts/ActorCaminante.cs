@@ -82,11 +82,21 @@ public class ActorCaminante : MonoBehaviour
         GameObject real = string.IsNullOrEmpty(recurso) ? null : Resources.Load<GameObject>("Cinematica/" + recurso);
         if (real != null)
         {
-            GameObject go = Instantiate(real);
-            go.name = nombre;
+            GameObject go = new GameObject(nombre);
+            GameObject modelo = Instantiate(real, go.transform, false);
+            modelo.name = "Modelo";
             ActorCaminante a = go.AddComponent<ActorCaminante>();
-            a.animator = go.GetComponentInChildren<Animator>();
+            a.animator = modelo.GetComponentInChildren<Animator>();
+            if (a.animator != null) a.animator.applyRootMotion = false;
             a.brazosAgarrando = agarraCamilla;
+
+            // Alinear los pies exactamente al suelo (y = 0) para que nunca se hunda bajo la carretera
+            float minY = float.MaxValue;
+            foreach (Renderer r in modelo.GetComponentsInChildren<Renderer>())
+                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            if (minY < float.MaxValue)
+                modelo.transform.localPosition += Vector3.up * (go.transform.position.y - minY);
+
             return go;
         }
         return CrearProvisional(nombre, uniforme, agarraCamilla);

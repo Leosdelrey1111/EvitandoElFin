@@ -90,9 +90,9 @@ public class ArreglosEscenaRuntime : MonoBehaviour
         if (nombre.Contains("Nivel1") || nombre.Contains("Bosque") || nombre.Contains("Nivel2") || nombre.Contains("Panteon") ||
             nombre.Contains("Nivel3") || nombre.Contains("Ciudad"))
         {
+            SepararDonChuyDeTotems();
             AcomodoTotems.Acomodar(nombre);
             AcomodoEntorno.Acomodar(nombre);
-            SepararDonChuyDeTotems();
             AcomodarPortales();
         }
     }

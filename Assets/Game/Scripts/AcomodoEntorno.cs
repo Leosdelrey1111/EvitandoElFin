@@ -64,12 +64,14 @@ public static class AcomodoEntorno
 
         foreach (Transform t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Exclude))
         {
-            if (t == null || t.parent != null && t.parent.name.StartsWith("Arena")) continue;
+            if (t == null || (t.parent != null && t.parent.name.StartsWith("Arena"))) continue;
             string n = t.name;
-            bool esRoca = n.StartsWith("Pena_") || n == "PilaPiedras" || n.StartsWith("Roca");
+            bool esRoca = n.StartsWith("Pena_") || n == "PilaPiedras" || n.StartsWith("Roca") || n.StartsWith("Rock");
+            bool esFlora = n.StartsWith("Maguey") || n.StartsWith("Nopal") || n.StartsWith("Organo") ||
+                           n.StartsWith("Mezquite") || n.StartsWith("Huizache");
             bool esProp = n.StartsWith("Cruz_Camino") || n.StartsWith("Tumba_") || n.StartsWith("Gavetas_") ||
-                          n.StartsWith("Casa_Colonial") || n.StartsWith("Ofrenda_");
-            if (!esRoca && !esProp) continue;
+                          n.StartsWith("Casa_Colonial") || n.StartsWith("Ofrenda_") || n.StartsWith("Puesto_DonChuy");
+            if (!esRoca && !esFlora && !esProp) continue;
 
             Renderer[] rends = t.GetComponentsInChildren<Renderer>();
             if (rends == null || rends.Length == 0) continue;
@@ -117,7 +119,7 @@ public static class AcomodoEntorno
             }
             if (!hayTerreno) continue;
 
-            float hundimiento = esRoca ? 0.45f : 0.15f;
+            float hundimiento = esRoca ? 0.45f : (esFlora ? 0.25f : 0.15f);
             float objetivoMinY = minTerreno - hundimiento;
             float delta = objetivoMinY - b.min.y;
             if (delta < -0.15f || delta > 0.35f)
@@ -338,6 +340,19 @@ public static class AcomodoEntorno
         go.transform.rotation = Quaternion.LookRotation(dir);
 
         Parte(go.transform, "Cuerda", PrimitiveType.Cube, Vector3.zero, new Vector3(11f, 0.03f, 0.03f), Vector3.zero, cuerda);
+
+        // Postes de soporte en ambos extremos aterrizados al terreno para que la tira no flote en el aire
+        for (int s = -1; s <= 1; s += 2)
+        {
+            Vector3 baseMundo = go.transform.TransformPoint(new Vector3(s * 5.5f, 0f, 0f));
+            float hSuelo;
+            float baseLocalY = AcomodoTotems.AlturaTerreno(baseMundo, out hSuelo) ? (hSuelo - pos.y - 0.1f) : -5.0f;
+            float alto = Mathf.Max(2f, -baseLocalY);
+            Parte(go.transform, "Poste" + s, PrimitiveType.Cylinder,
+                new Vector3(s * 5.5f, baseLocalY + alto * 0.5f, 0f),
+                new Vector3(0.11f, alto * 0.5f, 0.11f), Vector3.zero, cuerda);
+        }
+
         for (int i = -4; i <= 4; i++)
         {
             float x = i * 1.1f;

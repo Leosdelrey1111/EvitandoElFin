@@ -95,16 +95,18 @@ public static class AcomodoTotems
     }
 
     /// <summary>
-    /// Altura del suelo pisable bajo 'p': el terreno, o un piso/plataforma que esté a lo más 3 m por encima del terreno.
-    /// Ignora triggers, al jugador, enemigos y todo lo que cuelgue de 'ignorar'.
+    /// Altura del suelo pisable bajo 'p': prioriza el Terrain real (para no subirse a rocas, muros ni puestos de Don Chuy).
     /// </summary>
     public static bool AlturaSuelo(Vector3 p, Transform ignorar, out float y)
     {
         float terreno;
-        bool hayTerreno = AlturaTerreno(p, out terreno);
-        float origenY = hayTerreno ? terreno + 3f : p.y + 4f;
+        if (AlturaTerreno(p, out terreno))
+        {
+            y = terreno;
+            return true;
+        }
 
-        RaycastHit[] hits = Physics.RaycastAll(new Vector3(p.x, origenY, p.z), Vector3.down, 60f, ~0, QueryTriggerInteraction.Ignore);
+        RaycastHit[] hits = Physics.RaycastAll(new Vector3(p.x, p.y + 4f, p.z), Vector3.down, 60f, ~0, QueryTriggerInteraction.Ignore);
         float mejor = float.MinValue;
         bool hay = false;
         foreach (RaycastHit h in hits)
@@ -114,11 +116,9 @@ public static class AcomodoTotems
             if (ignorar != null && ht.IsChildOf(ignorar)) continue;
             if (h.collider.CompareTag("Player") || h.collider.CompareTag("Enemigo")) continue;
             if (h.collider.GetComponentInParent<CharacterController>() != null && !(h.collider is TerrainCollider)) continue;
-            if (h.normal.y < 0.6f) continue; // paredes / laterales de rocas no cuentan como piso
+            if (h.normal.y < 0.6f) continue;
             if (h.point.y > mejor) { mejor = h.point.y; hay = true; }
         }
-
-        if (hayTerreno && (!hay || mejor < terreno - 0.05f)) { mejor = terreno; hay = true; }
         y = mejor;
         return hay;
     }
