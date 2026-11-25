@@ -321,7 +321,7 @@ public class CodiceHistoria : MonoBehaviour
                 cuerpo = ConLetraCapital(HistoriaNivel3.TextoRecuerdo, false), desbloqueada = Tiene("recuerdo3")
             });
 
-            // Memorias y reflexiones de Juan el Chofer a lo largo del viaje
+            // Memorias y reflexiones del Chofer a lo largo del viaje
             entradas.Add(new Entrada
             {
                 id = "bitacora_trailer", etiqueta = "BITÁCORA I", titulo = "El tráiler en la Carretera 110", subtitulo = "Memorias del asfalto y la sierra",

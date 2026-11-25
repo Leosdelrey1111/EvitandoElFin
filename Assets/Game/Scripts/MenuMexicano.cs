@@ -14,7 +14,7 @@ public class MenuMexicano : MonoBehaviour
 {
     [Header("Escenas")]
     [Tooltip("Primera escena del juego (la cinemática del accidente).")]
-    public string escenaJuego = "SampleScene";
+    public string escenaJuego = "Nivel1";
 
     [Header("Textos")]
     public string titulo = "EVITANDO EL FIN";
@@ -46,6 +46,11 @@ public class MenuMexicano : MonoBehaviour
 
     void Start()
     {
+        if (string.IsNullOrEmpty(escenaJuego) || escenaJuego == "SampleScene")
+        {
+            escenaJuego = "Nivel1";
+        }
+
         Time.timeScale = 1f;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -595,6 +600,8 @@ public class MenuMexicano : MonoBehaviour
     {
         if (cargando) return;
         cargando = true;
+        // Al comenzar aventura desde el menú principal, reiniciar progreso de tótems
+        SistemaGuardado.BorrarProgreso();
         StartCoroutine(CargarEscena());
     }
 
@@ -610,9 +617,34 @@ public class MenuMexicano : MonoBehaviour
             if (musica != null) musica.volume = Mathf.Lerp(vol, 0f, k);
             yield return null;
         }
-        if (Application.CanStreamedLevelBeLoaded(escenaJuego)) SceneManager.LoadScene(escenaJuego);
+        string escena = escenaJuego;
+        if (escena == "SampleScene" || !Application.CanStreamedLevelBeLoaded(escena))
+        {
+            if (Application.CanStreamedLevelBeLoaded("Nivel1")) escena = "Nivel1";
+            else if (Application.CanStreamedLevelBeLoaded("Nivel1_Bosque")) escena = "Nivel1_Bosque";
+        }
+        if (Application.CanStreamedLevelBeLoaded(escena))
+        {
+            SceneManager.LoadScene(escena);
+        }
+        else if (SceneManager.sceneCountInBuildSettings > 1)
+        {
+            SceneManager.LoadScene(1);
+        }
         else
         {
+#if UNITY_EDITOR
+            if (System.IO.File.Exists("Assets/Scenes/Nivel1.unity"))
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/Nivel1.unity", new UnityEngine.SceneManagement.LoadSceneParameters(UnityEngine.SceneManagement.LoadSceneMode.Single));
+                yield break;
+            }
+            if (System.IO.File.Exists("Assets/Scenes/Nivel1_Bosque.unity"))
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/Nivel1_Bosque.unity", new UnityEngine.SceneManagement.LoadSceneParameters(UnityEngine.SceneManagement.LoadSceneMode.Single));
+                yield break;
+            }
+#endif
             Debug.LogError("[MenuMexicano] La escena '" + escenaJuego + "' no está en Build Settings.");
             cargando = false;
             fundido.color = new Color(0, 0, 0, 0);

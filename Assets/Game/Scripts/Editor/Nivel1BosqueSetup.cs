@@ -222,8 +222,11 @@ public static class Nivel1BosqueSetup
         root.transform.rotation = Quaternion.LookRotation(new Vector3(dir.x, 0f, dir.y));
 
         CharacterController cc = root.AddComponent<CharacterController>();
-        cc.center = Vector3.zero;
+        cc.center = new Vector3(0f, 1f, 0f);
         cc.height = 2f;
+        cc.radius = 0.45f;
+        cc.stepOffset = 0.7f;
+        cc.slopeLimit = 60f;
         cc.radius = 0.5f;
 
         GameObject modeloPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(RutaModeloChofer);

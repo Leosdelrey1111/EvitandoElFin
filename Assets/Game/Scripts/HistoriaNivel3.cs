@@ -51,7 +51,7 @@ public static class HistoriaNivel3
         } },
         { "sello2", new[] {
             "¡Dos sellos rotos! El gran portón de cantera de la Basílica empieza a crujir.",
-            "La Inquisición siente el peso de tu fe, Juan. Solo falta un sello."
+            "La Inquisición siente el peso de tu fe, Chofer. Solo falta un sello."
         } },
         { "sombras_callejon", new[] {
             "¡Sombras en las cornisas! Son los guardianes del tribunal virreinal.",
@@ -80,7 +80,7 @@ public static class HistoriaNivel3
             "¡La condena se ha roto para siempre! Guanajuato entero resplandece bajo el manto místico.",
             "Has recuperado el último fragmento de tu ser: El Amanecer y el Regreso.",
             "Mira ese portal dorado que emana del atrio: es el latido de tu corazón en el mundo real.",
-            "¡Gracias por tu valor, Juan! Yo soy Tonalli, y mi misión como guía ha terminado. ¡Corre hacia el portal y vuelve a casa!"
+            "¡Gracias por tu valor, Chofer! Yo soy Tonalli, y mi misión como guía ha terminado. ¡Corre hacia el portal y vuelve a casa!"
         } }
     };
 
@@ -98,7 +98,7 @@ public static class HistoriaNivel3
         { "basilica", "El Gran Atrio" },
         { "jefe_inquisidor", "El libro de juicios" },
         { "jefe_inquisidor_furia", "La sombra alada" },
-        { "jefe_inquisidor_derrota", "El despertar de Juan" }
+        { "jefe_inquisidor_derrota", "El despertar del Chofer" }
     };
 
     public static readonly string[,] Actos =

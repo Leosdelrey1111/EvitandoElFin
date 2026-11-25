@@ -75,6 +75,9 @@ public class ComercianteMercader : MonoBehaviour
         inventario = p.GetComponent<InventarioEspiritual>();
         combate = p.GetComponent<SistemaCombateChofer>();
         chofer = p.GetComponent<ChoferController>();
+
+        // Cargar y aplicar mejoras guardadas
+        CargarMejorasGuardadas();
     }
 
     void OnDestroy()
@@ -161,6 +164,10 @@ public class ComercianteMercader : MonoBehaviour
         inventario.AgregarEnergia(-costo);
         Aplicar(m);
         if (!m.repetible) m.nivel++;
+
+        // Guardar mejora en sistema de persistencia
+        SistemaGuardado.GuardarMejora(m.id, m.nivel);
+
         int g = Random.Range(0, HistoriaNivel1.ChuyGracias.Length);
         Hablar(HistoriaNivel1.ChuyGracias[g], "chuy_gracias_" + g);
         UIMexicana.Sonar("click");
@@ -217,6 +224,63 @@ public class ComercianteMercader : MonoBehaviour
             id = "copal", nombre = "Copal del Camino", descripcion = "+10% de velocidad al caminar y correr.",
             costos = new[] { 30, 55 }, icono = UIMexicana.Icono.Esquive, color = UIMexicana.Violeta
         });
+    }
+
+    // ================================================================== PERSISTENCIA
+
+    /// <summary>
+    /// Carga mejoras guardadas y las aplica al jugador.
+    /// </summary>
+    void CargarMejorasGuardadas()
+    {
+        System.Collections.Generic.Dictionary<string, int> mejorasGuardadas = SistemaGuardado.CargarTodasMejoras();
+
+        foreach (Mejora m in mejoras)
+        {
+            if (mejorasGuardadas.ContainsKey(m.id))
+            {
+                int nivelGuardado = mejorasGuardadas[m.id];
+                if (!m.repetible)
+                {
+                    m.nivel = nivelGuardado;
+                }
+
+                // Aplicar mejora tantas veces como fue comprada
+                for (int i = 0; i < nivelGuardado; i++)
+                {
+                    AplicarMejoraSinMensaje(m);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Aplica una mejora sin mostrar mensaje (para restauración de guardado).
+    /// </summary>
+    void AplicarMejoraSinMensaje(Mejora m)
+    {
+        switch (m.id)
+        {
+            case "atole":
+                // No aplica en restauración (es curativa instantánea)
+                break;
+            case "obsidiana":
+                if (combate != null)
+                {
+                    combate.danioAtaque1 *= 1.25f; combate.danioAtaque2 *= 1.25f; combate.danioAtaque3 *= 1.25f; combate.danioArea *= 1.25f;
+                }
+                break;
+            case "rebozo":
+                if (vida != null)
+                {
+                    vida.maxPoder += 30f;
+                    vida.actualPoder = vida.maxPoder; // Comenzar con vida completa
+                }
+                break;
+            case "copal":
+                if (chofer != null) { chofer.velocidadCaminar *= 1.1f; chofer.velocidadCorrer *= 1.1f; }
+                break;
+        }
     }
 
     // ================================================================== UI

@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &4420198511309413324
 GameObject:
@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2339177026725978416}
-  - component: {fileID: 4616124453764397005}
   - component: {fileID: 6318643967332405753}
   m_Layer: 0
   m_Name: Roca3
@@ -34,29 +33,6 @@ Transform:
   - {fileID: 2414697379473391899}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &4616124453764397005
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4420198511309413324}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 1.17
-  m_Height: 2.34
-  m_Direction: 1
-  m_Center: {x: 0, y: 1.17, z: 0}
 --- !u!205 &6318643967332405753
 LODGroup:
   m_ObjectHideFlags: 0

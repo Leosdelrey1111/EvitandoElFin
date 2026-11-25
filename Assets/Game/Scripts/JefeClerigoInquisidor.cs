@@ -85,6 +85,32 @@ public class JefeClerigoInquisidor : MonoBehaviour
     {
         BuscarJugador();
         CrearBarraVidaUI();
+        AlinearPiesAlSuelo();
+    }
+
+    void AlinearPiesAlSuelo()
+    {
+        Transform vis = modeloVisual != null ? modeloVisual : transform.Find("Visual");
+        if (vis == null) return;
+
+        Bounds bounds = default;
+        bool primero = true;
+        foreach (Renderer r in vis.GetComponentsInChildren<Renderer>())
+        {
+            if (r is TrailRenderer || r is ParticleSystemRenderer || r is LineRenderer) continue;
+            if (primero) { bounds = r.bounds; primero = false; }
+            else { bounds.Encapsulate(r.bounds); }
+        }
+
+        if (!primero)
+        {
+            float fondoCapsula = transform.position.y + (controller != null ? (controller.center.y - controller.height * 0.5f) : 0f);
+            float desfase = fondoCapsula - bounds.min.y;
+            if (Mathf.Abs(desfase) > 0.02f)
+            {
+                vis.position += Vector3.up * desfase;
+            }
+        }
     }
 
     void OnDestroy()

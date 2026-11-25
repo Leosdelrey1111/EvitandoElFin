@@ -242,9 +242,31 @@ public class GuiaAlebrije : MonoBehaviour
 
     void AlCambiarTotems(int n)
     {
-        if (n >= 1) ContarHistoria("totem1");
-        if (n >= 2) ContarHistoria("totem2");
-        if (n >= 3) ContarHistoria("totem3");
+        string escena = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string id = "";
+        if (escena.Contains("Nivel2") || escena.Contains("Panteon"))
+        {
+            if (n == 1) id = "cirio1";
+            else if (n == 2) id = "cirio2";
+            else if (n >= 3) id = "cirio3";
+        }
+        else if (escena.Contains("Nivel3") || escena.Contains("Ciudad"))
+        {
+            if (n == 1) id = "sello1";
+            else if (n == 2) id = "sello2";
+            else if (n >= 3) id = "sello3";
+        }
+        else
+        {
+            if (n == 1) id = "totem1";
+            else if (n == 2) id = "totem2";
+            else if (n >= 3) id = "totem3";
+        }
+
+        if (!string.IsNullOrEmpty(id) && !contadas.Contains(id))
+        {
+            ContarHistoria(id);
+        }
     }
 
     // ================================================================== PISTA (R)
@@ -266,6 +288,8 @@ public class GuiaAlebrije : MonoBehaviour
         }
 
         if (JefeLaBufa.Instancia != null && !JefeLaBufa.Instancia.Derrotada) return JefeLaBufa.Instancia.transform;
+        if (JefeGeneralMomia.Instancia != null && !JefeGeneralMomia.Instancia.Derrotado) return JefeGeneralMomia.Instancia.transform;
+        if (JefeInquisidor.Instancia != null && !JefeInquisidor.Instancia.Derrotado) return JefeInquisidor.Instancia.transform;
         PortalVictoria portal = Object.FindAnyObjectByType<PortalVictoria>();
         return portal != null ? portal.transform : null;
     }

@@ -80,7 +80,7 @@ public class PuntoControl : MonoBehaviour
 
         if (primerActivacion)
         {
-            AvisosJuego.Mostrar("✦ " + nombreAltar + " ✦\n¡Progreso guardado y alma purificada!", 3.5f);
+            AvisosJuego.Mostrar("* " + nombreAltar + " *\n¡Progreso guardado y alma purificada!", 3.5f);
             ReproducirCampana();
         }
     }

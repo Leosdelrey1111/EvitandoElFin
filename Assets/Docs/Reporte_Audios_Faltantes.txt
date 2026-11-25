@@ -1,0 +1,374 @@
+REPORTE DE AUDIOS FALTANTES - EVITANDO EL FIN
+===============================================
+
+Generado: 23/11/2026 12:25:32 p. m.
+
+═══════════════════════════════════════════════
+NIVEL 2: EL PANTEÓN DE SANTA PAULA
+═══════════════════════════════════════════════
+
+[✗] intro_panteon_0.mp3
+    Voz: Tonalli
+    Texto: "¡Mira hacia arriba, Chofer! Estamos en lo más alto de la Sierra de Guanajuato."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_panteon_1.mp3
+    Voz: Tonalli
+    Texto: "En este collado rocoso fundaron el Panteón de Santa Paula hace casi dos siglos."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_panteon_2.mp3
+    Voz: Tonalli
+    Texto: "La tierra de esta sierra tiene tantos minerales que los cuerpos nunca se pudrieron... quedaron momificados en la cantera."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_panteon_3.mp3
+    Voz: Tonalli
+    Texto: "Pero esta noche la niebla de ultratumba los ha levantado. Debemos encender los 3 Cirios de Santa Paula para abrir la Cripta del General."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] collado_sierra_0.mp3
+    Voz: Tonalli
+    Texto: "El viento de la sierra sopla helado entre los riscos. Las veladoras apenas se sostienen."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] collado_sierra_1.mp3
+    Voz: Tonalli
+    Texto: "Fíjate bien en el camino de tepetate: las lápidas y las cruces vigilan cada curva."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] momias_0.mp3
+    Voz: Tonalli
+    Texto: "¡Cuidado con las peñas! Esas figuras vendadas son las Momias de Santa Paula."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] momias_1.mp3
+    Voz: Tonalli
+    Texto: "La peste del cólera se las llevó en 1833. Son veloces y atacan en jauría: esquiva sus zarpazos laterales y golpéalas con combo."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cirio1_0.mp3
+    Voz: Tonalli
+    Texto: "¡El primer Cirio de Santa Paula está ardiendo! Su flama esmeralda disipa la niebla del desfiladero."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] catrines_0.mp3
+    Voz: Tonalli
+    Texto: "Allá adelante... ¿ves a ese espectro con levita, bombín y bastón? Es un Catrín de época."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] catrines_1.mp3
+    Voz: Tonalli
+    Texto: "Su bastón dispara proyectiles de fuego fatuo turquesa. Acércate en zigzag y no te quedes quieto."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] criptas_antiguas_0.mp3
+    Voz: Tonalli
+    Texto: "Mira esas gavetas talladas en la roca viva del cerro. Familias enteras descansan aquí desde tiempos virreinales."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] criptas_antiguas_1.mp3
+    Voz: Tonalli
+    Texto: "Respeta las tumbas, Chofer. Solo buscamos el camino de regreso al mundo de los vivos."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cirio2_0.mp3
+    Voz: Tonalli
+    Texto: "¡Dos cirios encendidos! La piedra de la cumbre está retumbando... el viejo batallón militar se está alineando."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cuervos_0.mp3
+    Voz: Tonalli
+    Texto: "¡Graznidos en las cruces altas! Son Cuervos de Cripta."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cuervos_1.mp3
+    Voz: Tonalli
+    Texto: "Bajan en picada cuando menos lo esperas. Esquiva justo antes de que toquen el suelo y contragolpea."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cirio3_0.mp3
+    Voz: Tonalli
+    Texto: "¡Los tres cirios están encendidos! Las rejas del Gran Mausoleo en la peña se han abierto de par en par."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cirio3_1.mp3
+    Voz: Tonalli
+    Texto: "En la cumbre espera el General... el militar que juró proteger la sierra y ni la muerte le quitó el sable."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cripta_cerrada_0.mp3
+    Voz: Tonalli
+    Texto: "Las rejas de hierro forjado del Mausoleo siguen selladas por el frío espectral. Necesitas los 3 Cirios de Santa Paula."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cripta_0.mp3
+    Voz: Tonalli
+    Texto: "Este es el Gran Mausoleo. El aire huele a pólvora vieja y cempasúchil marchito."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] cripta_1.mp3
+    Voz: Tonalli
+    Texto: "El General no descansará hasta medir su sable con un alma digna. ¡Entra con valor!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_0.mp3
+    Voz: Tonalli
+    Texto: "¡Desenvainó su sable de mando! Cuidado con su estocada frontal telegrafiada en verde."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_1.mp3
+    Voz: Tonalli
+    Texto: "Cuando falle su golpe o gire en 360°, ¡aprovecha para castigarlo por la espalda!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_furia_0.mp3
+    Voz: Tonalli
+    Texto: "¡La furia del batallón! Se prendió en fuego fatuo esmeralda."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_furia_1.mp3
+    Voz: Tonalli
+    Texto: "¡Salta cuando clave su sable en la tierra o la onda de lápidas te alcanzará!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_derrota_0.mp3
+    Voz: Tonalli
+    Texto: "¡El General rinde honores! Mira cómo su sable se convierte en ceniza dorada."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_derrota_1.mp3
+    Voz: Tonalli
+    Texto: "Has recuperado el Rosario de Plata: el recuerdo de tu familia en Guanajuato."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_general_derrota_2.mp3
+    Voz: Tonalli
+    Texto: "Cruza el portal del risco: el desfiladero nos lleva directo hacia los callejones coloniales de la ciudad."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] general_despierta.mp3
+    Voz: LaBufa
+    Texto: "«¡Alto ahí, intruso! Este camposanto militar está bajo mi mando.»"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] general_fase2.mp3
+    Voz: LaBufa
+    Texto: "«¡Por el batallón de Santa Paula! ¡Fuego fatuo a discreción!»"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] general_derrotado.mp3
+    Voz: LaBufa
+    Texto: "«Buen combate, soldado... has demostrado tener un alma digna de cruzar la sierra.»"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+
+═══════════════════════════════════════════════
+NIVEL 3: LA CIUDAD COLONIAL DE GUANAJUATO
+═══════════════════════════════════════════════
+
+[✗] intro_ciudad_0.mp3
+    Voz: Tonalli
+    Texto: "¡Hemos llegado a la cañada de la sierra, Chofer!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_ciudad_1.mp3
+    Voz: Tonalli
+    Texto: "Mira cómo las casas coloniales trepan por los riscos de cantera rosa, amarillo ocre y añil."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_ciudad_2.mp3
+    Voz: Tonalli
+    Texto: "Esta es la ciudad virreinal de Guanajuato... una joya nacida de las minas y de las peñas."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_ciudad_3.mp3
+    Voz: Tonalli
+    Texto: "Pero las campanas de la basílica no doblan a misa: doblan por una condena inquisitorial que atrapó a este valle en el purgatorio."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] intro_ciudad_4.mp3
+    Voz: Tonalli
+    Texto: "Debemos romper los 3 Sellos Inquisitoriales ocultos en las escalinatas para abrir las puertas de la Basílica."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] mirador_pipila_0.mp3
+    Voz: Tonalli
+    Texto: "Desde este mirador en la sierra se contempla toda la cañada. Los techos de teja y los tiros de mina bajan hasta el fondo."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] mirador_pipila_1.mp3
+    Voz: Tonalli
+    Texto: "Sigue el sendero empedrado: las sombras virreinales no quieren que llegues a la basílica."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] monjes_0.mp3
+    Voz: Tonalli
+    Texto: "¡Cuidado con esas figuras de hábito oscuro! Son Monjes Penitentes de la Inquisición."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] monjes_1.mp3
+    Voz: Tonalli
+    Texto: "Blanden candelabros de plata candente que estallan en fuego purificador. Espera a que golpeen el suelo y esquiva hacia atrás."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sello1_0.mp3
+    Voz: Tonalli
+    Texto: "¡El primer Sello Inquisitorial ha sido destruido! Una campana de bronce dobló en la montaña."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] callejon_beso_0.mp3
+    Voz: Tonalli
+    Texto: "Detente un momento y mira hacia arriba... ¿ves esos dos balcones de hierro casi tocándose?"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] callejon_beso_1.mp3
+    Voz: Tonalli
+    Texto: "Apenas setenta centímetros de distancia en la grieta de la peña. Este es el legendario Callejón del Beso."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] callejon_beso_2.mp3
+    Voz: Tonalli
+    Texto: "Aquí Carmen y Don Luis se juraron amor eterno a escondidas, desafiando la ira y la condena de su padre y del clérigo."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] callejon_beso_3.mp3
+    Voz: Tonalli
+    Texto: "Su amor inocente dejó una bendición en este rincón: siente cómo tu alma recupera energía espiritual."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] tuneles_mineros_0.mp3
+    Voz: Tonalli
+    Texto: "Estos arcos de cantera sostienen los túneles subterráneos de Guanajuato. Por aquí corría la plata y los ríos de la sierra."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] tuneles_mineros_1.mp3
+    Voz: Tonalli
+    Texto: "Las sombras acechan en cada recodo oscuro. No te detengas: la luz de los faroles coloniales te protege."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sello2_0.mp3
+    Voz: Tonalli
+    Texto: "¡Dos sellos rotos! El gran portón de cantera de la Basílica empieza a crujir."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sello2_1.mp3
+    Voz: Tonalli
+    Texto: "La Inquisición siente el peso de tu fe, Juan. Solo falta un sello."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sombras_callejon_0.mp3
+    Voz: Tonalli
+    Texto: "¡Sombras en las cornisas! Son los guardianes del tribunal virreinal."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sombras_callejon_1.mp3
+    Voz: Tonalli
+    Texto: "Se deslizan entre los empedrados. Mantén el ritmo con tu combo y no permitas que te rodeen en las esquinas estrechas."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sello3_0.mp3
+    Voz: Tonalli
+    Texto: "¡Los tres Sellos Inquisitoriales han caído! El atrio de la Basílica de Guanajuato está totalmente abierto."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] sello3_1.mp3
+    Voz: Tonalli
+    Texto: "Allí aguarda el Clérigo Inquisidor, el juez implacable que retiene tu alma en este juicio eterno."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] basilica_cerrada_0.mp3
+    Voz: Tonalli
+    Texto: "Las puertas de madera y hierro de la Basílica siguen selladas por los rezos inquisitoriales. Encuentra los 3 Sellos."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] basilica_0.mp3
+    Voz: Tonalli
+    Texto: "El monumental atrio de la Basílica... entre las dos grandes torres campanario."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] basilica_1.mp3
+    Voz: Tonalli
+    Texto: "Este es el juicio final de tu existencia, Chofer. Por tu familia, por tu vida... ¡no vaciles!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_0.mp3
+    Voz: Tonalli
+    Texto: "¡El Inquisidor abre su libro de sentencias! Mira los círculos dorados de fuego sagrado en el suelo."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_1.mp3
+    Voz: Tonalli
+    Texto: "¡Esquiva los pilares de luz y arremete contra él cuando cierre el libro para dictar sentencia!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_furia_0.mp3
+    Voz: Tonalli
+    Texto: "¡La máscara de devoción ha caído! Desplegó alas de cantera y fuego negro: ¡es la Sombra de la Herejía!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_furia_1.mp3
+    Voz: Tonalli
+    Texto: "¡Cuidado con las campanas que caen de la torre! ¡Salta para librar la onda expansiva!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_derrota_0.mp3
+    Voz: Tonalli
+    Texto: "¡La condena se ha roto para siempre! Guanajuato entero resplandece bajo el manto místico."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_derrota_1.mp3
+    Voz: Tonalli
+    Texto: "Has recuperado el último fragmento de tu ser: El Amanecer y el Regreso."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_derrota_2.mp3
+    Voz: Tonalli
+    Texto: "Mira ese portal dorado que emana del atrio: es el latido de tu corazón en el mundo real."
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] jefe_inquisidor_derrota_3.mp3
+    Voz: Tonalli
+    Texto: "¡Gracias por tu valor, Juan! Yo soy Tonalli, y mi misión como guía ha terminado. ¡Corre hacia el portal y vuelve a casa!"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] inquisidor_despierta.mp3
+    Voz: LaBufa
+    Texto: "«¡En el nombre del tribunal de la fe, tu alma queda sentenciada al fuego!»"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] inquisidor_fase2.mp3
+    Voz: LaBufa
+    Texto: "«¡Que las campanas de la basílica doblen tu condena final!»"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+[✗] inquisidor_derrotado.mp3
+    Voz: LaBufa
+    Texto: "«La herejía no era tuya... era mi soberbia. Vuelve a la luz del amanecer, caminante.»"
+    >>> GENERAR ESTE ARCHIVO <<<
+
+
+═══════════════════════════════════════════════
+CONFIGURACIÓN DE VOCES RECOMENDADA
+═══════════════════════════════════════════════
+
+Tonalli (Guía):
+  - Voz: Masculina, cálida, sabia
+  - Edad aparente: 40-50 años
+  - Acento: Mexicano neutro
+  - Ritmo: Pausado, narrativo
+
+General Momia (Jefe Nivel 2):
+  - Voz: Masculina, militar, con eco
+  - Edad aparente: 50-60 años
+  - Acento: Mexicano formal
+  - Efecto: Reverb (eco de piedra)
+  - Ritmo: Autoritario, pausado
+
+Clérigo Inquisidor (Jefe Nivel 3):
+  - Voz: Masculina, solemne, intimidante
+  - Edad aparente: 55-65 años
+  - Acento: Español colonial
+  - Efecto: Ligero reverb (eco de catedral)
+  - Ritmo: Sentencioso, pausado
+

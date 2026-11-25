@@ -18634,6 +18634,7 @@ MonoBehaviour:
   velocidadRotacion: 70
   amplitudFlotacion: 0.18
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!135 &226905178
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -39092,7 +39093,6 @@ MonoBehaviour:
   intensidadLuz: 2.5
   apuntarA: {fileID: 0}
   hablando: 0
-  distanciaPista: 4.5
 --- !u!4 &465224871
 Transform:
   m_ObjectHideFlags: 0
@@ -44384,6 +44384,7 @@ MonoBehaviour:
   panelGameOver: {fileID: 1391083964}
   panelVictoria: {fileID: 1807154123}
   nombreMenuPrincipal: MainMenu
+  siguienteEscena: Nivel2_Panteon
   audioSource: {fileID: 0}
   clipVictoria: {fileID: 0}
   clipGameOver: {fileID: 0}
@@ -45200,6 +45201,7 @@ MonoBehaviour:
   velocidadRotacion: 70
   amplitudFlotacion: 0.18
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!135 &568034850
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -94745,7 +94747,7 @@ TerrainCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_TerrainData: {fileID: 15600000, guid: 69c9a25cf167afc46998b6bc7425d793, type: 2}
-  m_EnableTreeColliders: 1
+  m_EnableTreeColliders: 0
 --- !u!218 &1175105644
 Terrain:
   m_ObjectHideFlags: 0
@@ -109826,7 +109828,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 3
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -109843,7 +109845,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 3
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -114974,6 +114976,7 @@ MonoBehaviour:
   camara: {fileID: 1814766498}
   duracionNegro: 2
   duracionParpadeos: 4.5
+  duracionLevantarse: 3.4
   tiempoRecuperacionMareo: 14
   rollMaximo: 9
   fovMaximo: 9
@@ -132640,10 +132643,10 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_Radius: 0.45
+  m_SlopeLimit: 85
+  m_StepOffset: 1.2
+  m_SkinWidth: 0.05
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1617680836
@@ -137821,7 +137824,7 @@ MonoBehaviour:
   velocidadRotacion: 14
   modoControl: 0
   teclaSalto: 32
-  alturaSalto: 1.25
+  alturaSalto: 1.7
   teclaEsquive: 306
   teclaEsquiveAlterna: 99
   fuerzaEsquive: 10
@@ -156284,6 +156287,7 @@ MonoBehaviour:
   velocidadRotacion: 70
   amplitudFlotacion: 0.18
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!135 &1899708350
 SphereCollider:
   m_ObjectHideFlags: 0

@@ -97,7 +97,8 @@ public class JefeLaBufa : MonoBehaviour
     {
         Instancia = this;
         cc = GetComponent<CharacterController>();
-        cc.height = 4.4f; cc.radius = 1.3f; cc.center = new Vector3(0f, 2.2f, 0f); cc.stepOffset = 0.5f;
+        // Ajustado center.y de 2.2f a 2.5f para evitar que se hunda en el terreno
+        cc.height = 4.4f; cc.radius = 1.3f; cc.center = new Vector3(0f, 2.5f, 0f); cc.stepOffset = 0.5f;
 
         vida = GetComponent<PoderEspiritual>();
         vida.maxPoder = vidaMax;

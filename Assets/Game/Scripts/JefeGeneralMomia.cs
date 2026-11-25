@@ -58,6 +58,7 @@ public class JefeGeneralMomia : MonoBehaviour
     private GameObject sableObj;
     private Light luzGeneral;
     private Material matUniforme, matVendas, matFuegoFatuo;
+    private Animator anim;
 
     // UI Barra de Jefe
     private GameObject canvasBarra;
@@ -72,8 +73,15 @@ public class JefeGeneralMomia : MonoBehaviour
     void Awake()
     {
         Instancia = this;
+        gameObject.tag = "Enemigo";
         cc = GetComponent<CharacterController>();
+        if (cc == null) cc = gameObject.AddComponent<CharacterController>();
+        cc.height = 2.5f;
+        cc.radius = 0.6f;
+        cc.center = new Vector3(0f, 1.25f, 0f);
+
         vida = GetComponent<PoderEspiritual>();
+        if (vida == null) vida = gameObject.AddComponent<PoderEspiritual>();
         vida.maxPoder = vidaMax;
         vida.actualPoder = vidaMax;
 
@@ -99,6 +107,9 @@ public class JefeGeneralMomia : MonoBehaviour
 
     void Update()
     {
+        if (cc != null && cc.enabled && !cc.isGrounded && estado != Estado.Muriendo && estado != Estado.Derrotado)
+            cc.Move(Vector3.down * 9.8f * Time.deltaTime);
+
         if (jugador == null) return;
 
         // Comprobación de vida
@@ -128,6 +139,10 @@ public class JefeGeneralMomia : MonoBehaviour
                     {
                         StartCoroutine(EjecutarAtaque());
                     }
+                }
+                else if (anim != null)
+                {
+                    anim.SetFloat("Velocidad", 0f);
                 }
 
                 // Transición a fase 2
@@ -163,22 +178,33 @@ public class JefeGeneralMomia : MonoBehaviour
     IEnumerator RutinaDespertar()
     {
         estado = Estado.Despertando;
-        canvasBarra.SetActive(true);
+
         if (GuiaAlebrije.Instancia != null)
-            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.GeneralMomia, "«¡Nadie profana el Panteón de Santa Paula sin pagar con su alma!»", "general_despierta", true);
+        {
+            GuiaAlebrije.Instancia.Jefe("general");
+            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.GeneralMomia, "«¡Nadie profana el Panteón de Santa Paula sin pagar con su alma!»", "general_despierta", true, "jefe_general", -1);
+        }
         else
             AvisosJuego.Mostrar("«¡Nadie profana el Panteón de Santa Paula sin pagar con su alma!»", 4f);
 
-        // Brillo ascendente de fuego fatuo
+        // Brillo ascendente de fuego fatuo mientras corre la cinemática de presentación
         float t = 0f;
         while (t < 2.5f)
         {
             t += Time.deltaTime;
             if (luzGeneral != null) luzGeneral.intensity = Mathf.Lerp(0.5f, 4.0f, t / 2.5f);
-            visualRoot.transform.localScale = Vector3.one * Mathf.Lerp(0.9f, 1.15f, t / 2.5f);
+            visualRoot.transform.localScale = Vector3.one * Mathf.Lerp(0.95f, 1.15f, t / 2.5f);
             yield return null;
         }
 
+        float esperaMax = 7.5f;
+        while (GuiaAlebrije.Instancia != null && GuiaAlebrije.Instancia.Ocupado && esperaMax > 0f)
+        {
+            esperaMax -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (canvasBarra != null) canvasBarra.SetActive(true);
         if (GameManager.Instancia != null)
         {
             GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Combate);
@@ -224,6 +250,7 @@ public class JefeGeneralMomia : MonoBehaviour
         Destroy(marca);
 
         // Animación de estocada
+        if (anim != null) anim.SetTrigger("Atacar");
         Vector3 posDestino = transform.position + transform.forward * 4.0f;
         float t = 0f;
         while (t < 0.25f)
@@ -248,6 +275,7 @@ public class JefeGeneralMomia : MonoBehaviour
         Destroy(marca);
 
         // Giro visual
+        if (anim != null) anim.SetTrigger("Atacar");
         float rotInicial = transform.eulerAngles.y;
         float t = 0f;
         while (t < 0.35f)
@@ -272,6 +300,7 @@ public class JefeGeneralMomia : MonoBehaviour
         GameObject marca = CrearMarcaSuelo(transform.position + transform.forward * 4f, new Vector3(2.5f, 0.05f, 8f), VerdeEsmeralda);
         yield return new WaitForSeconds(tiempoTelegrafiado * 0.8f);
         Destroy(marca);
+        if (anim != null) anim.SetTrigger("Atacar");
 
         // Carga súper veloz
         float t = 0f;
@@ -294,6 +323,7 @@ public class JefeGeneralMomia : MonoBehaviour
         GameObject marca = CrearMarcaSuelo(transform.position, new Vector3(7.0f, 0.05f, 7.0f), Color.red);
         yield return new WaitForSeconds(tiempoTelegrafiado);
         Destroy(marca);
+        if (anim != null) anim.SetTrigger("Atacar");
 
         // Efecto expansivo
         if (jugador != null && Vector3.Distance(transform.position, jugador.position) <= 4.8f)
@@ -309,7 +339,7 @@ public class JefeGeneralMomia : MonoBehaviour
         if (GuiaAlebrije.Instancia != null)
             GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.GeneralMomia, "«¡El batallón nunca se rinde! ¡Ardan en fuego fatuo!»", "general_furia", true);
         else
-            AvisosJuego.Mostrar("✦ ¡LA FURIA DEL GENERAL MOMIA SE DESATA! ✦\n«¡El batallón nunca se rinde!»", 3.5f);
+            AvisosJuego.Mostrar("* ¡LA FURIA DEL GENERAL MOMIA SE DESATA! *\n«¡El batallón nunca se rinde!»", 3.5f);
 
         if (matFuegoFatuo != null)
         {
@@ -335,8 +365,14 @@ public class JefeGeneralMomia : MonoBehaviour
     IEnumerator RutinaDerrota()
     {
         estado = Estado.Muriendo;
+        gameObject.tag = "Untagged";
+        if (canvasBarra != null) canvasBarra.SetActive(false);
+
         if (GuiaAlebrije.Instancia != null)
-            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.GeneralMomia, "«Rindo honores a tu valor, Chofer... por fin descanso en mi cripta...»", "general_derrota", true);
+        {
+            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.GeneralMomia, "«Rindo honores a tu valor, Chofer... por fin descanso en mi cripta...»", "general_derrota", true, "jefe_general_derrota", -1);
+            GuiaAlebrije.Instancia.Jefe("general_derrota");
+        }
         else
             AvisosJuego.Mostrar("«Gracias... por fin descanso en mi cripta...»", 4f);
 
@@ -356,6 +392,7 @@ public class JefeGeneralMomia : MonoBehaviour
 
         // Desbloquear Recuerdo 2 en el Códice
         CodiceHistoria.Registrar("recuerdo2");
+        if (anim != null) anim.SetTrigger("Muerte");
 
         if (GameManager.Instancia != null)
         {
@@ -410,6 +447,7 @@ public class JefeGeneralMomia : MonoBehaviour
         Vector3 dir = (punto - transform.position).normalized;
         dir.y = -9.8f;
         cc.Move(dir * vel * Time.deltaTime);
+        if (anim != null) anim.SetFloat("Velocidad", 1f);
     }
 
     void ConstruirModeloVisual()
@@ -443,9 +481,19 @@ public class JefeGeneralMomia : MonoBehaviour
             inst.transform.localRotation = Quaternion.identity;
             inst.transform.localScale = Vector3.one * 1.35f;
 
+            anim = inst.GetComponentInChildren<Animator>();
+            if (anim != null) anim.applyRootMotion = false;
+
             var ia = inst.GetComponent<EsbirroBaseIA>(); if (ia != null) Destroy(ia);
             var col = inst.GetComponent<Collider>(); if (col != null) Destroy(col);
             var poder = inst.GetComponent<PoderEspiritual>(); if (poder != null) Destroy(poder);
+
+            // Alinear los pies del modelo exactamente a y = 0 para que no flote
+            float minY = float.MaxValue;
+            foreach (Renderer r in inst.GetComponentsInChildren<Renderer>())
+                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            if (minY < float.MaxValue)
+                inst.transform.localPosition += Vector3.up * (transform.position.y - minY);
         }
         else
         {
@@ -533,19 +581,42 @@ public class JefeGeneralMomia : MonoBehaviour
         canvasBarra = new GameObject("Canvas_BarraJefeGeneral");
         Canvas c = canvasBarra.AddComponent<Canvas>();
         c.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvasBarra.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        c.sortingOrder = 15;
+        CanvasScaler cs = canvasBarra.AddComponent<CanvasScaler>();
+        cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        cs.referenceResolution = new Vector2(1920f, 1080f);
+        cs.matchWidthOrHeight = 0.5f;
         canvasBarra.AddComponent<GraphicRaycaster>();
 
+        // Debajo de la píldora de objetivo del HUD para no encimarse ni cortarse arriba
         RectTransform panel = UIMexicana.Nuevo("PanelJefe", canvasBarra.transform);
-        UIMexicana.AnclarCentro(panel, new Vector2(0.5f, 1f), new Vector2(0, -50f), new Vector2(650f, 65f));
+        UIMexicana.AnclarCentro(panel, new Vector2(0.5f, 1f), new Vector2(0, -118f), new Vector2(580f, 82f));
+        UnityEngine.UI.Image imgPanel = UIMexicana.Imagen("FondoPanel", panel, UIMexicana.Redondeado(10), new Color(0.05f, 0.08f, 0.14f, 0.88f), true);
+        UIMexicana.Estirar(imgPanel.rectTransform);
+        UnityEngine.UI.Image bordePanel = UIMexicana.Imagen("BordePanel", panel, UIMexicana.RedondeadoBorde(10, 2f), OroViejo, true);
+        UIMexicana.Estirar(bordePanel.rectTransform);
 
-        sliderVida = UIMexicana.SliderMex(panel, "BarraVidaJefe", new Vector2(650f, 26f), 1f, VerdeEsmeralda, null);
+        txtNombre = UIMexicana.Texto("NombreJefe", panel, "EL GENERAL MOMIA", 20, OroViejo, TextAlignmentOptions.Center, FontStyles.Bold, 1.5f);
+        UIMexicana.AnclarCentro(txtNombre.rectTransform, new Vector2(0.5f, 1f), new Vector2(0, -16f), new Vector2(540f, 26f));
 
-        txtNombre = UIMexicana.Texto("NombreJefe", panel, "EL GENERAL MOMIA", 24, OroViejo, TextAlignmentOptions.Center, FontStyles.Bold, 2f);
-        UIMexicana.AnclarCentro(txtNombre.rectTransform, new Vector2(0.5f, 1f), new Vector2(0, 18f), new Vector2(400f, 30f));
+        // Barra limpia sin mango circular gigante
+        RectTransform barBg = UIMexicana.Nuevo("BarraFondo", panel);
+        UIMexicana.AnclarCentro(barBg, new Vector2(0.5f, 0.5f), new Vector2(0, -2f), new Vector2(520f, 16f));
+        UnityEngine.UI.Image imgBg = UIMexicana.Imagen("Fondo", barBg, UIMexicana.Redondeado(6), new Color(0.03f, 0.05f, 0.10f, 0.95f), true);
+        UIMexicana.Estirar(imgBg.rectTransform);
 
-        txtSubtitulo = UIMexicana.Texto("SubJefe", panel, "Centinela del Panteón de Santa Paula", 15, UIMexicana.Crema, TextAlignmentOptions.Center, FontStyles.Italic, 1f);
-        UIMexicana.AnclarCentro(txtSubtitulo.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, -18f), new Vector2(400f, 25f));
+        sliderVida = barBg.gameObject.AddComponent<Slider>();
+        sliderVida.interactable = false;
+        sliderVida.minValue = 0f; sliderVida.maxValue = 1f; sliderVida.value = 1f;
+        RectTransform fillArea = UIMexicana.Nuevo("AreaRelleno", barBg);
+        UIMexicana.Estirar(fillArea);
+        fillArea.offsetMin = new Vector2(3f, 3f); fillArea.offsetMax = new Vector2(-3f, -3f);
+        UnityEngine.UI.Image fill = UIMexicana.Imagen("Relleno", fillArea, UIMexicana.Redondeado(4), VerdeEsmeralda, true);
+        UIMexicana.Estirar(fill.rectTransform);
+        sliderVida.fillRect = fill.rectTransform;
+
+        txtSubtitulo = UIMexicana.Texto("SubJefe", panel, "Centinela del Panteón de Santa Paula", 13, UIMexicana.Crema, TextAlignmentOptions.Center, FontStyles.Italic, 0.5f);
+        UIMexicana.AnclarCentro(txtSubtitulo.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, 14f), new Vector2(540f, 22f));
 
         canvasBarra.SetActive(false);
     }

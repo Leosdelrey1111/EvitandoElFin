@@ -144,6 +144,17 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        // Tecla F8: Cambiar calidad gráfica al instante en gameplay (Baja -> Media -> Alta)
+        if (Input.GetKeyDown(KeyCode.F8))
+        {
+            int nuevaCalidad = (OpcionesJuego.Calidad + 1) % 3;
+            OpcionesJuego.Calidad = nuevaCalidad;
+            string textoCalidad = nuevaCalidad == 0 ? "CALIDAD: GAMA BAJA (Optimizado para móviles / laptops básicas)" :
+                                 (nuevaCalidad == 1 ? "CALIDAD: GAMA MEDIA (Equilibrio visual a 60 FPS)" :
+                                                      "CALIDAD: GAMA ALTA (Máxima fidelidad gráfica)");
+            AvisosJuego.Mostrar(textoCalidad, 3f);
+        }
+
         // Alternar pausa con tecla Escape (o 'P')
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {

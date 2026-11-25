@@ -14,15 +14,15 @@ public class PortalVictoria : MonoBehaviour
 
     private float ultimoAviso = -10f;
     private Vector3 escalaBase = Vector3.zero;
+    private bool activado = false;
+    private Transform jugador;
 
     void Start()
     {
-        // Asegurar que el collider sea trigger
         Collider col = GetComponent<Collider>();
-        if (col != null)
-        {
-            col.isTrigger = true;
-        }
+        if (col != null) col.isTrigger = true;
+        GameObject p = GameObject.FindGameObjectWithTag(tagJugador);
+        if (p != null) jugador = p.transform;
     }
 
     void Update()
@@ -40,34 +40,71 @@ public class PortalVictoria : MonoBehaviour
             Vector3 meta = desbloqueado ? escalaBase : new Vector3(escalaBase.x * 0.35f, escalaBase.y * 0.35f, escalaBase.z);
             efectosPortalActivo.transform.localScale = Vector3.Lerp(efectosPortalActivo.transform.localScale, meta, 2.5f * Time.deltaTime);
         }
+
+        // Respaldo por proximidad: si el jugador ya está dentro del portal desbloqueado aunque no haya disparado OnTriggerEnter
+        if (!activado && GameManager.Instancia != null && GameManager.Instancia.EstaPortalDesbloqueado())
+        {
+            if (jugador == null)
+            {
+                GameObject p = GameObject.FindGameObjectWithTag(tagJugador);
+                if (p != null) jugador = p.transform;
+            }
+            if (jugador != null)
+            {
+                Vector3 d = jugador.position - transform.position;
+                float distXZ = new Vector2(d.x, d.z).magnitude;
+                if (distXZ <= 3.0f && Mathf.Abs(d.y) <= 4.5f)
+                {
+                    EntrarPortal();
+                }
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(tagJugador))
+        if (other.CompareTag(tagJugador)) IntentarCruzar();
+    }
+
+    private void OnTriggerStay(Collider other)
+    {
+        if (!activado && other.CompareTag(tagJugador)) IntentarCruzar();
+    }
+
+    void IntentarCruzar()
+    {
+        if (activado || GameManager.Instancia == null) return;
+        if (GameManager.Instancia.EstaPortalDesbloqueado())
         {
-            if (GameManager.Instancia != null)
+            EntrarPortal();
+        }
+        else if (Time.time - ultimoAviso > 3f)
+        {
+            ultimoAviso = Time.time;
+            bool faltaJefe = GameManager.Instancia.jefeRequerido && GameManager.Instancia.TotemsCompletos();
+            AvisosJuego.Mostrar(faltaJefe
+                ? "El portal sigue sellado: derrota al jefe para cruzarlo."
+                : "El portal está sellado. Reúne los " + GameManager.Instancia.totemsRequeridos + " objetivos para abrirlo.", 3f);
+        }
+    }
+
+    void EntrarPortal()
+    {
+        if (activado) return;
+        activado = true;
+        if (audioSource != null && clipEntrada != null) audioSource.PlayOneShot(clipEntrada);
+
+        string escena = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        if (escena.Contains("Nivel3") || escena.Contains("Ciudad"))
+        {
+            if (!CinematicaRegresoAlma.Reproducir(() => { if (GameManager.Instancia != null) GameManager.Instancia.ProcesarVictoria(); }))
             {
-                if (GameManager.Instancia.EstaPortalDesbloqueado())
-                {
-                    if (audioSource != null && clipEntrada != null)
-                    {
-                        audioSource.PlayOneShot(clipEntrada);
-                    }
-                    GameManager.Instancia.ProcesarVictoria();
-                }
-                else
-                {
-                    if (Time.time - ultimoAviso > 3f)
-                    {
-                        ultimoAviso = Time.time;
-                        bool faltaJefe = GameManager.Instancia.jefeRequerido && GameManager.Instancia.TotemsCompletos();
-                        AvisosJuego.Mostrar(faltaJefe
-                            ? "El portal sigue sellado: el hechizo de La Bufa aún lo retiene."
-                            : "El portal está sellado. Reúne los " + GameManager.Instancia.totemsRequeridos + " tótems para abrirlo.", 3f);
-                    }
-                }
+                GameManager.Instancia.ProcesarVictoria();
             }
+        }
+        else
+        {
+            GameManager.Instancia.ProcesarVictoria();
         }
     }
 }

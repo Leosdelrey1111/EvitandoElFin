@@ -240,7 +240,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bbc39d1172b5b6642afa45e3506f2ad7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuMexicano
-  escenaJuego: SampleScene
+  escenaJuego: Nivel1
   titulo: EVITANDO EL FIN
   subtitulo: UNA LEYENDA DE LA SIERRA DE GUANAJUATO
 --- !u!4 &869532782
