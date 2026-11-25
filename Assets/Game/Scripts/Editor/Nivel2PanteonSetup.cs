@@ -412,7 +412,9 @@ public static class Nivel2PanteonSetup
         CharacterController cc = root.AddComponent<CharacterController>();
         cc.center = Vector3.zero;
         cc.height = 2f;
-        cc.radius = 0.5f;
+        cc.radius = 0.45f;
+        cc.stepOffset = 0.7f;
+        cc.slopeLimit = 60f;
 
         GameObject modeloPrefab = AssetDatabase.LoadAssetAtPath<GameObject>(RutaModeloChofer);
         GameObject modelo;
@@ -598,6 +600,12 @@ public static class Nivel2PanteonSetup
         plataforma.transform.localPosition = new Vector3(0, -0.2f, 0);
         plataforma.transform.localScale = new Vector3(32f, 0.5f, 32f);
         plataforma.GetComponent<Renderer>().sharedMaterial = cantera;
+        // Reemplazar CapsuleCollider esférico por MeshCollider plano para no bloquear entrada
+        Collider colPlat = plataforma.GetComponent<Collider>();
+        if (colPlat != null) Object.DestroyImmediate(colPlat);
+        MeshFilter mfPlat = plataforma.GetComponent<MeshFilter>();
+        MeshCollider mcPlat = plataforma.AddComponent<MeshCollider>();
+        if (mfPlat != null) mcPlat.sharedMesh = mfPlat.sharedMesh;
 
         for (int i = 0; i < 8; i++)
         {
@@ -616,16 +624,20 @@ public static class Nivel2PanteonSetup
         cripta.transform.localPosition = new Vector3(0, 1f, 0);
         cripta.transform.localScale = new Vector3(4.5f, 2f, 6.5f);
         cripta.GetComponent<Renderer>().sharedMaterial = cantera;
+        // Sarcófago monumental del General (diseño tradicional de cantera con faroles y cruz, al fondo)
+        SarcofagoGeneral.Construir(mausoleo.transform, new Vector3(0, 0.3f, 8.5f), cantera);
 
         // Jefe General Momia
+        // Jefe General Momia (de pie en el centro de la arena delante de la tumba)
         GameObject bossGo = new GameObject("Jefe_GeneralMomia");
         bossGo.transform.position = centroArena + Vector3.up * 0.2f;
+        bossGo.transform.position = centroArena + Vector3.up * 0.35f;
         bossGo.AddComponent<JefeGeneralMomia>();
 
-        // Capilla Don Chuy
-        Vector3 posChuy = LocalAMundo(terreno, Sendero[20]);
+        // Capilla Don Chuy (antes del jefe final, posición estratégica)
+        Vector3 posChuy = LocalAMundo(terreno, Sendero[23]);
         GameObject chuyGo = new GameObject("Comerciante_DonChuy");
-        chuyGo.transform.position = posChuy;
+        chuyGo.transform.position = posChuy + Vector3.right * 8f; // Lateral para visibilidad
         chuyGo.AddComponent<ComercianteMercader>();
 
         // Hitos Narrativos
@@ -690,6 +702,18 @@ public static class Nivel2PanteonSetup
             main.startColor = new Color(0.2f, 1f, 0.6f, 0.8f);
             main.startSize = 0.35f;
             main.maxParticles = 30;
+
+            ParticleSystemRenderer psr = go.GetComponent<ParticleSystemRenderer>();
+            if (psr != null)
+            {
+                Shader sPart = Shader.Find("Universal Render Pipeline/Particles/Unlit") ?? Shader.Find("Particles/Standard Unlit") ?? Shader.Find("Sprites/Default");
+                if (sPart != null)
+                {
+                    Material mPart = new Material(sPart);
+                    mPart.color = new Color(0.2f, 1f, 0.6f, 0.8f);
+                    psr.sharedMaterial = mPart;
+                }
+            }
         }
     }
 

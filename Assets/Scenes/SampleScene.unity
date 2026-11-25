@@ -162,6 +162,8 @@ MonoBehaviour:
   luzEspiritual: {fileID: 0}
   colorLuzAlebrije: {r: 0.2, g: 0.9, b: 1, a: 1}
   intensidadLuz: 2.5
+  apuntarA: {fileID: 0}
+  hablando: 0
 --- !u!114 &266942847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -796,6 +798,7 @@ MonoBehaviour:
   velocidadRotacion: 60
   amplitudFlotacion: 0.25
   frecuenciaFlotacion: 2
+  idTotem: 
 --- !u!65 &765654073
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -973,14 +976,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EsbirroBaseIA
   tipo: 0
   velocidadPersecucion: 3.2
+  velocidadPatrulla: 1.5
   rangoDeteccion: 9
+  factorPerdida: 1.6
   rangoAtaque: 1.6
+  radioPatrulla: 6
   gravedad: -15
   danio: 15
   cooldownAtaque: 1.8
+  tiempoTelegrafiado: 0.55
+  colorTelegrafiado: {r: 1, g: 0.25, b: 0.2, a: 1}
   hitboxAtaqueEnemigo: {fileID: 2068480000}
+  resistenciaEmpuje: 1
+  ataqueADistancia: 0
+  velocidadProyectil: 11
+  colorProyectil: {r: 0.9, g: 0.4, b: 1, a: 1}
   prefabTotemDrop: {fileID: 0}
   cantidadTotemsADropear: 2
+  cantidadAlmasADropear: 3
+  alturaBarraVida: 2.4
 --- !u!114 &1062065415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -995,6 +1009,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PoderEspiritual
   maxPoder: 100
   actualPoder: 0
+  invulnerable: 0
 --- !u!143 &1062065416
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1252,6 +1267,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PoderEspiritual
   maxPoder: 100
   actualPoder: 0
+  invulnerable: 0
 --- !u!114 &1487890384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1268,10 +1284,22 @@ MonoBehaviour:
   velocidadCorrer: 6.5
   gravedad: -15
   velocidadRotacion: 12
+  modoControl: 0
+  teclaSalto: 32
+  alturaSalto: 1.25
+  teclaEsquive: 306
+  teclaEsquiveAlterna: 99
   fuerzaEsquive: 10
   duracionEsquive: 0.35
   cooldownEsquive: 0.8
+  distanciaEsquive: 5.4
+  tiempoEsquive: 0.48
+  recargaEsquive: 0.55
+  permitirEsquiveEnAire: 1
+  controlBloqueado: 0
+  confusion: 0
   animator: {fileID: 0}
+  multiplicadorVelocidad: 1
 --- !u!143 &1487890385
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1466,13 +1494,20 @@ MonoBehaviour:
   danioAtaque1: 20
   danioAtaque2: 30
   danioAtaque3: 45
+  alcanceGolpe: 2.4
+  anguloGolpe: 150
   tiempoVentanaCombo: 1
   duracionGolpe: 0.25
+  duracionGolpeFinal: 0.52
   cooldownEntreGolpes: 0.35
+  impulsoAdelante: 4.5
+  velocidadMientrasAtaca: 0.45
   teclaAtaqueArea: 113
   radioArea: 5
   danioArea: 50
   cooldownArea: 5
+  colorEspiritual: {r: 0.35, g: 0.95, b: 1, a: 1}
+  volumenSfx: 0.8
 --- !u!1001 &2111830036
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -9,8 +9,100 @@ public static class FabricaEsbirros
     static Shader shaderLit;
     static readonly System.Collections.Generic.Dictionary<string, Material> cache = new System.Collections.Generic.Dictionary<string, Material>();
 
+    public static GameObject CargarPrefab(string nombre)
+    {
+        GameObject p = Resources.Load<GameObject>("Prefabs/" + nombre);
+        #if UNITY_EDITOR
+        if (p == null)
+        {
+            p = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/" + nombre + ".prefab");
+            if (p == null)
+                p = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Resources/Prefabs/" + nombre + ".prefab");
+        }
+        #endif
+        return p;
+    }
+
+    public static EsbirroBaseIA InstanciarPrefab(string nombrePrefab, Vector3 pos, EsbirroBaseIA.TipoEsbirro tipo)
+    {
+        GameObject prefab = CargarPrefab(nombrePrefab);
+        if (prefab != null)
+        {
+            GameObject inst = Object.Instantiate(prefab, pos, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
+            inst.name = nombrePrefab;
+            Etiquetar(inst);
+            EsbirroBaseIA ia = inst.GetComponent<EsbirroBaseIA>();
+            if (ia == null) ia = inst.AddComponent<EsbirroBaseIA>();
+            ia.tipo = tipo;
+
+            // Configurar estadísticas propias según el tipo (los prefabs traían valores genéricos)
+            if (tipo == EsbirroBaseIA.TipoEsbirro.Catrin)
+            {
+                ia.velocidadPersecucion = 3.6f;
+                ia.velocidadPatrulla = 1.4f;
+                ia.rangoDeteccion = 15f;
+                ia.rangoAtaque = 6.5f;
+                ia.danio = 16f;
+                ia.cooldownAtaque = 2.0f;
+                ia.tiempoTelegrafiado = 0.65f;
+                ia.colorTelegrafiado = new Color(0.1f, 0.7f, 0.9f, 0.7f);
+                ia.cantidadAlmasADropear = 4;
+                ia.alturaBarraVida = 2.3f;
+            }
+            else if (tipo == EsbirroBaseIA.TipoEsbirro.Momia)
+            {
+                ia.velocidadPersecucion = 4.2f;
+                ia.velocidadPatrulla = 1.8f;
+                ia.rangoDeteccion = 12f;
+                ia.rangoAtaque = 1.8f;
+                ia.danio = 14f;
+                ia.cooldownAtaque = 1.4f;
+                ia.tiempoTelegrafiado = 0.5f;
+                ia.colorTelegrafiado = new Color(0.2f, 0.9f, 0.4f, 0.65f);
+                ia.cantidadAlmasADropear = 3;
+                ia.alturaBarraVida = 2.0f;
+            }
+            else if (tipo == EsbirroBaseIA.TipoEsbirro.Monje)
+            {
+                ia.velocidadPersecucion = 3.0f;
+                ia.velocidadPatrulla = 1.3f;
+                ia.rangoDeteccion = 13f;
+                ia.rangoAtaque = 2.5f;
+                ia.danio = 18f;
+                ia.cooldownAtaque = 1.8f;
+                ia.tiempoTelegrafiado = 0.7f;
+                ia.colorTelegrafiado = new Color(1f, 0.5f, 0.1f, 0.7f);
+                ia.cantidadAlmasADropear = 5;
+                ia.alturaBarraVida = 2.2f;
+            }
+
+            // Asegurar CharacterController configurado
+            CharacterController cc = inst.GetComponent<CharacterController>();
+            if (cc == null)
+            {
+                cc = inst.AddComponent<CharacterController>();
+                cc.height = 2f; cc.radius = 0.5f; cc.center = new Vector3(0f, 1f, 0f);
+            }
+
+            // Asegurar PoderEspiritual
+            PoderEspiritual vida = inst.GetComponent<PoderEspiritual>();
+            if (vida == null)
+            {
+                vida = inst.AddComponent<PoderEspiritual>();
+                vida.maxPoder = tipo == EsbirroBaseIA.TipoEsbirro.Monje ? 65f : 50f;
+                vida.actualPoder = vida.maxPoder;
+            }
+
+            return ia;
+        }
+        return null;
+    }
+
     public static EsbirroBaseIA Crear(EsbirroBaseIA.TipoEsbirro tipo, Vector3 posicion)
     {
+        // Ajustar altura según tipo de enemigo para evitar que floten o se hundan
+        posicion = AjustarAlturaSpawn(tipo, posicion);
+
         switch (tipo)
         {
             case EsbirroBaseIA.TipoEsbirro.HombrePiedra: return CrearHombrePiedra(posicion);
@@ -23,7 +115,58 @@ public static class FabricaEsbirros
         }
     }
 
-    // ------------------------------------------------------------------ SERPIENTE
+    /// <summary>
+    /// Ajusta la altura de spawn según el tipo de enemigo para evitar que floten o se hundan.
+    /// </summary>
+    static Vector3 AjustarAlturaSpawn(EsbirroBaseIA.TipoEsbirro tipo, Vector3 posicion)
+    {
+        // Intentar obtener altura del terreno si está disponible
+        Vector3 puntoTerreno;
+        bool tieneTerreno = UtilTerreno.SueloEn(posicion.x, posicion.z, out puntoTerreno);
+        float alturaTerreno = tieneTerreno ? puntoTerreno.y : posicion.y;
+
+        switch (tipo)
+        {
+            case EsbirroBaseIA.TipoEsbirro.Serpiente:
+                // Serpientes: completamente a ras de suelo
+                if (tieneTerreno)
+                    posicion.y = alturaTerreno + 0.1f;
+                else if (posicion.y < 0.1f)
+                    posicion.y = 0.1f;
+                break;
+
+            case EsbirroBaseIA.TipoEsbirro.Comadre:
+                // Comadres: flotan intencionalmente a 0.8m sobre el suelo
+                if (tieneTerreno)
+                    posicion.y = alturaTerreno + 0.8f;
+                else
+                    posicion.y = Mathf.Max(posicion.y, 0.8f);
+                break;
+
+            case EsbirroBaseIA.TipoEsbirro.Cuervo:
+                // Cuervos: flotan alto, esperan en las alturas
+                if (tieneTerreno)
+                    posicion.y = alturaTerreno + 3.5f;
+                else
+                    posicion.y = Mathf.Max(posicion.y, 3.5f);
+                break;
+
+            case EsbirroBaseIA.TipoEsbirro.HombrePiedra:
+            case EsbirroBaseIA.TipoEsbirro.Momia:
+            case EsbirroBaseIA.TipoEsbirro.Catrin:
+            case EsbirroBaseIA.TipoEsbirro.Monje:
+                // Humanoides: firmemente en el suelo (CharacterController se encarga del resto)
+                if (tieneTerreno)
+                    posicion.y = alturaTerreno + 0.2f;
+                else if (posicion.y < 0.2f)
+                    posicion.y = 0.2f;
+                break;
+        }
+
+        return posicion;
+    }
+
+    // ------------------------------------------------------------------ SERPIENTE (Cascabel / Alicante de Guanajuato)
 
     static EsbirroBaseIA CrearSerpiente(Vector3 pos)
     {
@@ -79,6 +222,9 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearHombrePiedra(Vector3 pos)
     {
+        EsbirroBaseIA desdePrefab = InstanciarPrefab("Esbirro_HombrePiedra", pos, EsbirroBaseIA.TipoEsbirro.HombrePiedra);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("HombreDePiedra");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -140,6 +286,10 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearComadre(Vector3 pos)
     {
+        string prefabBruja = Random.value > 0.5f ? "Esbirro_BrujaMorada" : "Esbirro_Bruja";
+        EsbirroBaseIA desdePrefab = InstanciarPrefab(prefabBruja, pos, EsbirroBaseIA.TipoEsbirro.Comadre);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("Comadre");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -200,6 +350,10 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearMomia(Vector3 pos)
     {
+        string prefabMomia = Random.value > 0.4f ? "Esbirro_GuerreroIndigena" : "Esbirro_Calavera";
+        EsbirroBaseIA desdePrefab = InstanciarPrefab(prefabMomia, pos, EsbirroBaseIA.TipoEsbirro.Momia);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("Momia");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -255,6 +409,10 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearCatrin(Vector3 pos)
     {
+        string prefabCatrin = Random.value > 0.5f ? "Esbirro_Catrina" : "Esbirro_Calavera";
+        EsbirroBaseIA desdePrefab = InstanciarPrefab(prefabCatrin, pos, EsbirroBaseIA.TipoEsbirro.Catrin);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("Catrin");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
@@ -364,6 +522,9 @@ public static class FabricaEsbirros
 
     static EsbirroBaseIA CrearMonje(Vector3 pos)
     {
+        EsbirroBaseIA desdePrefab = InstanciarPrefab("Esbirro_Monja", pos, EsbirroBaseIA.TipoEsbirro.Monje);
+        if (desdePrefab != null) return desdePrefab;
+
         GameObject root = new GameObject("MonjePenitente");
         root.transform.position = pos;
         root.transform.rotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);

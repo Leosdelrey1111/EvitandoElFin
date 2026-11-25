@@ -1,5 +1,43 @@
 # Cinemática del accidente: qué hay y qué falta generar en Meshy
 
+## ACTUALIZACIÓN - Sistema de Presentación de Enemigos
+
+**NUEVO:** Se ha implementado un sistema completo de presentación cinematográfica para enemigos.
+
+### Sistema de Presentación Implementado ✅
+
+**Ubicación:** `Assets/Game/Scripts/SistemaPresentacionEnemigos.cs`
+
+**Funciona así:**
+1. Cuando el jugador se acerca a un enemigo nuevo (~15m), el juego se pausa
+2. La cámara hace zoom cinematográfico al enemigo
+3. Se muestra un panel estilo "carta de lotería" con:
+   - Número de carta
+   - Nombre del enemigo
+   - Historia y leyenda
+   - Consejos de combate
+   - Color temático
+4. El jugador puede presionar ENTER para continuar
+5. Solo se muestra una vez por tipo de enemigo (se guarda en disco)
+
+**Enemigos con presentación:**
+- ✅ Serpientes (Nivel 1)
+- ✅ Hombres de Piedra (Nivel 1)
+- ✅ Comadres (Nivel 1 y 3)
+- ✅ Momias (Nivel 2)
+- ✅ Catrines (Nivel 2 y 3)
+- ✅ Cuervos (Nivel 2)
+- ✅ Monjes Penitentes (Nivel 3)
+
+**Integración:**
+- Se activa automáticamente cuando `EsbirroBaseIA` detecta al jugador por primera vez
+- No requiere configuración manual en las escenas
+- Se inicializa automáticamente con `InicializadorNivel`
+
+---
+
+# Cinemática del accidente: qué hay y qué falta generar en Meshy
+
 Escena: `SampleScene` (carretera). Guion: tráiler por la sierra de noche y con lluvia → falla de frenos → derrape → choque con la defensa → caída por la ladera → llega la ambulancia → paramédicos sacan al Chofer en camilla → la ambulancia se va → el alma se desprende.
 
 ## 1. Lo que ya está hecho (todo por código)

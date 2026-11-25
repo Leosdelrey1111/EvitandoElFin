@@ -113,9 +113,30 @@ public class PaisajeCiudadColonial : MonoBehaviour
             Color colD = ColoresFachadas[(contadorCasas + 2) % ColoresFachadas.Length];
             ConstruirCasaColonial(raiz.transform, new Vector3(12f + curvaX, 0, z), colD, false);
 
+            // Faroles coloniales más frecuentes para mejor iluminación
             ConstruirFarolColonial(raiz.transform, new Vector3(curvaX, 4.5f, z));
+            
+            // Faroles adicionales cada 3 casas
+            if (contadorCasas % 3 == 0)
+            {
+                ConstruirFarolColonial(raiz.transform, new Vector3(-6f + curvaX, 2.5f, z + 7f));
+                ConstruirFarolColonial(raiz.transform, new Vector3(6f + curvaX, 2.5f, z + 7f));
+            }
+            
+            // Macetas con flores cada 2 casas para color
+            if (contadorCasas % 2 == 0)
+            {
+                ConstruirMacetaFlores(raiz.transform, new Vector3(-10f + curvaX, 0, z + 2f));
+                ConstruirMacetaFlores(raiz.transform, new Vector3(10f + curvaX, 0, z + 2f));
+            }
 
             contadorCasas++;
+        }
+        
+        // Señalización hacia la Basílica (flechas en el suelo con luces)
+        for (float z = 50f; z < largoCañada - 40f; z += 30f)
+        {
+            ConstruirSenalBasilica(raiz.transform, new Vector3(0, 0.1f, z));
         }
 
         // 4. El icónico Callejón del Beso (z = 52f)
@@ -364,6 +385,13 @@ public class PaisajeCiudadColonial : MonoBehaviour
         bossGo.transform.position = atrio.transform.position + Vector3.up * 0.6f;
         bossGo.AddComponent<JefeInquisidor>();
 
+        // Sistema de arena cerrada
+        ArenaAtrioBasilica arenaScript = atrio.AddComponent<ArenaAtrioBasilica>();
+        arenaScript.jefe = bossGo.transform;
+        arenaScript.radioActivacion = 18f;
+        arenaScript.radioArena = 16f;
+        arenaScript.alturaBarrera = 5f;
+
         // Portal Dorado Final del Juego (Retorno a la vida)
         GameObject portal = new GameObject("PortalRetornoMundoVivo");
         portal.transform.position = atrio.transform.position + Vector3.forward * 13f + Vector3.up * 1.2f;
@@ -439,5 +467,82 @@ public class PaisajeCiudadColonial : MonoBehaviour
         HitoNarrativo h = hito.AddComponent<HitoNarrativo>();
         h.idHistoria = idHistoria;
         h.radio = radio;
+    }
+
+    void ConstruirMacetaFlores(Transform padre, Vector3 pos)
+    {
+        GameObject maceta = new GameObject("Maceta_Flores");
+        maceta.transform.SetParent(padre, false);
+        maceta.transform.localPosition = pos;
+
+        // Base de maceta
+        GameObject base_maceta = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        base_maceta.transform.SetParent(maceta.transform, false);
+        base_maceta.transform.localPosition = new Vector3(0, 0.3f, 0);
+        base_maceta.transform.localScale = new Vector3(0.5f, 0.3f, 0.5f);
+        base_maceta.GetComponent<Renderer>().material = matCanteraRosa;
+
+        // Flores (cempasúchil)
+        for (int i = 0; i < 3; i++)
+        {
+            float angulo = i * 120f * Mathf.Deg2Rad;
+            Vector3 offset = new Vector3(Mathf.Sin(angulo) * 0.2f, 0.6f, Mathf.Cos(angulo) * 0.2f);
+            
+            GameObject flor = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            flor.transform.SetParent(maceta.transform, false);
+            flor.transform.localPosition = offset;
+            flor.transform.localScale = Vector3.one * 0.15f;
+            
+            Material matFlor = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+            matFlor.color = new Color(1f, 0.6f, 0.1f); // Naranja cempasúchil
+            flor.GetComponent<Renderer>().material = matFlor;
+            Destroy(flor.GetComponent<Collider>());
+        }
+    }
+
+    void ConstruirSenalBasilica(Transform padre, Vector3 pos)
+    {
+        GameObject senal = new GameObject("Senal_Basilica");
+        senal.transform.SetParent(padre, false);
+        senal.transform.localPosition = pos;
+
+        // Flecha en el suelo apuntando hacia adelante
+        GameObject flecha = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        flecha.transform.SetParent(senal.transform, false);
+        flecha.transform.localPosition = new Vector3(0, 0.05f, 0);
+        flecha.transform.localScale = new Vector3(1.5f, 0.1f, 2.5f);
+        flecha.transform.localRotation = Quaternion.Euler(0, 0, 0);
+        
+        Material matSenal = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
+        matSenal.color = new Color(1f, 0.85f, 0.3f); // Dorado
+        matSenal.EnableKeyword("_EMISSION");
+        matSenal.SetColor("_EmissionColor", new Color(1f, 0.85f, 0.3f) * 0.3f);
+        flecha.GetComponent<Renderer>().material = matSenal;
+        
+        // Punta de flecha
+        GameObject punta = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        punta.transform.SetParent(senal.transform, false);
+        punta.transform.localPosition = new Vector3(0, 0.05f, 1.8f);
+        punta.transform.localScale = new Vector3(1.2f, 0.1f, 0.8f);
+        punta.transform.localRotation = Quaternion.Euler(0, 45, 0);
+        punta.GetComponent<Renderer>().material = matSenal;
+
+        GameObject punta2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        punta2.transform.SetParent(senal.transform, false);
+        punta2.transform.localPosition = new Vector3(0, 0.05f, 1.8f);
+        punta2.transform.localScale = new Vector3(1.2f, 0.1f, 0.8f);
+        punta2.transform.localRotation = Quaternion.Euler(0, -45, 0);
+        punta2.GetComponent<Renderer>().material = matSenal;
+
+        // Luz suave en la señal
+        GameObject luzGo = new GameObject("LuzSenal");
+        luzGo.transform.SetParent(senal.transform, false);
+        luzGo.transform.localPosition = new Vector3(0, 1f, 0);
+        Light luz = luzGo.AddComponent<Light>();
+        luz.type = LightType.Point;
+        luz.color = new Color(1f, 0.85f, 0.3f);
+        luz.range = 6f;
+        luz.intensity = 0.4f;
+        luz.shadows = LightShadows.None;
     }
 }

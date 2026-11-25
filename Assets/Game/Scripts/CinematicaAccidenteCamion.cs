@@ -154,7 +154,20 @@ public class CinematicaAccidenteCamion : MonoBehaviour
 
     void Awake()
     {
-        if (generadorCarretera == null) generadorCarretera = Object.FindAnyObjectByType<GeneradorCurvasGuanajuato>();
+        if (generadorCarretera == null)
+        {
+            generadorCarretera = Object.FindAnyObjectByType<GeneradorCurvasGuanajuato>();
+            if (generadorCarretera == null)
+            {
+                GameObject prefabCurvas = Resources.Load<GameObject>("Prefabs/Mapa_CurvasGuanajuato");
+                if (prefabCurvas != null)
+                {
+                    GameObject goCurvas = Object.Instantiate(prefabCurvas, Vector3.zero, Quaternion.identity);
+                    goCurvas.name = "Mapa_CurvasGuanajuato";
+                    generadorCarretera = goCurvas.GetComponent<GeneradorCurvasGuanajuato>();
+                }
+            }
+        }
         if (camaraPrincipal == null) camaraPrincipal = Camera.main;
         if (camaraPrincipal != null && camaraJugadorScript == null) camaraJugadorScript = camaraPrincipal.GetComponent<CamaraTerceraPersona>();
 
@@ -251,7 +264,14 @@ public class CinematicaAccidenteCamion : MonoBehaviour
 
     void AplicarAtmosferaNocturna()
     {
-        Color niebla = new Color(0.035f, 0.055f, 0.10f);
+        Color niebla = new Color(0.08f, 0.11f, 0.18f);
+
+        if (materialCieloNoche == null)
+        {
+#if UNITY_EDITOR
+            materialCieloNoche = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/AllSkyFree/Night MoonBurst/Night Moon Burst.mat");
+#endif
+        }
 
         if (materialCieloNoche != null)
         {
@@ -261,24 +281,24 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         else if (camaraPrincipal != null)
         {
             camaraPrincipal.clearFlags = CameraClearFlags.SolidColor;
-            camaraPrincipal.backgroundColor = new Color(0.02f, 0.03f, 0.07f);
+            camaraPrincipal.backgroundColor = new Color(0.05f, 0.08f, 0.16f);
         }
 
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-        RenderSettings.ambientLight = new Color(0.045f, 0.06f, 0.11f);
-        RenderSettings.reflectionIntensity = 0.25f;
+        RenderSettings.ambientLight = new Color(0.24f, 0.28f, 0.38f);
+        RenderSettings.reflectionIntensity = 0.5f;
         RenderSettings.fog = true;
-        RenderSettings.fogMode = FogMode.ExponentialSquared;
-        RenderSettings.fogDensity = 0.0045f;
+        RenderSettings.fogMode = FogMode.Exponential;
+        RenderSettings.fogDensity = 0.0016f;
         RenderSettings.fogColor = niebla;
 
-        // La luz direccional pasa a ser luz de luna fría y tenue
+        // La luz direccional pasa a ser luz de luna fría y nítida
         foreach (Light l in Object.FindObjectsByType<Light>())
         {
             if (l.type != LightType.Directional) continue;
-            l.color = new Color(0.45f, 0.58f, 0.95f);
-            l.intensity = 0.35f;
-            l.transform.rotation = Quaternion.Euler(38f, -32f, 0f);
+            l.color = new Color(0.65f, 0.75f, 0.98f);
+            l.intensity = 1.15f;
+            l.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
             l.shadows = LightShadows.Soft;
         }
         DynamicGI.UpdateEnvironment();
@@ -370,8 +390,23 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         {
             SceneManager.LoadScene(escenaNivel1);
         }
+        else if (Application.CanStreamedLevelBeLoaded("Nivel1_Bosque"))
+        {
+            SceneManager.LoadScene("Nivel1_Bosque");
+        }
+        else if (SceneManager.sceneCountInBuildSettings > 2)
+        {
+            SceneManager.LoadScene(2);
+        }
         else
         {
+#if UNITY_EDITOR
+            if (System.IO.File.Exists("Assets/Scenes/Nivel1_Bosque.unity"))
+            {
+                UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode("Assets/Scenes/Nivel1_Bosque.unity", new UnityEngine.SceneManagement.LoadSceneParameters(UnityEngine.SceneManagement.LoadSceneMode.Single));
+                return;
+            }
+#endif
             Debug.LogError("[Cinemática] No se encontró la escena '" + escenaNivel1 + "' en Build Settings.");
         }
     }
@@ -1104,6 +1139,10 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         {
             while (carga.progress < 0.9f) yield return null;
             carga.allowSceneActivation = true;
+        }
+        else
+        {
+            CargarNivel1();
         }
     }
 

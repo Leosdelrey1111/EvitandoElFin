@@ -329,6 +329,7 @@ public class EsbirroBaseIA : MonoBehaviour
         }
 
         if (OnEsbirroDerrotado != null) OnEsbirroDerrotado(this);
+        if (tieneAnimadorReal && anim != null) anim.SetTrigger("Muerte");
         StartCoroutine(AnimacionMuerte());
     }
 
@@ -373,7 +374,7 @@ public class EsbirroBaseIA : MonoBehaviour
         else if (telegrafiando)
         {
             float p = 0.5f + 0.5f * Mathf.Sin(Time.time * 28f);
-            c = Color.Lerp(colorTelegrafiado, Color.white, p * 0.35f);
+            c = Color.Lerp(new Color(1f, 0.25f, 0.2f), new Color(1f, 0.8f, 0.2f), p);
             usar = true;
         }
 
@@ -399,6 +400,9 @@ public class EsbirroBaseIA : MonoBehaviour
     void AnimarVisualProcedural()
     {
         if (visual == null) return;
+        // Si el personaje cuenta con animaciones humanoides 3D reales (caminar, correr, etc.),
+        // dejamos que el Animator controle la pose para no deformar ni hundir el modelo
+        if (tieneAnimadorReal) return;
 
         faseAnim += Time.deltaTime * (seMovio ? 9f : 2.5f);
 

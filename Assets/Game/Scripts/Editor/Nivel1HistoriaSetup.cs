@@ -79,7 +79,7 @@ public static class Nivel1HistoriaSetup
             GameObject go = new GameObject("Jefe_LaBufa");
             jefe = go.AddComponent<JefeLaBufa>();
         }
-        jefe.transform.position = centroArena + Vector3.up * 0.1f;
+        jefe.transform.position = centroArena + Vector3.up * 0.5f; // Ajustado de 0.1f a 0.5f para mayor visibilidad
         jefe.radioArena = 14f;
         jefe.radioDespertar = 11f;
         EditorUtility.SetDirty(jefe);
@@ -121,19 +121,19 @@ public static class Nivel1HistoriaSetup
         Hito(hitos.transform, terreno, "arroyo", NodoSendero(9), 16f);                    // ~485 m  · cruce del arroyo seco
         Hito(hitos.transform, terreno, "tesoro", NodoSendero(12), 16f);                   // ~650 m  · bocamina
 
-        // ---------------------------------------------------------------- Comerciante (Don Chuy), junto al sendero casi al final
+        // ---------------------------------------------------------------- Comerciante (Don Chuy), antes del jefe final, más expuesto
         GameObject viejoCom = GameObject.Find("Comerciante_DonChuy");
         if (viejoCom != null) Object.DestroyImmediate(viejoCom);
         Vector2 dCom;
-        // La tienda va casi al final (~1140 m, tras el tótem 3 y antes de la Cueva Vieja): al principio el Chofer no tiene almas que gastar
-        Vector2 enCom = BosqueTerrenoBuilder.PuntoEnSendero(BosqueTerrenoBuilder.MetrosEnSendero(BosqueTerrenoBuilder.Sendero[21]), out dCom);
+        // La tienda va antes de la Cueva Vieja (~1200 m, antes del jefe): posición estratégica y visible
+        Vector2 enCom = BosqueTerrenoBuilder.PuntoEnSendero(BosqueTerrenoBuilder.MetrosEnSendero(BosqueTerrenoBuilder.Sendero[22]), out dCom);
         Vector2 perpCom = new Vector2(-dCom.y, dCom.x);
-        Vector2 localCom = enCom + perpCom * 7f;
+        Vector2 localCom = enCom + perpCom * 10f; // Más lateral para mayor visibilidad
         GameObject com = new GameObject("Comerciante_DonChuy");
         com.transform.position = Mundo(terreno, localCom);
         com.transform.rotation = Quaternion.LookRotation(new Vector3(-perpCom.x, 0f, -perpCom.y));
         com.AddComponent<ComercianteMercader>();
-        Hito(hitos.transform, terreno, "comerciante", localCom, 16f);
+        Hito(hitos.transform, terreno, "comerciante", localCom, 18f); // Radio mayor para detección
         sb.AppendLine("• Don Chuy, el Comerciante (E): vende mejoras a cambio de almas.");
         Hito(hitos.transform, terreno, "hombres_piedra", BosqueTerrenoBuilder.Plazas[2].centro, 34f);  // ~780 m · antes del tótem 2
         Hito(hitos.transform, terreno, "cruces", NodoSendero(17), 16f);                                   // ~930 m

@@ -60037,7 +60037,7 @@ MonoBehaviour:
   velocidadRotacion: 14
   modoControl: 0
   teclaSalto: 32
-  alturaSalto: 1.25
+  alturaSalto: 1.7
   teclaEsquive: 306
   teclaEsquiveAlterna: 99
   fuerzaEsquive: 10
@@ -73229,7 +73229,7 @@ TerrainCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_TerrainData: {fileID: 15600000, guid: 12bfccb05c3f9ef43b96c839b88eb697, type: 2}
-  m_EnableTreeColliders: 1
+  m_EnableTreeColliders: 0
 --- !u!218 &1044099325
 Terrain:
   m_ObjectHideFlags: 0
@@ -79583,10 +79583,10 @@ CharacterController:
   m_Enabled: 1
   serializedVersion: 3
   m_Height: 2
-  m_Radius: 0.5
-  m_SlopeLimit: 45
-  m_StepOffset: 0.3
-  m_SkinWidth: 0.08
+  m_Radius: 0.45
+  m_SlopeLimit: 85
+  m_StepOffset: 1.2
+  m_SkinWidth: 0.05
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!4 &1103214953

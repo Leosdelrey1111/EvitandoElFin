@@ -142,9 +142,12 @@ public class ChoferController : MonoBehaviour
             {
                 #if UNITY_EDITOR
                 var subassets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath("Assets/Game/Models/Chofer/Meshy_AI_chofer_trailer_3d_biped_Character_output.fbx");
-                foreach (var obj in subassets)
+                if (subassets != null)
                 {
-                    if (obj is Avatar av) { animator.avatar = av; break; }
+                    foreach (var obj in subassets)
+                    {
+                        if (obj is Avatar av) { animator.avatar = av; break; }
+                    }
                 }
                 #endif
             }
@@ -375,7 +378,7 @@ public class ChoferController : MonoBehaviour
     {
         if (controller.isGrounded && velocidadVertical.y < 0)
         {
-            velocidadVertical.y = -2f;
+            velocidadVertical.y = -0.5f;
         }
 
         velocidadVertical.y += gravedad * Time.deltaTime;

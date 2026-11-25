@@ -121,8 +121,20 @@ public class PaisajePanteon : MonoBehaviour
             ConstruirCipres(raiz.transform, new Vector3(-8f + curvaX, 0, z + 8f));
             ConstruirCipres(raiz.transform, new Vector3(8f + curvaX, 0, z - 6f));
 
-            // Farol con fuego fatuo
+            // Faroles con fuego fatuo para iluminación (más frecuentes)
             ConstruirFarolPanteon(raiz.transform, new Vector3(curvaX, 0, z));
+            if (z % 36f < 18f) // Faroles adicionales cada 2 loops
+            {
+                ConstruirFarolPanteon(raiz.transform, new Vector3(-6f + curvaX, 0, z + 9f));
+                ConstruirFarolPanteon(raiz.transform, new Vector3(6f + curvaX, 0, z + 9f));
+            }
+        }
+        
+        // Cruces de cantera marcando el camino principal
+        for (float z = 25f; z < largoSierra - 40f; z += 25f)
+        {
+            ConstruirCruzCantera(raiz.transform, new Vector3(-2f, 0, z));
+            ConstruirCruzCantera(raiz.transform, new Vector3(2f, 0, z + 12f));
         }
 
         // 4. Gran Mausoleo Central en la Cumbre (Arena del General Momia)
@@ -342,6 +354,40 @@ public class PaisajePanteon : MonoBehaviour
         plataforma.transform.localPosition = new Vector3(0, -0.3f, 0);
         plataforma.transform.localScale = new Vector3(32f, 0.6f, 32f);
         plataforma.GetComponent<Renderer>().material = matCanteraRosa;
+        // Evitar el CapsuleCollider esférico de PrimitiveType.Cylinder que bloquea la entrada
+        Collider colCil = plataforma.GetComponent<Collider>();
+        if (colCil != null) Destroy(colCil);
+        MeshFilter mfPlat = plataforma.GetComponent<MeshFilter>();
+        MeshCollider mcPlat = plataforma.AddComponent<MeshCollider>();
+        if (mfPlat != null) mcPlat.sharedMesh = mfPlat.sharedMesh;
+
+        // Muros de entrada laterales
+        GameObject muroIzq = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        muroIzq.name = "MuroEntradaIzq";
+        muroIzq.transform.SetParent(arena.transform, false);
+        muroIzq.transform.localPosition = new Vector3(-8f, 2.5f, -15f);
+        muroIzq.transform.localScale = new Vector3(10f, 5f, 2f);
+        muroIzq.GetComponent<Renderer>().material = matCanteraRosa;
+
+        GameObject muroDer = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        muroDer.name = "MuroEntradaDer";
+        muroDer.transform.SetParent(arena.transform, false);
+        muroDer.transform.localPosition = new Vector3(8f, 2.5f, -15f);
+        muroDer.transform.localScale = new Vector3(10f, 5f, 2f);
+        muroDer.GetComponent<Renderer>().material = matCanteraRosa;
+
+        // Puerta bloqueada inicialmente (barrera invisible hasta conseguir 3 cirios)
+        GameObject puerta = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        puerta.name = "PuertaMausoleo";
+        puerta.transform.SetParent(arena.transform, false);
+        puerta.transform.localPosition = new Vector3(0, 2.5f, -15f);
+        puerta.transform.localScale = new Vector3(8f, 5f, 0.5f);
+        puerta.GetComponent<Renderer>().material = matCanteraRosa;
+        puerta.GetComponent<Renderer>().material.color = new Color(0.5f, 0.3f, 0.2f, 0.8f); // Semi-transparente
+        
+        // Agregar script de control de puerta
+        PuertaMausoleo scriptPuerta = puerta.AddComponent<PuertaMausoleo>();
+        scriptPuerta.ciriosNecesarios = 3;
 
         // 8 columnas de cantera
         for (int i = 0; i < 8; i++)
@@ -355,17 +401,12 @@ public class PaisajePanteon : MonoBehaviour
             col.GetComponent<Renderer>().material = matCanteraRosa;
         }
 
-        // Sepulcro del General
-        GameObject cripta = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cripta.name = "SepulcroGeneral";
-        cripta.transform.SetParent(arena.transform, false);
-        cripta.transform.localPosition = new Vector3(0, 0.9f, 0);
-        cripta.transform.localScale = new Vector3(4f, 1.8f, 6f);
-        cripta.GetComponent<Renderer>().material = matCanteraRosa;
+        // Sarcófago monumental del General (diseño tradicional de cantera con faroles y cruz)
+        SarcofagoGeneral.Construir(arena.transform, new Vector3(0, 0.3f, 8f), matCanteraRosa);
 
-        // Instanciar Jefe
+        // Instanciar Jefe de pie frente al sarcófago sobre la plataforma
         GameObject bossGo = new GameObject("Jefe_GeneralMomia");
-        bossGo.transform.position = arena.transform.position + Vector3.up * 0.2f;
+        bossGo.transform.position = arena.transform.position + new Vector3(0, 0.35f, 0f);
         bossGo.AddComponent<JefeGeneralMomia>();
 
         // Portal hacia Nivel 3
@@ -453,5 +494,37 @@ public class PaisajePanteon : MonoBehaviour
         HitoNarrativo h = hito.AddComponent<HitoNarrativo>();
         h.idHistoria = idHistoria;
         h.radio = radio;
+    }
+
+    void ConstruirCruzCantera(Transform padre, Vector3 pos)
+    {
+        GameObject cruz = new GameObject("Cruz_Camino");
+        cruz.transform.SetParent(padre, false);
+        cruz.transform.localPosition = pos;
+
+        // Poste vertical
+        GameObject vertical = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        vertical.transform.SetParent(cruz.transform, false);
+        vertical.transform.localPosition = new Vector3(0, 1.5f, 0);
+        vertical.transform.localScale = new Vector3(0.3f, 3f, 0.3f);
+        vertical.GetComponent<Renderer>().material = matCanteraRosa;
+
+        // Travesaño horizontal
+        GameObject horizontal = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        horizontal.transform.SetParent(cruz.transform, false);
+        horizontal.transform.localPosition = new Vector3(0, 2.3f, 0);
+        horizontal.transform.localScale = new Vector3(1.6f, 0.3f, 0.3f);
+        horizontal.GetComponent<Renderer>().material = matCanteraRosa;
+
+        // Luz tenue en la cruz
+        GameObject luzGo = new GameObject("LuzCruz");
+        luzGo.transform.SetParent(cruz.transform, false);
+        luzGo.transform.localPosition = new Vector3(0, 2.5f, 0);
+        Light luz = luzGo.AddComponent<Light>();
+        luz.type = LightType.Point;
+        luz.color = new Color(1f, 0.9f, 0.7f); // Luz cálida
+        luz.range = 8f;
+        luz.intensity = 0.6f;
+        luz.shadows = LightShadows.None;
     }
 }

@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &4001369717688442596
 GameObject:
@@ -99,7 +99,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4812553766644362772}
-  - component: {fileID: 6056488235792658217}
   - component: {fileID: 4372151686029680304}
   m_Layer: 0
   m_Name: Rock2_Sierra
@@ -124,29 +123,6 @@ Transform:
   - {fileID: 7949963779558994603}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &6056488235792658217
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8554366889016939244}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.39000002
-  m_Height: 1.3
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.65, z: 0}
 --- !u!205 &4372151686029680304
 LODGroup:
   m_ObjectHideFlags: 0

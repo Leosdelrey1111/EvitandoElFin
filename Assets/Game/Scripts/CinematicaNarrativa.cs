@@ -208,7 +208,12 @@ public class CinematicaNarrativa : MonoBehaviour
 
     static int Extra(string id) { return id == "jefe_despierta" || id == "jefe_derrotado" ? 1 : 0; }
 
-    static bool EsDeJefe(string id) { return Extra(id) > 0; }
+    static bool EsDeJefe(string id)
+    {
+        return Extra(id) > 0 ||
+               id == "jefe_general" || id == "jefe_general_derrota" ||
+               id == "jefe_inquisidor" || id == "jefe_inquisidor_derrota";
+    }
 
     void AlTerminarLinea(string id, int i)
     {
@@ -719,7 +724,30 @@ public class CinematicaNarrativa : MonoBehaviour
         "jefe_inquisidor", "jefe_inquisidor_derrota"
     };
 
-    bool TieneGuion(string id) { return conGuion.Contains(id); }
+    static readonly HashSet<string> enemigosPresentables = new HashSet<string>
+    {
+        "serpientes", "hombres_piedra", "comadres", "momias", "catrines", "cuervos", "monjes", "sombras_callejon"
+    };
+
+    bool TieneGuion(string id)
+    {
+        if (!conGuion.Contains(id)) return false;
+        if (enemigosPresentables.Contains(id) && SistemaGuardado.Datos != null)
+        {
+            string vistos = SistemaGuardado.Datos.enemigosVistos ?? "";
+            if (vistos.Contains(id)) return false;
+            SistemaGuardado.Datos.enemigosVistos = string.IsNullOrEmpty(vistos) ? id : vistos + "," + id;
+            SistemaGuardado.Guardar();
+        }
+        return true;
+    }
+
+    static void AnimSeguro(Animator anim, string estado, float transicion)
+    {
+        if (anim == null || !anim.isActiveAndEnabled || anim.runtimeAnimatorController == null) return;
+        int hash = Animator.StringToHash(estado);
+        if (anim.HasState(0, hash)) anim.CrossFadeInFixedTime(hash, transicion);
+    }
 
     List<Toma> Guion(string id, Contexto c)
     {
@@ -1421,7 +1449,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, j + arriba * 1.4f, Mathf.Lerp(52f, 46f, e), 0.005f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    AnimSeguro(anim, "Locomocion", 0.2f);
                     NuevaLuz(j + f * 2f + arriba * 3f, new Color(0.2f, 0.95f, 0.5f), 10f, 18f);
                 }, "SIERRA DE SANTA PAULA", "«En este collado rocoso fundaron el panteón…»", false));
 
@@ -1475,7 +1503,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, j + f * 4f + arriba * 1.2f, Mathf.Lerp(48f, 42f, e), 0.008f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Golpe", 0.15f);
+                    AnimSeguro(anim, "Golpe", 0.15f);
                     NuevaLuz(j + f * 3f + arriba * 2f, new Color(0.2f, 0.9f, 0.4f), 12f, 18f);
                 }, "CARTA No. 25 · LA MOMIA", "«De la gaveta salió y tus pasos siguió»", true));
                 break;
@@ -1573,7 +1601,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, posJefe + arriba * 1.8f, Mathf.Lerp(54f, 44f, e), 0.02f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    AnimSeguro(anim, "Locomocion", 0.2f);
                     NuevaLuz(posJefe + arriba * 5f, new Color(0.15f, 0.95f, 0.45f), 18f, 35f);
                 }, "CARTA No. 28 · EL GENERAL", "«Sable de mando y valor, del panteón el señor»", true));
                 break;
@@ -1593,7 +1621,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, j + arriba * 1.4f, Mathf.Lerp(48f, 40f, e), 0.005f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    AnimSeguro(anim, "Locomocion", 0.2f);
                     NuevaLuz(j + arriba * 3f, new Color(1f, 0.85f, 0.3f), 15f, 25f);
                 }, "RECUERDO 2 RECUPERADO", "«El Rosario de Plata y la bendición de tu familia»", false));
                 break;
@@ -1615,7 +1643,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, j + dirMeta * 25f + arriba * 1f, Mathf.Lerp(56f, 46f, e), 0.006f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    AnimSeguro(anim, "Locomocion", 0.2f);
                     NuevaLuz(j + f * 15f + arriba * 10f, new Color(1f, 0.75f, 0.35f), 22f, 45f);
                 }, "LA CAÑADA DE GUANAJUATO", "«Mira cómo las casas coloniales trepan por los riscos…»", false));
 
@@ -1689,7 +1717,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, posBeso + arriba * 4.5f, Mathf.Lerp(50f, 42f, e), 0.006f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    AnimSeguro(anim, "Locomocion", 0.2f);
                     NuevaLuz(posBeso + arriba * 5.5f, new Color(1f, 0.45f, 0.65f), 14f, 25f);
                 }, "CARTA No. 30 · LOS AMANTES", "«El Callejón del Beso y la promesa de amor eterno»", true));
                 break;
@@ -1751,7 +1779,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, j + f * 5f + arriba * 1.4f, Mathf.Lerp(50f, 43f, e), 0.01f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Golpe", 0.15f);
+                    AnimSeguro(anim, "Golpe", 0.15f);
                     NuevaLuz(j + f * 4f + arriba * 2.5f, new Color(1f, 0.5f, 0.1f), 12f, 20f);
                 }, "CARTA No. 33 · EL PENITENTE", "«Con su hábito y candelero, purifica el sendero»", true));
                 break;
@@ -1770,7 +1798,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, posJefe + arriba * 2.8f, Mathf.Lerp(56f, 44f, e), 0.025f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Onda", 0.15f);
+                    AnimSeguro(anim, "Onda", 0.15f);
                     NuevaLuz(posJefe + arriba * 8f, new Color(1.0f, 0.78f, 0.15f), 24f, 45f);
                 }, "CARTA No. 42 · EL INQUISIDOR", "«En la basílica juzgó y su sentencia dictó»", true));
                 break;
@@ -1788,7 +1816,7 @@ public class CinematicaNarrativa : MonoBehaviour
                     return V(p, j + arriba * 1.5f, Mathf.Lerp(48f, 38f, e), 0.004f);
                 }, () =>
                 {
-                    if (anim != null) anim.CrossFadeInFixedTime("Locomocion", 0.2f);
+                    AnimSeguro(anim, "Locomocion", 0.2f);
                     NuevaLuz(j + arriba * 5f, new Color(1f, 0.95f, 0.6f), 25f, 40f);
                 }, "RECUERDO 3 · EL AMANECER", "«¡El latido de tu corazón te llama… vuelve a casa!»", false));
                 break;

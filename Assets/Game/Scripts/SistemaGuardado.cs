@@ -32,6 +32,10 @@ public static class SistemaGuardado
         public string totemsRecogidosIds = "";
         public string recuerdosDesbloqueados = "";
         public long timestampGuardado = 0;
+
+        // Nuevos campos para sistema de mejoras y presentaciones
+        public string mejorasCompradas = ""; // "atole:3,filo:2,rebozo:1,copal:1"
+        public string enemigosVistos = ""; // "Serpiente,HombrePiedra,Comadre"
     }
 
     private static DatosGuardado datosCache;
@@ -169,6 +173,7 @@ public static class SistemaGuardado
         if (nivel > datosCache.nivelAlcanzado) datosCache.nivelAlcanzado = nivel;
         datosCache.escenaActual = escena;
         datosCache.totemsNivelActual = 0;
+        datosCache.totemsRecogidosIds = "";   // nivel nuevo = tótems nuevos
         datosCache.idUltimoCheckpoint = "";
         Guardar();
     }
@@ -196,5 +201,89 @@ public static class SistemaGuardado
     private static string ObtenerRutaArchivo()
     {
         return Path.Combine(Application.persistentDataPath, "PartidaEvitandoElFin.json");
+    }
+
+    // ================================================================== MEJORAS DE DON CHUY
+
+    /// <summary>
+    /// Guarda una mejora comprada y su nivel.
+    /// </summary>
+    public static void GuardarMejora(string idMejora, int nivel)
+    {
+        Cargar();
+        
+        // Parsear mejoras existentes
+        System.Collections.Generic.Dictionary<string, int> mejoras = new System.Collections.Generic.Dictionary<string, int>();
+        if (!string.IsNullOrEmpty(datosCache.mejorasCompradas))
+        {
+            string[] partes = datosCache.mejorasCompradas.Split(',');
+            foreach (string parte in partes)
+            {
+                string[] kv = parte.Split(':');
+                if (kv.Length == 2)
+                {
+                    int n;
+                    if (int.TryParse(kv[1], out n))
+                        mejoras[kv[0]] = n;
+                }
+            }
+        }
+
+        // Actualizar o agregar
+        mejoras[idMejora] = nivel;
+
+        // Serializar de vuelta
+        System.Collections.Generic.List<string> lista = new System.Collections.Generic.List<string>();
+        foreach (System.Collections.Generic.KeyValuePair<string, int> kv in mejoras)
+            lista.Add(kv.Key + ":" + kv.Value);
+
+        datosCache.mejorasCompradas = string.Join(",", lista.ToArray());
+        Guardar();
+    }
+
+    /// <summary>
+    /// Obtiene el nivel de una mejora (0 si no se ha comprado).
+    /// </summary>
+    public static int ObtenerNivelMejora(string idMejora)
+    {
+        Cargar();
+        if (string.IsNullOrEmpty(datosCache.mejorasCompradas)) return 0;
+
+        string[] partes = datosCache.mejorasCompradas.Split(',');
+        foreach (string parte in partes)
+        {
+            string[] kv = parte.Split(':');
+            if (kv.Length == 2 && kv[0] == idMejora)
+            {
+                int n;
+                if (int.TryParse(kv[1], out n))
+                    return n;
+            }
+        }
+        return 0;
+    }
+
+    /// <summary>
+    /// Carga todas las mejoras guardadas en un diccionario.
+    /// </summary>
+    public static System.Collections.Generic.Dictionary<string, int> CargarTodasMejoras()
+    {
+        Cargar();
+        System.Collections.Generic.Dictionary<string, int> resultado = new System.Collections.Generic.Dictionary<string, int>();
+        
+        if (string.IsNullOrEmpty(datosCache.mejorasCompradas)) return resultado;
+
+        string[] partes = datosCache.mejorasCompradas.Split(',');
+        foreach (string parte in partes)
+        {
+            string[] kv = parte.Split(':');
+            if (kv.Length == 2)
+            {
+                int n;
+                if (int.TryParse(kv[1], out n))
+                    resultado[kv[0]] = n;
+            }
+        }
+        return resultado;
     }
 }

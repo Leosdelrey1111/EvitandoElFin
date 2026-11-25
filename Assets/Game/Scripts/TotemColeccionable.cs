@@ -21,7 +21,8 @@ public class TotemColeccionable : MonoBehaviour
         posicionInicialLocal = transform.localPosition;
         if (string.IsNullOrEmpty(idTotem))
         {
-            idTotem = gameObject.name + "_" + Mathf.RoundToInt(transform.position.x) + "_" + Mathf.RoundToInt(transform.position.z);
+            string nom = (transform.parent != null && (name == "Cristal" || name == "Gema")) ? transform.parent.name : gameObject.name;
+            idTotem = nom + "_" + Mathf.RoundToInt(transform.position.x) + "_" + Mathf.RoundToInt(transform.position.z);
         }
 
         if (SistemaGuardado.EsTotemRecogido(idTotem))
@@ -58,15 +59,23 @@ public class TotemColeccionable : MonoBehaviour
         return clipCampana;
     }
 
+    private bool recogido = false;
+
     void OnTriggerEnter(Collider other)
     {
+        if (recogido) return;
         if (other.CompareTag("Player"))
         {
+            recogido = true;
+
             // Sumar al inventario espiritual
             if (InventarioEspiritual.Instancia != null)
             {
                 InventarioEspiritual.Instancia.AgregarTotems(valorTotem);
                 SistemaGuardado.RegistrarTotem(idTotem, InventarioEspiritual.Instancia.cantidadTotems);
+
+                // Disparar narración apropiada según el nivel y número de tótem
+                DispararNarracionTotem(InventarioEspiritual.Instancia.cantidadTotems);
             }
 
             // Si aporta curación de vitalidad del alma
@@ -74,6 +83,16 @@ public class TotemColeccionable : MonoBehaviour
             if (vidaChofer != null && curacionEspiritual > 0)
             {
                 vidaChofer.Curar(curacionEspiritual);
+            }
+
+            // Si es un Cirio (Nivel 2), encender la flama en el pedestal en lugar de apagarla
+            Transform raiz = transform.parent;
+            Transform flama = raiz != null ? raiz.Find("FlamaEncendida") : transform.Find("FlamaEncendida");
+            if (flama != null)
+            {
+                flama.gameObject.SetActive(true);
+                Transform ind = transform.Find("IndicadorApagado");
+                if (ind != null) ind.gameObject.SetActive(false);
             }
 
             Debug.Log($"[Tótem] Tótem recogido por el Chofer. (+{valorTotem} Tótem, +{curacionEspiritual} Vida)");

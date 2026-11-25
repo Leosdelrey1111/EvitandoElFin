@@ -435,8 +435,12 @@ public class SistemaCombateChofer : MonoBehaviour
     {
         if (modelo != null)
         {
-            modeloPosBase = new Vector3(0f, -1f, 0f);
-            modeloRotBase = Quaternion.identity;
+            if (!modeloInicializado)
+            {
+                modeloPosBase = modelo.localPosition;
+                modeloRotBase = modelo.localRotation;
+                modeloInicializado = true;
+            }
 
             // Relajar la pose cuando no se ataca
             if (!atacando)

@@ -53,7 +53,7 @@ public static class ConfiguradorPersonajesNuevos
             carpetaAnimaciones = "Assets/Game/Animations/EsbirroAlma",
             nombrePrefab = "Esbirro_Alma",
             vida = 35f,
-            tipo = EsbirroBaseIA.TipoEsbirro.Serpiente,
+            tipo = EsbirroBaseIA.TipoEsbirro.Cuervo,
             esJefe = false
         },
         new DefinicionPersonaje
@@ -306,22 +306,18 @@ public static class ConfiguradorPersonajesNuevos
         ModelImporter mi = AssetImporter.GetAtPath(rutaAnim) as ModelImporter;
         if (mi != null)
         {
-            bool cambio = false;
             if (mi.animationType != ModelImporterAnimationType.Human)
             {
                 mi.animationType = ModelImporterAnimationType.Human;
-                cambio = true;
             }
             if (avatarBase != null && mi.sourceAvatar != avatarBase)
             {
                 mi.avatarSetup = ModelImporterAvatarSetup.CopyFromOther;
                 mi.sourceAvatar = avatarBase;
-                cambio = true;
             }
             if (!mi.importAnimation)
             {
                 mi.importAnimation = true;
-                cambio = true;
             }
 
             ModelImporterClipAnimation[] clips = mi.clipAnimations;
@@ -498,7 +494,7 @@ public static class ConfiguradorPersonajesNuevos
             GameObject visual = (GameObject)PrefabUtility.InstantiatePrefab(fbxAsset);
             visual.name = "Visual";
             visual.transform.SetParent(raiz.transform, false);
-            visual.transform.localPosition = Vector3.zero;
+            visual.transform.localPosition = new Vector3(0f, 0.95f, 0f);
             visual.transform.localRotation = Quaternion.identity;
 
             Animator anim = visual.GetComponent<Animator>() ?? visual.AddComponent<Animator>();

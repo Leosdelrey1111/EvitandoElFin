@@ -57,6 +57,7 @@ public class JefeInquisidor : MonoBehaviour
     private GameObject alasObj;
     private Light luzInquisidor;
     private Material matSotana, matDorado, matFuegoSagrado, matFuegoNegro;
+    private Animator anim;
 
     // UI Barra de Jefe
     private GameObject canvasBarra;
@@ -72,8 +73,24 @@ public class JefeInquisidor : MonoBehaviour
     void Awake()
     {
         Instancia = this;
+        gameObject.tag = "Enemigo";
+        
+        // Agregar CharacterController si no existe
         cc = GetComponent<CharacterController>();
+        if (cc == null)
+        {
+            cc = gameObject.AddComponent<CharacterController>();
+            cc.height = 2.6f;
+            cc.radius = 0.6f;
+            cc.center = new Vector3(0, 1.3f, 0);
+        }
+        
+        // Agregar PoderEspiritual si no existe
         vida = GetComponent<PoderEspiritual>();
+        if (vida == null)
+        {
+            vida = gameObject.AddComponent<PoderEspiritual>();
+        }
         vida.maxPoder = vidaMax;
         vida.actualPoder = vidaMax;
 
@@ -99,6 +116,9 @@ public class JefeInquisidor : MonoBehaviour
 
     void Update()
     {
+        if (cc != null && cc.enabled && !cc.isGrounded && estado != Estado.Muriendo && estado != Estado.Derrotado)
+            cc.Move(Vector3.down * 9.8f * Time.deltaTime);
+
         if (jugador == null) return;
 
         if (sliderVida != null && canvasBarra.activeSelf)
@@ -127,6 +147,10 @@ public class JefeInquisidor : MonoBehaviour
                         StartCoroutine(EjecutarAtaque());
                     }
                 }
+                else if (anim != null)
+                {
+                    anim.SetFloat("Velocidad", 0f);
+                }
 
                 if (!fase2 && vida.actualPoder <= vidaMax * 0.5f)
                 {
@@ -150,9 +174,12 @@ public class JefeInquisidor : MonoBehaviour
     IEnumerator RutinaDespertar()
     {
         estado = Estado.Despertando;
-        canvasBarra.SetActive(true);
+
         if (GuiaAlebrije.Instancia != null)
-            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.Inquisidor, "«¡En este sagrado suelo nadie escapa al juicio de la Inquisición!»", "inquisidor_despierta", true);
+        {
+            GuiaAlebrije.Instancia.Jefe("inquisidor");
+            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.Inquisidor, "«¡En este sagrado suelo nadie escapa al juicio de la Inquisición!»", "inquisidor_despierta", true, "jefe_inquisidor", -1);
+        }
         else
             AvisosJuego.Mostrar("«¡En este sagrado suelo nadie escapa al juicio de la Inquisición!»", 4f);
 
@@ -161,10 +188,18 @@ public class JefeInquisidor : MonoBehaviour
         {
             t += Time.deltaTime;
             if (luzInquisidor != null) luzInquisidor.intensity = Mathf.Lerp(0.8f, 5.0f, t / 2.5f);
-            visualRoot.transform.localScale = Vector3.one * Mathf.Lerp(0.9f, 1.25f, t / 2.5f);
+            visualRoot.transform.localScale = Vector3.one * Mathf.Lerp(0.95f, 1.25f, t / 2.5f);
             yield return null;
         }
 
+        float esperaMax = 7.5f;
+        while (GuiaAlebrije.Instancia != null && GuiaAlebrije.Instancia.Ocupado && esperaMax > 0f)
+        {
+            esperaMax -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (canvasBarra != null) canvasBarra.SetActive(true);
         if (GameManager.Instancia != null)
         {
             GameManager.Instancia.CambiarEstadoJefe(GameManager.EstadoJefe.Combate);
@@ -215,6 +250,7 @@ public class JefeInquisidor : MonoBehaviour
         }
 
         yield return new WaitForSeconds(tiempoTelegrafiado);
+        if (anim != null) anim.SetTrigger("Atacar");
 
         foreach (var m in marcas)
         {
@@ -235,6 +271,7 @@ public class JefeInquisidor : MonoBehaviour
         GameObject marca = CrearMarcaSuelo(transform.position + transform.forward * 3.5f, new Vector3(2.5f, 0.05f, 7f), FuegoCarmesí);
         yield return new WaitForSeconds(tiempoTelegrafiado);
         Destroy(marca);
+        if (anim != null) anim.SetTrigger("Atacar");
 
         // Golpe directo con el báculo
         float t = 0f;
@@ -253,11 +290,12 @@ public class JefeInquisidor : MonoBehaviour
 
     IEnumerator AtaqueLluviaCampanas()
     {
-        AvisosJuego.Mostrar("✦ ¡DOBLAN LAS CAMPANAS DEL JUICIO! ✦\n¡Salta para evitar la onda de choque!", 3f);
+        AvisosJuego.Mostrar("* ¡DOBLAN LAS CAMPANAS DEL JUICIO! *\n¡Salta para evitar la onda de choque!", 3f);
 
         GameObject marca = CrearMarcaSuelo(transform.position, new Vector3(8.5f, 0.05f, 8.5f), PurpuraHerejia);
         yield return new WaitForSeconds(tiempoTelegrafiado * 0.9f);
         Destroy(marca);
+        if (anim != null) anim.SetTrigger("Saltar");
 
         // Si el jugador no está saltando en el aire (y > 0.4f), recibe el daño de onda de choque
         if (jugador != null && Vector3.Distance(transform.position, jugador.position) <= 6.5f)
@@ -280,6 +318,7 @@ public class JefeInquisidor : MonoBehaviour
         yield return new WaitForSeconds(tiempoTelegrafiado * 0.85f);
         Destroy(barraH);
         Destroy(barraV);
+        if (anim != null) anim.SetTrigger("Atacar");
 
         if (jugador != null)
         {
@@ -298,7 +337,7 @@ public class JefeInquisidor : MonoBehaviour
         if (GuiaAlebrije.Instancia != null)
             GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.Inquisidor, "«¡La máscara ha caído! ¡Guanajuato entero arderá conmigo!»", "inquisidor_fase2", true);
         else
-            AvisosJuego.Mostrar("✦ ¡LA SOMBRA DE LA HEREJÍA SE DESATA! ✦\n«¡Guanajuato entero arderá conmigo!»", 4f);
+            AvisosJuego.Mostrar("* ¡LA SOMBRA DE LA HEREJÍA SE DESATA! *\n«¡Guanajuato entero arderá conmigo!»", 4f);
 
         if (alasObj != null) alasObj.SetActive(true);
         if (matFuegoNegro != null) matFuegoNegro.SetColor("_EmissionColor", PurpuraHerejia * 3.5f);
@@ -321,8 +360,14 @@ public class JefeInquisidor : MonoBehaviour
     IEnumerator RutinaDerrota()
     {
         estado = Estado.Muriendo;
+        gameObject.tag = "Untagged";
+        if (canvasBarra != null) canvasBarra.SetActive(false);
+
         if (GuiaAlebrije.Instancia != null)
-            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.Inquisidor, "«La condena del tribunal... se ha roto... ¡Vuelve a la vida, Chofer!»", "inquisidor_derrota", true);
+        {
+            GuiaAlebrije.Instancia.Decir(HistoriaNivel1.VozPerfil.Inquisidor, "«La condena del tribunal... se ha roto... ¡Vuelve a la vida, Chofer!»", "inquisidor_derrota", true, "jefe_inquisidor_derrota", -1);
+            GuiaAlebrije.Instancia.Jefe("inquisidor_derrota");
+        }
         else
             AvisosJuego.Mostrar("«La condena... se ha roto... ¡Vuelve a la vida, Chofer!»", 4.5f);
 
@@ -330,6 +375,10 @@ public class JefeInquisidor : MonoBehaviour
         {
             if (e != null) Destroy(e.gameObject);
         }
+
+        // Desactivar arena cerrada
+        ArenaAtrioBasilica arena = Object.FindAnyObjectByType<ArenaAtrioBasilica>();
+        if (arena != null) arena.DesactivarArena();
 
         // Gran lluvia de almas
         for (int i = 0; i < 20; i++)
@@ -341,6 +390,7 @@ public class JefeInquisidor : MonoBehaviour
 
         // Desbloquear Recuerdo 3 definitivo
         CodiceHistoria.Registrar("recuerdo3");
+        if (anim != null) anim.SetTrigger("Muerte");
 
         if (GameManager.Instancia != null)
         {
@@ -394,6 +444,7 @@ public class JefeInquisidor : MonoBehaviour
         Vector3 dir = (punto - transform.position).normalized;
         dir.y = -9.8f;
         cc.Move(dir * vel * Time.deltaTime);
+        if (anim != null) anim.SetFloat("Velocidad", 1f);
     }
 
     void ConstruirModeloVisual()
@@ -419,52 +470,84 @@ public class JefeInquisidor : MonoBehaviour
         matFuegoNegro.EnableKeyword("_EMISSION");
         matFuegoNegro.SetColor("_EmissionColor", PurpuraHerejia * 2.0f);
 
-        // Cuerpo con túnica ceremonial
-        GameObject sotana = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        sotana.transform.SetParent(visualRoot.transform, false);
-        sotana.transform.localPosition = new Vector3(0, 1.1f, 0);
-        sotana.transform.localScale = new Vector3(0.85f, 1.1f, 0.85f);
-        sotana.GetComponent<Renderer>().material = matSotana;
-        Destroy(sotana.GetComponent<Collider>());
+        // Intentar instanciar el modelo 3D real del Clérigo Inquisidor
+        GameObject prefabClerigo = Resources.Load<GameObject>("Prefabs/Jefe_ClerigoInquisidor");
+        #if UNITY_EDITOR
+        if (prefabClerigo == null)
+            prefabClerigo = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Game/Prefabs/Jefe_ClerigoInquisidor.prefab");
+        #endif
 
-        // Estola dorada de juicio
-        GameObject estola = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        estola.transform.SetParent(visualRoot.transform, false);
-        estola.transform.localPosition = new Vector3(0, 1.4f, 0.38f);
-        estola.transform.localScale = new Vector3(0.35f, 1.3f, 0.1f);
-        estola.GetComponent<Renderer>().material = matDorado;
-        Destroy(estola.GetComponent<Collider>());
+        if (prefabClerigo != null)
+        {
+            GameObject inst = Instantiate(prefabClerigo, visualRoot.transform, false);
+            inst.name = "ModeloClerigo3D";
+            inst.transform.localPosition = Vector3.zero;
+            inst.transform.localRotation = Quaternion.identity;
+            inst.transform.localScale = Vector3.one * 1.3f;
 
-        // Cabeza con mitra episcopal inquisitorial
-        GameObject cabeza = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        cabeza.transform.SetParent(visualRoot.transform, false);
-        cabeza.transform.localPosition = new Vector3(0, 2.3f, 0);
-        cabeza.transform.localScale = new Vector3(0.42f, 0.5f, 0.42f);
-        cabeza.GetComponent<Renderer>().material = matSotana;
-        Destroy(cabeza.GetComponent<Collider>());
+            anim = inst.GetComponentInChildren<Animator>();
+            if (anim != null) anim.applyRootMotion = false;
 
-        // Mitra alta
-        GameObject mitra = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        mitra.transform.SetParent(cabeza.transform, false);
-        mitra.transform.localPosition = new Vector3(0, 0.7f, 0);
-        mitra.transform.localScale = new Vector3(1.1f, 1.4f, 0.7f);
-        mitra.GetComponent<Renderer>().material = matDorado;
-        Destroy(mitra.GetComponent<Collider>());
+            var clerigoScript = inst.GetComponent<JefeClerigoInquisidor>(); if (clerigoScript != null) Destroy(clerigoScript);
+            var col = inst.GetComponent<Collider>(); if (col != null) Destroy(col);
+            var poder = inst.GetComponent<PoderEspiritual>(); if (poder != null) Destroy(poder);
 
-        // Ojos de fuego sagrado
-        GameObject ojoI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        ojoI.transform.SetParent(cabeza.transform, false);
-        ojoI.transform.localPosition = new Vector3(-0.25f, 0.1f, 0.5f);
-        ojoI.transform.localScale = Vector3.one * 0.22f;
-        ojoI.GetComponent<Renderer>().material = matFuegoSagrado;
-        Destroy(ojoI.GetComponent<Collider>());
+            // Alinear los pies del modelo exactamente a y = 0 para que no flote
+            float minY = float.MaxValue;
+            foreach (Renderer r in inst.GetComponentsInChildren<Renderer>())
+                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            if (minY < float.MaxValue)
+                inst.transform.localPosition += Vector3.up * (transform.position.y - minY);
+        }
+        else
+        {
+            // Cuerpo con túnica ceremonial
+            GameObject sotana = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+            sotana.transform.SetParent(visualRoot.transform, false);
+            sotana.transform.localPosition = new Vector3(0, 1.1f, 0);
+            sotana.transform.localScale = new Vector3(0.85f, 1.1f, 0.85f);
+            sotana.GetComponent<Renderer>().material = matSotana;
+            Destroy(sotana.GetComponent<Collider>());
 
-        GameObject ojoD = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        ojoD.transform.SetParent(cabeza.transform, false);
-        ojoD.transform.localPosition = new Vector3(0.25f, 0.1f, 0.5f);
-        ojoD.transform.localScale = Vector3.one * 0.22f;
-        ojoD.GetComponent<Renderer>().material = matFuegoSagrado;
-        Destroy(ojoD.GetComponent<Collider>());
+            // Estola dorada de juicio
+            GameObject estola = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            estola.transform.SetParent(visualRoot.transform, false);
+            estola.transform.localPosition = new Vector3(0, 1.4f, 0.38f);
+            estola.transform.localScale = new Vector3(0.35f, 1.3f, 0.1f);
+            estola.GetComponent<Renderer>().material = matDorado;
+            Destroy(estola.GetComponent<Collider>());
+
+            // Cabeza con mitra episcopal inquisitorial
+            GameObject cabeza = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cabeza.transform.SetParent(visualRoot.transform, false);
+            cabeza.transform.localPosition = new Vector3(0, 2.3f, 0);
+            cabeza.transform.localScale = new Vector3(0.42f, 0.5f, 0.42f);
+            cabeza.GetComponent<Renderer>().material = matSotana;
+            Destroy(cabeza.GetComponent<Collider>());
+
+            // Mitra alta
+            GameObject mitra = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            mitra.transform.SetParent(cabeza.transform, false);
+            mitra.transform.localPosition = new Vector3(0, 0.7f, 0);
+            mitra.transform.localScale = new Vector3(1.1f, 1.4f, 0.7f);
+            mitra.GetComponent<Renderer>().material = matDorado;
+            Destroy(mitra.GetComponent<Collider>());
+
+            // Ojos de fuego sagrado
+            GameObject ojoI = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ojoI.transform.SetParent(cabeza.transform, false);
+            ojoI.transform.localPosition = new Vector3(-0.25f, 0.1f, 0.5f);
+            ojoI.transform.localScale = Vector3.one * 0.22f;
+            ojoI.GetComponent<Renderer>().material = matFuegoSagrado;
+            Destroy(ojoI.GetComponent<Collider>());
+
+            GameObject ojoD = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            ojoD.transform.SetParent(cabeza.transform, false);
+            ojoD.transform.localPosition = new Vector3(0.25f, 0.1f, 0.5f);
+            ojoD.transform.localScale = Vector3.one * 0.22f;
+            ojoD.GetComponent<Renderer>().material = matFuegoSagrado;
+            Destroy(ojoD.GetComponent<Collider>());
+        }
 
         // Libro Inquisitorial flotando en la mano izquierda
         libroObj = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -515,19 +598,40 @@ public class JefeInquisidor : MonoBehaviour
         canvasBarra = new GameObject("Canvas_BarraJefeInquisidor");
         Canvas c = canvasBarra.AddComponent<Canvas>();
         c.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvasBarra.AddComponent<CanvasScaler>().uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        c.sortingOrder = 15;
+        CanvasScaler cs = canvasBarra.AddComponent<CanvasScaler>();
+        cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        cs.referenceResolution = new Vector2(1920f, 1080f);
+        cs.matchWidthOrHeight = 0.5f;
         canvasBarra.AddComponent<GraphicRaycaster>();
 
         RectTransform panel = UIMexicana.Nuevo("PanelJefe", canvasBarra.transform);
-        UIMexicana.AnclarCentro(panel, new Vector2(0.5f, 1f), new Vector2(0, -50f), new Vector2(650f, 65f));
+        UIMexicana.AnclarCentro(panel, new Vector2(0.5f, 1f), new Vector2(0, -118f), new Vector2(580f, 82f));
+        UnityEngine.UI.Image imgPanel = UIMexicana.Imagen("FondoPanel", panel, UIMexicana.Redondeado(10), new Color(0.05f, 0.08f, 0.14f, 0.88f), true);
+        UIMexicana.Estirar(imgPanel.rectTransform);
+        UnityEngine.UI.Image bordePanel = UIMexicana.Imagen("BordePanel", panel, UIMexicana.RedondeadoBorde(10, 2f), DoradoSagrado, true);
+        UIMexicana.Estirar(bordePanel.rectTransform);
 
-        sliderVida = UIMexicana.SliderMex(panel, "BarraVidaJefe", new Vector2(650f, 26f), 1f, DoradoSagrado, null);
+        txtNombre = UIMexicana.Texto("NombreJefe", panel, "EL CLÉRIGO INQUISIDOR", 20, FuegoCarmesí, TextAlignmentOptions.Center, FontStyles.Bold, 1.5f);
+        UIMexicana.AnclarCentro(txtNombre.rectTransform, new Vector2(0.5f, 1f), new Vector2(0, -16f), new Vector2(540f, 26f));
 
-        txtNombre = UIMexicana.Texto("NombreJefe", panel, "EL CLÉRIGO INQUISIDOR", 24, FuegoCarmesí, TextAlignmentOptions.Center, FontStyles.Bold, 2f);
-        UIMexicana.AnclarCentro(txtNombre.rectTransform, new Vector2(0.5f, 1f), new Vector2(0, 18f), new Vector2(450f, 30f));
+        RectTransform barBg = UIMexicana.Nuevo("BarraFondo", panel);
+        UIMexicana.AnclarCentro(barBg, new Vector2(0.5f, 0.5f), new Vector2(0, -2f), new Vector2(520f, 16f));
+        UnityEngine.UI.Image imgBg = UIMexicana.Imagen("Fondo", barBg, UIMexicana.Redondeado(6), new Color(0.03f, 0.05f, 0.10f, 0.95f), true);
+        UIMexicana.Estirar(imgBg.rectTransform);
 
-        txtSubtitulo = UIMexicana.Texto("SubJefe", panel, "La Sombra del Callejón del Beso", 15, UIMexicana.Crema, TextAlignmentOptions.Center, FontStyles.Italic, 1f);
-        UIMexicana.AnclarCentro(txtSubtitulo.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, -18f), new Vector2(400f, 25f));
+        sliderVida = barBg.gameObject.AddComponent<Slider>();
+        sliderVida.interactable = false;
+        sliderVida.minValue = 0f; sliderVida.maxValue = 1f; sliderVida.value = 1f;
+        RectTransform fillArea = UIMexicana.Nuevo("AreaRelleno", barBg);
+        UIMexicana.Estirar(fillArea);
+        fillArea.offsetMin = new Vector2(3f, 3f); fillArea.offsetMax = new Vector2(-3f, -3f);
+        UnityEngine.UI.Image fill = UIMexicana.Imagen("Relleno", fillArea, UIMexicana.Redondeado(4), DoradoSagrado, true);
+        UIMexicana.Estirar(fill.rectTransform);
+        sliderVida.fillRect = fill.rectTransform;
+
+        txtSubtitulo = UIMexicana.Texto("SubJefe", panel, "La Sombra del Callejón del Beso", 13, UIMexicana.Crema, TextAlignmentOptions.Center, FontStyles.Italic, 0.5f);
+        UIMexicana.AnclarCentro(txtSubtitulo.rectTransform, new Vector2(0.5f, 0f), new Vector2(0, 14f), new Vector2(540f, 22f));
 
         canvasBarra.SetActive(false);
     }

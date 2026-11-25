@@ -1,4 +1,4 @@
-%YAML 1.1
+﻿%YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!1 &1072131732577530984
 GameObject:
@@ -189,7 +189,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 13273214341672177}
-  - component: {fileID: 5389407883656534868}
   - component: {fileID: 305360672341320618}
   m_Layer: 0
   m_Name: MagueyQuiote
@@ -216,29 +215,6 @@ Transform:
   - {fileID: 4940922780117268083}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &5389407883656534868
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7292695710602821663}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.7
-  m_Height: 1.4
-  m_Direction: 1
-  m_Center: {x: 0, y: 0.7, z: 0}
 --- !u!205 &305360672341320618
 LODGroup:
   m_ObjectHideFlags: 0

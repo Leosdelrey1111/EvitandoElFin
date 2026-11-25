@@ -1545,12 +1545,21 @@ MonoBehaviour:
   gravedad: -15
   velocidadRotacion: 14
   modoControl: 0
+  teclaSalto: 32
+  alturaSalto: 1.25
+  teclaEsquive: 306
+  teclaEsquiveAlterna: 99
   fuerzaEsquive: 10
   duracionEsquive: 0.35
   cooldownEsquive: 0.8
+  distanciaEsquive: 5.4
+  tiempoEsquive: 0.48
+  recargaEsquive: 0.55
+  permitirEsquiveEnAire: 1
   controlBloqueado: 0
   confusion: 0
   animator: {fileID: 2092350966}
+  multiplicadorVelocidad: 1
 --- !u!114 &560218400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1567,13 +1576,20 @@ MonoBehaviour:
   danioAtaque1: 20
   danioAtaque2: 30
   danioAtaque3: 45
+  alcanceGolpe: 2.4
+  anguloGolpe: 150
   tiempoVentanaCombo: 1
   duracionGolpe: 0.25
+  duracionGolpeFinal: 0.52
   cooldownEntreGolpes: 0.35
+  impulsoAdelante: 4.5
+  velocidadMientrasAtaca: 0.45
   teclaAtaqueArea: 113
   radioArea: 5
   danioArea: 50
   cooldownArea: 5
+  colorEspiritual: {r: 0.35, g: 0.95, b: 1, a: 1}
+  volumenSfx: 0.8
 --- !u!114 &560218401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1603,6 +1619,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PoderEspiritual
   maxPoder: 100
   actualPoder: 0
+  invulnerable: 0
 --- !u!143 &560218403
 CharacterController:
   m_ObjectHideFlags: 0
@@ -2473,6 +2490,7 @@ MonoBehaviour:
   camara: {fileID: 25184970}
   duracionNegro: 2
   duracionParpadeos: 4.5
+  duracionLevantarse: 3.4
   tiempoRecuperacionMareo: 14
   rollMaximo: 9
   fovMaximo: 9
@@ -2480,6 +2498,8 @@ MonoBehaviour:
   textoDespertar: "\xBFQu\xE9\u2026 pas\xF3? \xBFD\xF3nde estoy?\nMe duele la cabeza\u2026"
   textoAlma: "Veo mi cuerpo en la ambulancia\u2026 pero estoy aqu\xED.\nEsto no es mi cuerpo\u2026 es mi alma."
   textoControles: "Mu\xE9vete con W A S D"
+  textoGuia: "S\xEDgueme\u2026 los t\xF3tems brillan entre los \xE1rboles.\nRe\xFAne tres y el portal te mostrar\xE1 el camino."
+  textoCombate: "Click izquierdo: golpear (combo)   \xB7   Q: onda espiritual   \xB7   Espacio: saltar   \xB7   Ctrl / C: esquivar"
 --- !u!4 &1088917479
 Transform:
   m_ObjectHideFlags: 0
@@ -3334,10 +3354,13 @@ MonoBehaviour:
   panelGameOver: {fileID: 1308176025}
   panelVictoria: {fileID: 139504901}
   nombreMenuPrincipal: MainMenu
+  siguienteEscena: Nivel2_Panteon
   audioSource: {fileID: 0}
   clipVictoria: {fileID: 0}
   clipGameOver: {fileID: 0}
   clipBoton: {fileID: 0}
+  jefeRequerido: 0
+  estadoJefe: 0
 --- !u!4 &1590492118
 Transform:
   m_ObjectHideFlags: 0
