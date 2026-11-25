@@ -125,12 +125,13 @@ public class SistemaCombateChofer : MonoBehaviour
         }
 
         // --- entradas: se guardan 0.4 s para que no se pierdan si se pulsan un instante antes de poder usarse
-        if (Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.F))
+        KeyCode tGolpe = OpcionesJuego.ObtenerTecla(AccionJuego.Golpe);
+        if (Input.GetKeyDown(tGolpe) || (tGolpe == KeyCode.Mouse0 && Input.GetKeyDown(KeyCode.F)))
         {
             pendiente = Pendiente.Golpe;
             pendienteHasta = Time.time + 0.4f;
         }
-        if (Input.GetKeyDown(teclaAtaqueArea) && tiempoProximoAtaqueArea - Time.time < 0.4f)
+        if (Input.GetKeyDown(OpcionesJuego.ObtenerTecla(AccionJuego.Onda)) && tiempoProximoAtaqueArea - Time.time < 0.4f)
         {
             pendiente = Pendiente.Onda;
             pendienteHasta = Time.time + 0.4f;

@@ -97,8 +97,17 @@ public class JefeLaBufa : MonoBehaviour
     {
         Instancia = this;
         cc = GetComponent<CharacterController>();
-        // Ajustado center.y de 2.2f a 2.5f para evitar que se hunda en el terreno
-        cc.height = 4.4f; cc.radius = 1.3f; cc.center = new Vector3(0f, 2.5f, 0f); cc.stepOffset = 0.5f;
+        cc.height = 3.8f; cc.radius = 1.55f; cc.center = new Vector3(0f, 1.9f, 0f); cc.stepOffset = 0.5f;
+        radioDespertar = Mathf.Max(radioDespertar, 14f);
+
+        // Hitbox dedicada para que Golpe y Onda Espiritual siempre detecten al jefe
+        GameObject hitbox = new GameObject("HitboxBufa");
+        hitbox.transform.SetParent(transform, false);
+        CapsuleCollider hc = hitbox.AddComponent<CapsuleCollider>();
+        hc.isTrigger = false;
+        hc.radius = 1.75f;
+        hc.height = 3.8f;
+        hc.center = new Vector3(0f, 1.9f, 0f);
 
         vida = GetComponent<PoderEspiritual>();
         vida.maxPoder = vidaMax;
@@ -120,8 +129,12 @@ public class JefeLaBufa : MonoBehaviour
     {
         // Se posa sobre el suelo del centro de la arena
         Vector3 s;
+        float h;
         cc.enabled = false;
-        if (UtilTerreno.SueloEn(transform.position.x, transform.position.z, out s)) transform.position = s;
+        if (AcomodoTotems.AlturaSuelo(transform.position, transform, out h))
+            transform.position = new Vector3(transform.position.x, h + 0.02f, transform.position.z);
+        else if (UtilTerreno.SueloEn(transform.position.x, transform.position.z, out s))
+            transform.position = s + Vector3.up * 0.02f;
         cc.enabled = true;
         centro = transform.position;
 
@@ -144,6 +157,12 @@ public class JefeLaBufa : MonoBehaviour
         ccJugador = p.GetComponent<CharacterController>();
         // el jefe no choca con el Chofer (si no, la embestida se frenaría contra él)
         if (ccJugador != null && cc != null) Physics.IgnoreCollision(cc, ccJugador);
+        Transform hb = transform.Find("HitboxBufa");
+        if (ccJugador != null && hb != null)
+        {
+            Collider hc = hb.GetComponent<Collider>();
+            if (hc != null) Physics.IgnoreCollision(hc, ccJugador);
+        }
     }
 
     void OnDestroy()
@@ -161,6 +180,10 @@ public class JefeLaBufa : MonoBehaviour
 
         if (jugador == null) { BuscarJugador(); return; }
         if (estado == Estado.Dormida) ComprobarDespertar();
+        if (estado == Estado.Combate)
+        {
+            if (gameObject.tag != "Enemigo") gameObject.tag = "Enemigo";
+        }
     }
 
     void AplicarGravedad()
@@ -176,8 +199,8 @@ public class JefeLaBufa : MonoBehaviour
         if (GameManager.Instancia == null || !GameManager.Instancia.TotemsCompletos()) return;
         if (DistPlano(jugador.position, centro) >= radioDespertar) return;
 
-        // la historia manda: La Bufa espera a que Tonalli termine de contar lo de la Cueva Vieja (máximo 15 s)
-        if (GuiaAlebrije.Instancia != null && GuiaAlebrije.Instancia.Ocupado && esperaNarrador < 15f)
+        // la historia manda: La Bufa espera un máximo breve (5 s) a que Tonalli termine
+        if (GuiaAlebrije.Instancia != null && GuiaAlebrije.Instancia.Ocupado && esperaNarrador < 5f)
         {
             esperaNarrador += Time.deltaTime;
             return;
@@ -220,9 +243,9 @@ public class JefeLaBufa : MonoBehaviour
         despertarK = 1f;
         escalaVisual = 1f;
 
-        // la cinemática de su despertar manda: el combate empieza cuando termina (o si se salta con ENTER)
+        // la cinemática de su despertar manda: el combate empieza cuando termina (máximo 6s de espera)
         float espera = 0f;
-        while (CinematicaNarrativa.Activa && espera < 45f) { espera += Time.deltaTime; yield return null; }
+        while (CinematicaNarrativa.Activa && espera < 6f) { espera += Time.deltaTime; yield return null; }
 
         gameObject.tag = "Enemigo";
         vida.invulnerable = false;
@@ -1290,6 +1313,13 @@ public class JefeLaBufa : MonoBehaviour
             var clerigo = piedraRoot.GetComponent<JefeClerigoInquisidor>(); if (clerigo != null) Destroy(clerigo);
             var col = piedraRoot.GetComponent<Collider>(); if (col != null) Destroy(col);
             var poder = piedraRoot.GetComponent<PoderEspiritual>(); if (poder != null) Destroy(poder);
+
+            // Alinear la base del modelo exactamente a y = 0 para que no quede hundida bajo el mapa
+            float minY = float.MaxValue;
+            foreach (Renderer r in piedraRoot.GetComponentsInChildren<Renderer>())
+                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            if (minY < float.MaxValue)
+                piedraRoot.transform.localPosition += Vector3.up * (transform.position.y - minY);
         }
         else
         {

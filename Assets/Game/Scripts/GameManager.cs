@@ -99,10 +99,10 @@ public class GameManager : MonoBehaviour
             AsignarAccionBoton(panelPausa.transform, "BtnMenu", IrAlMenuPrincipal);
         }
 
-        // Panel Game Over
+        // Panel Game Over (reintentar desde el último checkpoint sin borrar tótems)
         if (panelGameOver != null)
         {
-            AsignarAccionBoton(panelGameOver.transform, "BtnReintentar", ReiniciarNivel);
+            AsignarAccionBoton(panelGameOver.transform, "BtnReintentar", ReintentarDesdeCheckpoint);
             AsignarAccionBoton(panelGameOver.transform, "BtnMenu", IrAlMenuPrincipal);
         }
 
@@ -164,6 +164,12 @@ public class GameManager : MonoBehaviour
         // Alternar pausa con tecla Escape (o 'P')
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P))
         {
+            if (PanelConfiguracion.EsperandoTecla) return;
+            if (PanelConfiguracion.Abierto)
+            {
+                PanelConfiguracion.Instancia.Cerrar();
+                return;
+            }
             // la tienda del Comerciante usa Esc para cerrarse: no debe abrir también la pausa
             if (!juegoTerminado && !ComercianteMercader.BloqueaPausa && !CodiceHistoria.BloqueaPausa)
             {
@@ -261,7 +267,11 @@ public class GameManager : MonoBehaviour
             audioSource.PlayOneShot(clipVictoria);
         }
 
-        Debug.Log("[GameManager] ¡Nivel 1 Superado con éxito!");
+        string esc = SceneManager.GetActiveScene().name;
+        int niv = (esc.Contains("Nivel3") || esc.Contains("Ciudad")) ? 3 : ((esc.Contains("Nivel2") || esc.Contains("Panteon")) ? 2 : 1);
+        SistemaGuardado.MarcarNivelCompletado(niv);
+
+        Debug.Log("[GameManager] ¡Nivel " + niv + " Superado con éxito!");
     }
 
     public void ProcesarDerrota()
@@ -328,10 +338,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ReintentarDesdeCheckpoint()
+    {
+        ReproducirClick();
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     public void ReiniciarNivel()
     {
         ReproducirClick();
         Time.timeScale = 1f;
+        SistemaGuardado.ReiniciarNivelActual();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 

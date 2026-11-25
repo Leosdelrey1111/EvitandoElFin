@@ -31,8 +31,6 @@ public class DirectorNivelPanteon : MonoBehaviour
         ConfigurarAmbienteIluminacion();
         ConfigurarAmbienteSonoro();
         AsegurarJugadorYCamara();
-        InventarioEspiritual inv = Object.FindAnyObjectByType<InventarioEspiritual>();
-        if (inv != null) { inv.cantidadTotems = 0; }
         SpawnearEnemigosPanteon();
         StartCoroutine(RutinaIntroTonalli());
     }
@@ -221,6 +219,12 @@ public class DirectorNivelPanteon : MonoBehaviour
     IEnumerator RutinaIntroTonalli()
     {
         yield return new WaitForSeconds(1.2f);
+        int guardados = InventarioEspiritual.Instancia != null ? InventarioEspiritual.Instancia.cantidadTotems : 0;
+        if (guardados > 0)
+        {
+            AvisosJuego.Mostrar("TONALLI:\n«Seguimos en el Panteón de Santa Paula. Llevas " + guardados + " de " + ciriosRequeridos + " cirios encendidos.»", 4f);
+            yield break;
+        }
         if (GuiaAlebrije.Instancia != null)
         {
             GuiaAlebrije.Instancia.ContarHistoria("intro_panteon", true);

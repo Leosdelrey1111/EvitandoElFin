@@ -271,17 +271,26 @@ public class MenuMexicano : MonoBehaviour
 
         // botones
         RectTransform lista = UIMexicana.Nuevo("Botones", raiz);
-        UIMexicana.Anclar(lista, new Vector2(0f, 1f), new Vector2(x0, -544f), new Vector2(520f, 440f));
+        bool hayGuardado = SistemaGuardado.HayPartidaGuardada();
+        UIMexicana.Anclar(lista, new Vector2(0f, 1f), new Vector2(x0, -534f), new Vector2(520f, 470f));
         VerticalLayoutGroup v = lista.gameObject.AddComponent<VerticalLayoutGroup>();
-        v.spacing = 14f;
+        v.spacing = hayGuardado ? 10f : 14f;
         v.childAlignment = TextAnchor.UpperLeft;
         v.childControlWidth = false; v.childControlHeight = false;
         v.childForceExpandWidth = false; v.childForceExpandHeight = false;
 
-        Vector2 tamBoton = new Vector2(500f, 66f);
-        primerBoton = UIMexicana.Boton("BtnJugar", lista, "COMENZAR AVENTURA", tamBoton, UIMexicana.Rosa, Jugar);
-        UIMexicana.Boton("BtnOpciones", lista, "OPCIONES", tamBoton, UIMexicana.Turquesa, () => AbrirModal("Opciones"));
-        UIMexicana.Boton("BtnControles", lista, "CONTROLES", tamBoton, UIMexicana.Cempasuchil, () => AbrirModal("Controles"));
+        Vector2 tamBoton = new Vector2(500f, hayGuardado ? 58f : 66f);
+        if (hayGuardado)
+        {
+            primerBoton = UIMexicana.Boton("BtnContinuar", lista, "CONTINUAR  (" + EtiquetaNivelGuardado() + ")", tamBoton, UIMexicana.Turquesa, ContinuarPartida);
+            UIMexicana.Boton("BtnJugar", lista, "NUEVA AVENTURA", tamBoton, UIMexicana.Rosa, Jugar);
+        }
+        else
+        {
+            primerBoton = UIMexicana.Boton("BtnJugar", lista, "COMENZAR AVENTURA", tamBoton, UIMexicana.Rosa, Jugar);
+        }
+        UIMexicana.Boton("BtnOpciones", lista, "OPCIONES", tamBoton, UIMexicana.Cempasuchil, () => AbrirModal("Opciones"));
+        UIMexicana.Boton("BtnControles", lista, "CONTROLES", tamBoton, UIMexicana.Dorado, () => AbrirModal("Controles"));
         UIMexicana.Boton("BtnCreditos", lista, "CRÉDITOS", tamBoton, UIMexicana.Violeta, () => AbrirModal("Creditos"));
         UIMexicana.Boton("BtnSalir", lista, "SALIR", tamBoton, UIMexicana.Rojo, Salir);
     }
@@ -596,11 +605,29 @@ public class MenuMexicano : MonoBehaviour
 
     // ================================================================== ACCIONES
 
+    string EtiquetaNivelGuardado()
+    {
+        string e = SistemaGuardado.Datos != null ? SistemaGuardado.Datos.escenaActual : "";
+        if (e.Contains("Nivel3") || e.Contains("Ciudad")) return "NIVEL 3";
+        if (e.Contains("Nivel2") || e.Contains("Panteon")) return "NIVEL 2";
+        return "NIVEL 1";
+    }
+
+    void ContinuarPartida()
+    {
+        if (cargando) return;
+        cargando = true;
+        string guardada = SistemaGuardado.Datos != null ? SistemaGuardado.Datos.escenaActual : "";
+        if (!string.IsNullOrEmpty(guardada) && Application.CanStreamedLevelBeLoaded(guardada))
+            escenaJuego = guardada;
+        StartCoroutine(CargarEscena());
+    }
+
     void Jugar()
     {
         if (cargando) return;
         cargando = true;
-        // Al comenzar aventura desde el menú principal, reiniciar progreso de tótems
+        // Al comenzar aventura nueva desde el menú principal, reiniciar progreso
         SistemaGuardado.BorrarProgreso();
         StartCoroutine(CargarEscena());
     }

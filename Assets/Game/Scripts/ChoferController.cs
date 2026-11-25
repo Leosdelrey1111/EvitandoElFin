@@ -246,7 +246,7 @@ public class ChoferController : MonoBehaviour
         if (estaEsquivando)
         {
             // Durante el rodamiento no se mueve, pero las pulsaciones se guardan para ejecutarlas al terminar
-            if (!controlBloqueado && Time.timeScale > 0.01f && Input.GetKeyDown(teclaSalto)) bufferSaltoHasta = Time.time + 0.25f;
+            if (!controlBloqueado && Time.timeScale > 0.01f && Input.GetKeyDown(OpcionesJuego.ObtenerTecla(AccionJuego.Saltar))) bufferSaltoHasta = Time.time + 0.25f;
             return;
         }
 
@@ -279,7 +279,7 @@ public class ChoferController : MonoBehaviour
     void ProcesarSalto()
     {
         if (Time.timeScale <= 0.01f) return;
-        if (Input.GetKeyDown(teclaSalto)) bufferSaltoHasta = Time.time + 0.2f;
+        if (Input.GetKeyDown(OpcionesJuego.ObtenerTecla(AccionJuego.Saltar))) bufferSaltoHasta = Time.time + 0.2f;
 
         if (Time.time < bufferSaltoHasta && EstaEnSuelo)
         {
@@ -292,15 +292,14 @@ public class ChoferController : MonoBehaviour
 
     void ProcesarMovimiento()
     {
-        // Lectura de entrada con soporte directo para WASD y flechas
-        float h = Input.GetAxisRaw("Horizontal");
-        float v = Input.GetAxisRaw("Vertical");
+        // Lectura de entrada con soporte para teclas reconfigurables y flechas
+        float h = 0f;
+        float v = 0f;
 
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) h = -1f;
-        else if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) h = 1f;
-
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) v = 1f;
-        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) v = -1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Izquierda)) || Input.GetKey(KeyCode.LeftArrow)) h -= 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Derecha)) || Input.GetKey(KeyCode.RightArrow)) h += 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Adelante)) || Input.GetKey(KeyCode.UpArrow)) v += 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Atras)) || Input.GetKey(KeyCode.DownArrow)) v -= 1f;
 
         Vector3 direccionEntrada = new Vector3(h, 0f, v);
         if (direccionEntrada.sqrMagnitude > 1f)
@@ -358,7 +357,7 @@ public class ChoferController : MonoBehaviour
                 transform.rotation = Quaternion.Slerp(transform.rotation, rotacionObjetivo, velocidadRotacion * Time.deltaTime);
 
                 // Determinar si corre o camina (no se puede correr aturdido)
-                bool corriendo = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) && confusion < 0.3f;
+                bool corriendo = (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Correr)) || Input.GetKey(KeyCode.RightShift)) && confusion < 0.3f;
                 float velocidadActual = corriendo ? velocidadCorrer : velocidadCaminar;
                 velocidadActual *= Mathf.Lerp(1f, 0.45f, confusion) * multiplicadorVelocidad;
 
@@ -391,7 +390,7 @@ public class ChoferController : MonoBehaviour
     void ProcesarEsquive()
     {
         if (Time.timeScale <= 0.01f) return;
-        if (Input.GetKeyDown(teclaEsquive) || Input.GetKeyDown(teclaEsquiveAlterna)) bufferEsquiveHasta = Time.time + 0.25f;
+        if (Input.GetKeyDown(OpcionesJuego.ObtenerTecla(AccionJuego.Esquivar)) || Input.GetKeyDown(teclaEsquiveAlterna)) bufferEsquiveHasta = Time.time + 0.25f;
 
         if (Time.time < bufferEsquiveHasta && puedeEsquivar && (permitirEsquiveEnAire || EstaEnSuelo))
         {
@@ -404,10 +403,10 @@ public class ChoferController : MonoBehaviour
     Vector3 DireccionDeEntrada()
     {
         float h = 0f, v = 0f;
-        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) h -= 1f;
-        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) h += 1f;
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) v += 1f;
-        if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) v -= 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Izquierda)) || Input.GetKey(KeyCode.LeftArrow)) h -= 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Derecha)) || Input.GetKey(KeyCode.RightArrow)) h += 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Adelante)) || Input.GetKey(KeyCode.UpArrow)) v += 1f;
+        if (Input.GetKey(OpcionesJuego.ObtenerTecla(AccionJuego.Atras)) || Input.GetKey(KeyCode.DownArrow)) v -= 1f;
         if (h == 0f && v == 0f) return Vector3.zero;
 
         Vector3 entrada = new Vector3(h, 0f, v).normalized;

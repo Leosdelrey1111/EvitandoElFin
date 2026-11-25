@@ -91,9 +91,10 @@ public class ComercianteMercader : MonoBehaviour
         if (jugador == null) return;
         if (CodiceHistoria.Abierto) return;   // con el libro abierto no se comercia
 
+        KeyCode tInt = OpcionesJuego.ObtenerTecla(AccionJuego.Interactuar);
         if (TiendaAbierta)
         {
-            if (Input.GetKeyDown(teclaInteractuar) || Input.GetKeyDown(KeyCode.Escape)) CerrarTienda();
+            if (Input.GetKeyDown(tInt) || Input.GetKeyDown(KeyCode.Escape)) CerrarTienda();
             return;
         }
 
@@ -106,7 +107,7 @@ public class ComercianteMercader : MonoBehaviour
 
         grupoPrompt.alpha = Mathf.MoveTowards(grupoPrompt.alpha, cerca ? 1f : 0f, 5f * Time.deltaTime);
 
-        if (cerca && Input.GetKeyDown(teclaInteractuar)) AbrirTienda();
+        if (cerca && Input.GetKeyDown(tInt)) AbrirTienda();
     }
 
     // ================================================================== TIENDA

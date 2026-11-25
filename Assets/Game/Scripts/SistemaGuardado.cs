@@ -171,10 +171,31 @@ public static class SistemaGuardado
     {
         Cargar();
         if (nivel > datosCache.nivelAlcanzado) datosCache.nivelAlcanzado = nivel;
+        bool esNuevoNivel = datosCache.escenaActual != escena;
         datosCache.escenaActual = escena;
+        if (esNuevoNivel)
+        {
+            datosCache.totemsNivelActual = 0;
+            datosCache.totemsRecogidosIds = "";
+            datosCache.idUltimoCheckpoint = "";
+        }
+        Guardar();
+    }
+
+    public static void ReiniciarNivelActual()
+    {
+        Cargar();
         datosCache.totemsNivelActual = 0;
-        datosCache.totemsRecogidosIds = "";   // nivel nuevo = tótems nuevos
+        datosCache.totemsRecogidosIds = "";
         datosCache.idUltimoCheckpoint = "";
+        Guardar();
+    }
+
+    public static void MarcarNivelCompletado(int nivelCompletado)
+    {
+        Cargar();
+        if (nivelCompletado + 1 > datosCache.nivelAlcanzado)
+            datosCache.nivelAlcanzado = nivelCompletado + 1;
         Guardar();
     }
 

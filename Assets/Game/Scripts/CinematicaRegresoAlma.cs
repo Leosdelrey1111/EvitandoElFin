@@ -76,7 +76,16 @@ public class CinematicaRegresoAlma : MonoBehaviour
             foreach (Collider col in inst.GetComponentsInChildren<Collider>(true)) Destroy(col);
 
             Animator anim = inst.GetComponentInChildren<Animator>();
-            if (anim != null) anim.applyRootMotion = false;
+            if (anim != null)
+            {
+                anim.applyRootMotion = false;
+                if (anim.runtimeAnimatorController != null)
+                {
+                    anim.SetFloat("Velocidad", 0f);
+                    if (anim.HasState(0, Animator.StringToHash("Locomocion")))
+                        anim.Play("Locomocion", 0, 0f);
+                }
+            }
 
             // Acostar boca arriba sobre el colchón (cabeza hacia +Z, pies hacia -Z)
             inst.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
@@ -157,9 +166,36 @@ public class CinematicaRegresoAlma : MonoBehaviour
         GameObject actorChofer = InstanciarActorChofer(r, new Vector3(0f, 0.80f, 0.35f));
         Parte(r, "RosarioPecho", PrimitiveType.Sphere, new Vector3(0f, 1.05f, 0.55f), new Vector3(0.14f, 0.04f, 0.20f), Vector3.zero, oroMat);
 
-        Parte(r, "Mesita", PrimitiveType.Cube, new Vector3(1.35f, 0.4f, 1.0f), new Vector3(0.65f, 0.8f, 0.65f), Vector3.zero, maderaMat);
-        Parte(r, "Florero", PrimitiveType.Cylinder, new Vector3(1.35f, 0.92f, 1.0f), new Vector3(0.18f, 0.12f, 0.18f), Vector3.zero, zocaloMat);
-        Parte(r, "Cempasuchil", PrimitiveType.Sphere, new Vector3(1.35f, 1.08f, 1.0f), new Vector3(0.32f, 0.24f, 0.32f), Vector3.zero, cempasuchilMat);
+        // Buró / Mesita lateral con florero de cempasúchil, gorra del Chofer y retrato de su familia
+        Parte(r, "Mesita", PrimitiveType.Cube, new Vector3(1.35f, 0.4f, 1.0f), new Vector3(0.70f, 0.8f, 0.70f), Vector3.zero, maderaMat);
+        Parte(r, "Florero", PrimitiveType.Cylinder, new Vector3(1.42f, 0.92f, 1.12f), new Vector3(0.18f, 0.12f, 0.18f), Vector3.zero, zocaloMat);
+        Parte(r, "Cempasuchil", PrimitiveType.Sphere, new Vector3(1.42f, 1.08f, 1.12f), new Vector3(0.32f, 0.24f, 0.32f), Vector3.zero, cempasuchilMat);
+        // Gorra azul del Chofer descansando en el buró
+        Material gorraMat = Mat(new Color(0.16f, 0.42f, 0.75f));
+        Parte(r, "GorraCopa", PrimitiveType.Sphere, new Vector3(1.22f, 0.88f, 0.82f), new Vector3(0.24f, 0.14f, 0.24f), Vector3.zero, gorraMat);
+        Parte(r, "GorraVisera", PrimitiveType.Cube, new Vector3(1.22f, 0.82f, 0.68f), new Vector3(0.20f, 0.03f, 0.14f), Vector3.zero, gorraMat);
+        // Portarretrato familiar
+        Parte(r, "MarcoFoto", PrimitiveType.Cube, new Vector3(1.46f, 0.94f, 0.78f), new Vector3(0.22f, 0.26f, 0.04f), new Vector3(-12f, -35f, 0f), oroMat);
+
+        // Cortinas blancas suaves en el ventanal
+        Parte(r, "CortinaI", PrimitiveType.Cube, new Vector3(-4.02f, 2.35f, -3.2f), new Vector3(0.12f, 2.6f, 0.9f), Vector3.zero, sabanaMat);
+        Parte(r, "CortinaD", PrimitiveType.Cube, new Vector3(-4.02f, 2.35f, 3.2f), new Vector3(0.12f, 2.6f, 0.9f), Vector3.zero, sabanaMat);
+
+        // Motas doradas flotando en el rayo de sol del amanecer
+        GameObject polvoGo = new GameObject("PolvoAmanecer");
+        polvoGo.transform.SetParent(r, false);
+        polvoGo.transform.localPosition = new Vector3(-1.2f, 2.2f, 0.4f);
+        ParticleSystem psPolvo = polvoGo.AddComponent<ParticleSystem>();
+        var psMain = psPolvo.main;
+        psMain.startColor = new Color(1f, 0.9f, 0.55f, 0.65f);
+        psMain.startSize = new ParticleSystem.MinMaxCurve(0.03f, 0.07f);
+        psMain.startSpeed = new ParticleSystem.MinMaxCurve(0.05f, 0.18f);
+        psMain.startLifetime = 4f;
+        psMain.gravityModifier = -0.02f;
+        var psShape = psPolvo.shape;
+        psShape.shapeType = ParticleSystemShapeType.Box;
+        psShape.scale = new Vector3(4f, 2.2f, 3.5f);
+        psPolvo.GetComponent<ParticleSystemRenderer>().sharedMaterial = ArreglosEscenaRuntime.MaterialParticula();
 
         Parte(r, "PosteSuero", PrimitiveType.Cylinder, new Vector3(1.05f, 1.05f, 1.75f), new Vector3(0.05f, 1.05f, 0.05f), Vector3.zero, metalMat);
         Parte(r, "BolsaSuero", PrimitiveType.Cube, new Vector3(0.92f, 1.85f, 1.75f), new Vector3(0.14f, 0.28f, 0.08f), Vector3.zero, sabanaMat);

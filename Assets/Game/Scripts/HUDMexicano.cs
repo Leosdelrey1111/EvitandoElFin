@@ -83,6 +83,7 @@ public class HUDMexicano : MonoBehaviour
     {
         AvisosJuego.OnAviso -= MostrarAviso;
         if (vida != null) vida.OnRecibioDanio -= AlRecibirDanio;
+        OpcionesJuego.OnCambioOpciones -= ActualizarEtiquetasTeclas;
     }
 
     /// <summary>Apaga el HUD anterior (HUDEspiritual) y sus elementos, conservando sus paneles ocultos.</summary>
@@ -244,10 +245,11 @@ public class HUDMexicano : MonoBehaviour
         RectTransform barra = UIMexicana.Nuevo("Habilidades", raiz);
         UIMexicana.AnclarCentro(barra, new Vector2(0.5f, 0f), new Vector2(0f, 96f), new Vector2(520f, 150f));
 
-        sGolpe = CrearSlot(barra, "Golpe", "GOLPE", "CLIC", UIMexicana.Icono.Golpe, UIMexicana.Rosa, -210f);
-        sOnda = CrearSlot(barra, "Onda", "ONDA", "Q", UIMexicana.Icono.Onda, UIMexicana.Turquesa, -70f);
-        sSalto = CrearSlot(barra, "Salto", "SALTO", "ESPACIO", UIMexicana.Icono.Salto, UIMexicana.Cempasuchil, 70f);
-        sEsquive = CrearSlot(barra, "Esquive", "ESQUIVE", "CTRL", UIMexicana.Icono.Esquive, UIMexicana.Violeta, 210f);
+        sGolpe = CrearSlot(barra, "Golpe", "GOLPE", OpcionesJuego.NombreCortoTecla(OpcionesJuego.ObtenerTecla(AccionJuego.Golpe)), UIMexicana.Icono.Golpe, UIMexicana.Rosa, -210f);
+        sOnda = CrearSlot(barra, "Onda", "ONDA", OpcionesJuego.NombreCortoTecla(OpcionesJuego.ObtenerTecla(AccionJuego.Onda)), UIMexicana.Icono.Onda, UIMexicana.Turquesa, -70f);
+        sSalto = CrearSlot(barra, "Salto", "SALTO", OpcionesJuego.NombreCortoTecla(OpcionesJuego.ObtenerTecla(AccionJuego.Saltar)), UIMexicana.Icono.Salto, UIMexicana.Cempasuchil, 70f);
+        sEsquive = CrearSlot(barra, "Esquive", "ESQUIVE", OpcionesJuego.NombreCortoTecla(OpcionesJuego.ObtenerTecla(AccionJuego.Esquivar)), UIMexicana.Icono.Esquive, UIMexicana.Violeta, 210f);
+        OpcionesJuego.OnCambioOpciones += ActualizarEtiquetasTeclas;
 
         // pips del combo (3) arriba del slot de golpe
         pips = new Image[3];
@@ -352,11 +354,14 @@ public class HUDMexicano : MonoBehaviour
     void ConstruirPaneles(RectTransform padre)
     {
         // ---------- PAUSA
-        RectTransform pausa = CrearPanelBase(padre, "PanelPausa", new Vector2(1120f, 640f), UIMexicana.Turquesa, "PAUSA", "El tiempo se detiene… la sierra espera.", UIMexicana.Icono.Calavera);
-        Vector2 tb = new Vector2(430f, 64f);
-        BotonPanel(pausa, "BtnReanudar", "REANUDAR", new Vector2(-250f, -10f), tb, UIMexicana.Turquesa);
-        BotonPanel(pausa, "BtnReiniciar", "REINICIAR NIVEL", new Vector2(-250f, -92f), tb, UIMexicana.Cempasuchil);
-        BotonPanel(pausa, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(-250f, -174f), tb, UIMexicana.Rojo);
+        RectTransform pausa = CrearPanelBase(padre, "PanelPausa", new Vector2(1120f, 680f), UIMexicana.Turquesa, "PAUSA", "El tiempo se detiene… la sierra espera.", UIMexicana.Icono.Calavera);
+        PanelConfiguracion configPanel = PanelConfiguracion.Crear(padre);
+        Vector2 tb = new Vector2(430f, 56f);
+        BotonPanel(pausa, "BtnReanudar", "REANUDAR", new Vector2(-250f, 10f), tb, UIMexicana.Turquesa);
+        Button btnOpciones = UIMexicana.Boton("BtnOpciones", pausa, "OPCIONES Y CONTROLES", tb, UIMexicana.Violeta, () => { if (configPanel != null) configPanel.Abrir(); }, 23f);
+        UIMexicana.AnclarCentro(btnOpciones.GetComponent<RectTransform>(), new Vector2(0.5f, 0.5f), new Vector2(-250f, -58f), tb);
+        BotonPanel(pausa, "BtnReiniciar", "REINICIAR NIVEL", new Vector2(-250f, -126f), tb, UIMexicana.Cempasuchil);
+        BotonPanel(pausa, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(-250f, -194f), tb, UIMexicana.Rojo);
         ListaControles((RectTransform)pausa.Find("Tarjeta"), new Vector2(210f, -86f));
 
         // ---------- DERROTA
@@ -365,8 +370,13 @@ public class HUDMexicano : MonoBehaviour
         BotonPanel(derrota, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(0f, -152f), new Vector2(460f, 66f), UIMexicana.Violeta);
 
         // ---------- VICTORIA
-        RectTransform victoria = CrearPanelBase(padre, "PanelVictoria", new Vector2(760f, 680f), UIMexicana.Dorado, "¡NIVEL COMPLETADO!", "Superaste los desafíos espirituales y cruzaste el portal.", UIMexicana.Icono.Flor);
-        BotonPanel(victoria, "BtnSiguiente", "SIGUIENTE NIVEL", new Vector2(0f, -40f), new Vector2(460f, 62f), UIMexicana.Cempasuchil);
+        string escActual = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        bool esFinalJuego = escActual.Contains("Nivel3") || escActual.Contains("Ciudad");
+        string titVic = esFinalJuego ? "¡HAS EVITADO EL FIN!" : "¡NIVEL COMPLETADO!";
+        string subVic = esFinalJuego ? "Despertaste con vida en Guanajuato. Tu familia te espera." : "Superaste los desafíos espirituales y cruzaste el portal.";
+        string btnVic = esFinalJuego ? "VOLVER AL MENÚ" : "SIGUIENTE NIVEL";
+        RectTransform victoria = CrearPanelBase(padre, "PanelVictoria", new Vector2(760f, 680f), UIMexicana.Dorado, titVic, subVic, UIMexicana.Icono.Flor);
+        BotonPanel(victoria, "BtnSiguiente", btnVic, new Vector2(0f, -40f), new Vector2(460f, 62f), UIMexicana.Cempasuchil);
         BotonPanel(victoria, "BtnRejugar", "JUGAR DE NUEVO", new Vector2(0f, -112f), new Vector2(460f, 62f), UIMexicana.Turquesa);
         BotonPanel(victoria, "BtnMenu", "MENÚ PRINCIPAL", new Vector2(0f, -184f), new Vector2(460f, 62f), UIMexicana.Violeta);
         textoResumen = UIMexicana.Texto("Resumen", (RectTransform)victoria.Find("Tarjeta"), "", 26, UIMexicana.Dorado, TextAlignmentOptions.Center, FontStyles.Bold, 2f);
@@ -379,6 +389,23 @@ public class HUDMexicano : MonoBehaviour
             gm.panelGameOver = derrota.gameObject;
             gm.panelVictoria = victoria.gameObject;
         }
+    }
+
+    void ActualizarEtiquetasTeclas()
+    {
+        ActualizarTeclaSlot(sGolpe, AccionJuego.Golpe);
+        ActualizarTeclaSlot(sOnda, AccionJuego.Onda);
+        ActualizarTeclaSlot(sSalto, AccionJuego.Saltar);
+        ActualizarTeclaSlot(sEsquive, AccionJuego.Esquivar);
+    }
+
+    static void ActualizarTeclaSlot(Slot s, AccionJuego a)
+    {
+        if (s == null || s.raiz == null) return;
+        Transform tk = s.raiz.Find("Tecla");
+        if (tk == null) return;
+        TextMeshProUGUI txt = tk.GetComponentInChildren<TextMeshProUGUI>();
+        if (txt != null) txt.text = OpcionesJuego.NombreCortoTecla(OpcionesJuego.ObtenerTecla(a));
     }
 
     TextMeshProUGUI textoResumen;

@@ -919,18 +919,23 @@ public class CinematicaAccidenteCamion : MonoBehaviour
         Quaternion rotAmbulancia;
         EvaluarRuta(sRescate, 3.0f, out posAmbulancia, out rotAmbulancia, out fwdAmbulancia, out upAmbulancia, out rightAmbulancia);
 
-        // Calcular el desplazamiento vertical exacto de la ambulancia para que sus llantas toquen el asfalto (ni flotando ni hundidas)
-        float offsetLlantasAmb = 0f;
+        // Calcular desplazamiento vertical usando SOLO mallas (MeshRenderer / SkinnedMeshRenderer) para que las llantas toquen el asfalto
+        float offsetLlantasAmb = 0.08f;
         if (ambulanciaObjeto != null)
         {
             ambulanciaObjeto.transform.position = posAmbulancia;
             ambulanciaObjeto.transform.rotation = rotAmbulancia;
             ambulanciaObjeto.SetActive(true);
             float minY = float.MaxValue;
-            foreach (Renderer r in ambulanciaObjeto.GetComponentsInChildren<Renderer>())
-                if (r.bounds.min.y < minY) minY = r.bounds.min.y;
+            foreach (MeshRenderer mr in ambulanciaObjeto.GetComponentsInChildren<MeshRenderer>())
+                if (mr.enabled && mr.bounds.size.sqrMagnitude > 0.0001f && mr.bounds.min.y < minY) minY = mr.bounds.min.y;
+            foreach (SkinnedMeshRenderer smr in ambulanciaObjeto.GetComponentsInChildren<SkinnedMeshRenderer>())
+                if (smr.enabled && smr.bounds.size.sqrMagnitude > 0.0001f && smr.bounds.min.y < minY) minY = smr.bounds.min.y;
             if (minY < float.MaxValue)
-                offsetLlantasAmb = posAmbulancia.y - minY;
+            {
+                float delta = posAmbulancia.y - minY;
+                if (Mathf.Abs(delta) <= 2.5f) offsetLlantasAmb = delta;
+            }
             ambulanciaObjeto.transform.position = posAmbulancia + upAmbulancia * offsetLlantasAmb;
         }
 

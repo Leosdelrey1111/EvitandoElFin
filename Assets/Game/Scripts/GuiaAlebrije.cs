@@ -215,7 +215,13 @@ public class GuiaAlebrije : MonoBehaviour
                 {
                     int req = GameManager.Instancia != null ? GameManager.Instancia.totemsRequeridos : 3;
                     int tengo = inventario != null ? inventario.cantidadTotems : 0;
-                    if (tengo >= req) { hitosHechos.Add(h); ContarHistoria(h.idHistoria); }
+                    if (tengo >= req)
+                    {
+                        hitosHechos.Add(h);
+                        SistemaGuardado.RegistrarCheckpoint("Entrada_" + h.idHistoria, jugador.position, jugador.rotation,
+                            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+                        ContarHistoria(h.idHistoria);
+                    }
                     else if (Time.time >= proximoAvisoCueva)
                     {
                         proximoAvisoCueva = Time.time + 45f;
@@ -232,7 +238,7 @@ public class GuiaAlebrije : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(teclaPista) && Time.timeScale > 0.01f && Time.time >= proximaPista)
+        if (Input.GetKeyDown(OpcionesJuego.ObtenerTecla(AccionJuego.Pista)) && Time.timeScale > 0.01f && Time.time >= proximaPista)
         {
             proximaPista = Time.time + duracionPista + 1f;
             if (rutinaPista != null) StopCoroutine(rutinaPista);

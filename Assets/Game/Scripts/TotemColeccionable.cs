@@ -25,9 +25,31 @@ public class TotemColeccionable : MonoBehaviour
             idTotem = nom + "_" + Mathf.RoundToInt(transform.position.x) + "_" + Mathf.RoundToInt(transform.position.z);
         }
 
-        // IMPORTANTE: ya NO se destruye al iniciar por datos de guardado. Cada director de nivel reinicia el
-        // contador de tótems a 0 al entrar, así que borrar tótems "ya recogidos" en una partida anterior
-        // dejaba el nivel imposible de completar (los tótems desaparecían y el contador quedaba en 0).
+        // Si estamos continuando el mismo nivel y este tótem ya fue recogido en la partida guardada,
+        // marcarlo como ya completado (o dejar el cirio encendido en Nivel 2) sin romper los restantes.
+        bool enMismaEscena = SistemaGuardado.Datos != null &&
+                             SistemaGuardado.Datos.escenaActual == UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        int totemsGuardados = SistemaGuardado.Datos != null ? SistemaGuardado.Datos.totemsNivelActual : 0;
+        if (enMismaEscena && totemsGuardados > 0 && SistemaGuardado.EsTotemRecogido(idTotem))
+        {
+            recogido = true;
+            Transform raiz = transform.parent;
+            Transform flama = raiz != null ? raiz.Find("FlamaEncendida") : transform.Find("FlamaEncendida");
+            if (flama != null)
+            {
+                flama.gameObject.SetActive(true);
+                Transform ind = transform.Find("IndicadorApagado");
+                if (ind != null) ind.gameObject.SetActive(false);
+            }
+            if (raiz != null && raiz.name.StartsWith("Totem_"))
+                Destroy(gameObject);
+            else
+            {
+                Collider col = GetComponent<Collider>();
+                if (col != null) col.enabled = false;
+                enabled = false;
+            }
+        }
     }
 
     /// <summary>Vuelve a tomar la posición actual como centro de la flotación (tras acomodarlo en el suelo).</summary>
@@ -55,10 +77,13 @@ public class TotemColeccionable : MonoBehaviour
         {
             recogido = true;
 
-            // Sumar al inventario espiritual
+            // Sumar al inventario espiritual y guardar avance gradual (tótem + almas + posición)
             if (InventarioEspiritual.Instancia != null)
             {
                 InventarioEspiritual.Instancia.AgregarTotems(valorTotem);
+                SistemaGuardado.SincronizarAlmas(Mathf.RoundToInt(InventarioEspiritual.Instancia.energiaEspiritual));
+                SistemaGuardado.RegistrarCheckpoint("Totem_" + idTotem, other.transform.position, other.transform.rotation,
+                    UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
                 SistemaGuardado.RegistrarTotem(idTotem, InventarioEspiritual.Instancia.cantidadTotems);
 
                 // Disparar narración apropiada según el nivel y número de tótem

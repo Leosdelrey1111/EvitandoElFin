@@ -122,13 +122,14 @@ public class CodiceHistoria : MonoBehaviour
 
     void Update()
     {
+        KeyCode tCod = OpcionesJuego.ObtenerTecla(AccionJuego.Codice);
         if (Abierto)
         {
-            if (Input.GetKeyDown(tecla) || Input.GetKeyDown(KeyCode.Escape)) Cerrar();
+            if (Input.GetKeyDown(tCod) || Input.GetKeyDown(KeyCode.Escape)) Cerrar();
             return;
         }
 
-        if (Input.GetKeyDown(tecla) && PuedeAbrir()) Abrir();
+        if (Input.GetKeyDown(tCod) && PuedeAbrir()) Abrir();
     }
 
     bool PuedeAbrir()

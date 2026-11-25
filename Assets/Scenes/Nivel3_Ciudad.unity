@@ -123188,7 +123188,7 @@ MonoBehaviour:
   panelGameOver: {fileID: 718596426}
   panelVictoria: {fileID: 938729322}
   nombreMenuPrincipal: MainMenu
-  siguienteEscena: Nivel2_Panteon
+  siguienteEscena: MainMenu
   audioSource: {fileID: 0}
   clipVictoria: {fileID: 0}
   clipGameOver: {fileID: 0}

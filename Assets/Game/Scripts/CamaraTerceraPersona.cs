@@ -37,6 +37,7 @@ public class CamaraTerceraPersona : MonoBehaviour
     private float distanciaDeseada;
     private float distanciaActual;
     private Vector3 posicionSuavizada;
+    private float sensBaseX, sensBaseY;
 
     [Header("Efectos (mareo / cinemáticas)")]
     [Tooltip("Inclinación lateral extra de la cámara en grados (se usa para el mareo).")]
@@ -63,9 +64,9 @@ public class CamaraTerceraPersona : MonoBehaviour
             if (player != null) objetivo = player.transform;
         }
 
-        // Sensibilidad elegida por el jugador en Opciones
-        sensibilidadX *= OpcionesJuego.Sensibilidad;
-        sensibilidadY *= OpcionesJuego.Sensibilidad;
+        // Sensibilidad elegida por el jugador en Opciones (se actualiza en vivo en LateUpdate)
+        sensBaseX = sensibilidadX;
+        sensBaseY = sensibilidadY;
         distanciaDeseada = distancia;
         distanciaActual = distancia;
 
@@ -108,11 +109,13 @@ public class CamaraTerceraPersona : MonoBehaviour
     {
         if (objetivo == null) return;
 
-        // 1. Leer entrada del mouse cuando el cursor está bloqueado
+        // 1. Leer entrada del mouse cuando el cursor está bloqueado (sensibilidad e inversión en vivo)
         if (Cursor.lockState == CursorLockMode.Locked)
         {
-            rotacionX += Input.GetAxis("Mouse X") * sensibilidadX * Time.deltaTime;
-            rotacionY -= Input.GetAxis("Mouse Y") * sensibilidadY * Time.deltaTime;
+            float mult = OpcionesJuego.Sensibilidad;
+            float inv = OpcionesJuego.InvertirY ? 1f : -1f;
+            rotacionX += Input.GetAxis("Mouse X") * (sensBaseX * mult) * Time.deltaTime;
+            rotacionY += Input.GetAxis("Mouse Y") * (sensBaseY * mult) * inv * Time.deltaTime;
             rotacionY = Mathf.Clamp(rotacionY, limiteVerticalMin, limiteVerticalMax);
         }
 

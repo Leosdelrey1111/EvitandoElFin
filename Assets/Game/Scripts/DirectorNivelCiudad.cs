@@ -30,8 +30,6 @@ public class DirectorNivelCiudad : MonoBehaviour
         ConfigurarAmbienteIluminacion();
         ConfigurarAmbienteSonoro();
         AsegurarJugadorYCamara();
-        InventarioEspiritual inv = Object.FindAnyObjectByType<InventarioEspiritual>();
-        if (inv != null) { inv.cantidadTotems = 0; }
         SpawnearEnemigosCiudad();
         StartCoroutine(RutinaIntroTonalli());
     }
@@ -218,6 +216,12 @@ public class DirectorNivelCiudad : MonoBehaviour
     IEnumerator RutinaIntroTonalli()
     {
         yield return new WaitForSeconds(1.2f);
+        int guardados = InventarioEspiritual.Instancia != null ? InventarioEspiritual.Instancia.cantidadTotems : 0;
+        if (guardados > 0)
+        {
+            AvisosJuego.Mostrar("TONALLI:\n«Seguimos en Guanajuato. Llevas " + guardados + " de " + sellosRequeridos + " sellos rotos.»", 4f);
+            yield break;
+        }
         if (GuiaAlebrije.Instancia != null)
         {
             GuiaAlebrije.Instancia.ContarHistoria("intro_ciudad", true);
