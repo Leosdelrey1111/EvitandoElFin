@@ -11,52 +11,39 @@ public class TotemColeccionable : MonoBehaviour
     public float amplitudFlotacion = 0.25f;
     public float frecuenciaFlotacion = 2f;
 
-    private Vector3 posicionInicialLocal;
+    private Vector3 posicionInicial;
 
     [Header("Identificador Persistente")]
     public string idTotem = "";
 
     void Start()
     {
-        posicionInicialLocal = transform.localPosition;
+        posicionInicial = transform.position;
         if (string.IsNullOrEmpty(idTotem))
         {
             string nom = (transform.parent != null && (name == "Cristal" || name == "Gema")) ? transform.parent.name : gameObject.name;
             idTotem = nom + "_" + Mathf.RoundToInt(transform.position.x) + "_" + Mathf.RoundToInt(transform.position.z);
         }
 
-        if (SistemaGuardado.EsTotemRecogido(idTotem))
-        {
-            Destroy(gameObject);
-        }
+        // IMPORTANTE: ya NO se destruye al iniciar por datos de guardado. Cada director de nivel reinicia el
+        // contador de tótems a 0 al entrar, así que borrar tótems "ya recogidos" en una partida anterior
+        // dejaba el nivel imposible de completar (los tótems desaparecían y el contador quedaba en 0).
+    }
+
+    /// <summary>Vuelve a tomar la posición actual como centro de la flotación (tras acomodarlo en el suelo).</summary>
+    public void Reubicar()
+    {
+        posicionInicial = transform.position;
     }
 
     void Update()
     {
-        // Giro constante sobre su propio eje local Y (para no orbitar)
-        transform.Rotate(Vector3.up, velocidadRotacion * Time.deltaTime, Space.Self);
+        // Giro constante sobre su propio eje Y
+        transform.Rotate(Vector3.up, velocidadRotacion * Time.deltaTime, Space.World);
 
         // Flotación suave arriba y abajo (estilo místico)
-        float nuevoY = posicionInicialLocal.y + Mathf.Sin(Time.time * frecuenciaFlotacion) * amplitudFlotacion;
-        transform.localPosition = new Vector3(posicionInicialLocal.x, nuevoY, posicionInicialLocal.z);
-    }
-
-    private static AudioClip clipCampana;
-
-    static AudioClip ClipCampana()
-    {
-        if (clipCampana != null) return clipCampana;
-        int rate = 22050, n = (int)(rate * 1.4f);
-        float[] d = new float[n];
-        for (int i = 0; i < n; i++)
-        {
-            float t = i / (float)rate;
-            float env = Mathf.Exp(-t * 3.2f);
-            d[i] = (Mathf.Sin(2f * Mathf.PI * 523f * t) * 0.5f + Mathf.Sin(2f * Mathf.PI * 784f * t) * 0.3f + Mathf.Sin(2f * Mathf.PI * 1318f * t) * 0.15f) * env * 0.6f;
-        }
-        clipCampana = AudioClip.Create("CampanaTotem", n, 1, rate, false);
-        clipCampana.SetData(d, 0);
-        return clipCampana;
+        float nuevoY = posicionInicial.y + Mathf.Sin(Time.time * frecuenciaFlotacion) * amplitudFlotacion;
+        transform.position = new Vector3(transform.position.x, nuevoY, transform.position.z);
     }
 
     private bool recogido = false;
@@ -97,17 +84,58 @@ public class TotemColeccionable : MonoBehaviour
 
             Debug.Log($"[Tótem] Tótem recogido por el Chofer. (+{valorTotem} Tótem, +{curacionEspiritual} Vida)");
 
-            // Aviso en pantalla y sonido de campana espiritual
-            if (InventarioEspiritual.Instancia != null && GameManager.Instancia != null)
+            if (raiz != null && raiz.name.StartsWith("Totem_"))
+                Destroy(gameObject);
+            else
             {
-                int tengo = InventarioEspiritual.Instancia.cantidadTotems;
-                int pido = GameManager.Instancia.totemsRequeridos;
-                AvisosJuego.Mostrar(tengo >= pido
-                    ? "¡Tienes los " + pido + " tótems! El portal espiritual se ha abierto."
-                    : "Tótem recogido (" + tengo + "/" + pido + ")", 3.5f);
+                Collider col = GetComponent<Collider>();
+                if (col != null) col.enabled = false;
+                enabled = false;
             }
-            AudioSource.PlayClipAtPoint(ClipCampana(), transform.position, 0.8f);
-            Destroy(gameObject);
+        }
+    }
+
+    void DispararNarracionTotem(int numeroTotem)
+    {
+        string nombreEscena = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+        string idHistoria = "";
+
+        // Detectar nivel actual y usar historia apropiada
+        if (nombreEscena.Contains("Nivel1") || nombreEscena.Contains("Bosque"))
+        {
+            // Nivel 1: Totems de La Bufa
+            switch (numeroTotem)
+            {
+                case 1: idHistoria = "totem1"; break;
+                case 2: idHistoria = "totem2"; break;
+                case 3: idHistoria = "totem3"; break;
+            }
+        }
+        else if (nombreEscena.Contains("Nivel2") || nombreEscena.Contains("Panteon"))
+        {
+            // Nivel 2: Cirios de Santa Paula
+            switch (numeroTotem)
+            {
+                case 1: idHistoria = "cirio1"; break;
+                case 2: idHistoria = "cirio2"; break;
+                case 3: idHistoria = "cirio3"; break;
+            }
+        }
+        else if (nombreEscena.Contains("Nivel3") || nombreEscena.Contains("Ciudad"))
+        {
+            // Nivel 3: Sellos Inquisitoriales
+            switch (numeroTotem)
+            {
+                case 1: idHistoria = "sello1"; break;
+                case 2: idHistoria = "sello2"; break;
+                case 3: idHistoria = "sello3"; break;
+            }
+        }
+
+        // Disparar historia si existe GuiaAlebrije
+        if (!string.IsNullOrEmpty(idHistoria) && GuiaAlebrije.Instancia != null)
+        {
+            GuiaAlebrije.Instancia.ContarHistoria(idHistoria);
         }
     }
 }
