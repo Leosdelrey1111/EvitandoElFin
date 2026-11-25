@@ -79,10 +79,12 @@ public class CriaturaGuia : MonoBehaviour
 
         // Efecto ondulante de vuelo
         posicionDeseada.y += Mathf.Sin(Time.time * velocidadFlotacion) * alturaFlotacion;
+        float balanceo = Mathf.Sin(Time.time * (velocidadFlotacion * 1.5f)) * 3.5f;
+        Quaternion rotConBalanceo = rotacionDeseada * Quaternion.Euler(balanceo * 0.4f, 0f, balanceo);
 
         // Movimiento amortiguado
         transform.position = Vector3.Lerp(transform.position, posicionDeseada, suavizadoSeguimiento * Time.deltaTime);
-        transform.rotation = Quaternion.Slerp(transform.rotation, rotacionDeseada, suavizadoSeguimiento * Time.deltaTime);
+        transform.rotation = Quaternion.Slerp(transform.rotation, rotConBalanceo, suavizadoSeguimiento * Time.deltaTime);
 
         // Brillo y latido al hablar
         brilloActual = Mathf.MoveTowards(brilloActual, hablando ? 1.7f : 1f, 3f * Time.deltaTime);
