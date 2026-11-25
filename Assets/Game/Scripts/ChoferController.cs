@@ -18,7 +18,7 @@ public class ChoferController : MonoBehaviour
     [Header("Salto")]
     public KeyCode teclaSalto = KeyCode.Space;
     [Tooltip("Altura del salto en metros")]
-    public float alturaSalto = 1.25f;
+    public float alturaSalto = 1.7f;
 
     [Header("Esquive (Dodge Roll)")]
     public KeyCode teclaEsquive = KeyCode.LeftControl;
